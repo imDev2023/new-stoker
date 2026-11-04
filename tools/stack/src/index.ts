@@ -12,7 +12,7 @@ import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import BN from "bn.js";
 import postgres from "postgres";
 import { runMigrations } from "@launchpad/db/migrate";
-import { bootstrapPlatform, LOCAL_QUOTE_LOGOS, LOCAL_QUOTE_PRICES_USD, LOCAL_QUOTE_TOKEN_LIST, localnetKeys, startLocalnet, type LocalnetState } from "@launchpad/localnet";
+import { bootstrapPlatform, LOCAL_QUOTE_LOGOS, LOCAL_QUOTE_PRICES_USD, LOCAL_QUOTE_STOCK_PRICES_USD, LOCAL_QUOTE_TOKEN_LIST, localnetKeys, startLocalnet, type LocalnetState } from "@launchpad/localnet";
 import { createSolRoutes, type SolRoutes } from "@launchpad/localnet/routes";
 import { startTurboStandIn, type TurboStandIn } from "./turbo";
 
@@ -371,6 +371,7 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
       QUOTE_PRICES_USD: JSON.stringify(LOCAL_QUOTE_PRICES_USD),
       QUOTE_TOKEN_LIST: JSON.stringify(LOCAL_QUOTE_TOKEN_LIST),
       QUOTE_LOGOS: JSON.stringify(LOCAL_QUOTE_LOGOS),
+      QUOTE_STOCK_PRICES_USD: JSON.stringify(LOCAL_QUOTE_STOCK_PRICES_USD),
       OPERATIONS_KEY: JSON.stringify(Array.from(localnetKeys().operations.secretKey)),
       GRADUATION_ALERT_AFTER_SECONDS: String(graduationAlertAfterSeconds),
       POOL_BACKFILL_SECONDS: String(poolBackfillSeconds),

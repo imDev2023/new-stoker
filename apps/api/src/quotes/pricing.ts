@@ -55,10 +55,16 @@ export function graduationTargetRaw(lamports: bigint, decimals: number, quoteUsd
  */
 export type TokenListing = { verified: boolean; liquidityUsd: number | null; tags: string[] };
 
+/** A tokenized stock's underlying: the stock's last price in USD per share, and when the source reported it. */
+export type StockPrice = { usd: Decimal; at: Date };
+
+/** What the price source says about one mint: its USD price, and for a tokenized stock the price of the stock it tracks. */
+export type MintPrice = { usd: Decimal; stock: StockPrice | null };
+
 /** Where Quote Asset prices, logos and token-list facts (Quote Risk Labels, #11) come from. */
 export interface QuoteMarket {
-  /** USD prices by mint, for the mints the source prices reliably. The rest are left out, never guessed. */
-  usdPrices(mints: string[]): Promise<Map<string, Decimal>>;
+  /** Prices by mint, for the mints the source prices reliably. The rest are left out, never guessed. */
+  prices(mints: string[]): Promise<Map<string, MintPrice>>;
   /** Logo URLs by mint, where the source knows one. */
   logos(mints: string[]): Promise<Map<string, string>>;
   /** The token list's entry for each mint it knows; a mint it doesn't know is left out, which is itself a fact. */
@@ -70,14 +76,21 @@ export interface QuoteMarket {
 /**
  * A fixed table of USD prices by mint (JSON), for chains with no market: the local chain and devnet. The token list is
  * a fixed table too (`{ "<mint>": { "verified": true, "liquidityUsd": 5000000, "tags": ["defi"] } }`), and so are the
- * logos (`{ "<mint>": "<url or data URI>" }`), so a local Quote Asset shows its mark where mainnet's shows Jupiter's.
+ * logos (`{ "<mint>": "<url or data URI>" }`), so a local Quote Asset shows its mark where mainnet's shows Jupiter's,
+ * and the prices of the stocks tokenized stocks track (`{ "<mint>": "181.5" }`), reported as of each refresh.
  */
-export function staticMarket(pricesJson: string, tokenListJson = "{}", logosJson = "{}"): QuoteMarket {
+export function staticMarket(pricesJson: string, tokenListJson = "{}", logosJson = "{}", stockPricesJson = "{}"): QuoteMarket {
   const table = new Map<string, Decimal>();
   for (const [mint, price] of Object.entries(JSON.parse(pricesJson || "{}") as Record<string, string>)) {
     const d = parseDecimal(price);
     if (!d) throw new Error(`QUOTE_PRICES_USD: ${mint} has an invalid price ${price}`);
     table.set(mint, d);
+  }
+  const stocks = new Map<string, Decimal>();
+  for (const [mint, price] of Object.entries(JSON.parse(stockPricesJson || "{}") as Record<string, string>)) {
+    const d = parseDecimal(price);
+    if (!d) throw new Error(`QUOTE_STOCK_PRICES_USD: ${mint} has an invalid price ${price}`);
+    stocks.set(mint, d);
   }
   const listings = new Map<string, TokenListing>();
   type Entry = { verified?: boolean; liquidityUsd?: number | null; tags?: string[] };
@@ -94,7 +107,16 @@ export function staticMarket(pricesJson: string, tokenListJson = "{}", logosJson
     logos.set(mint, url);
   }
   return {
-    usdPrices: async (mints) => new Map(mints.flatMap((m) => (table.has(m) ? [[m, table.get(m)!] as const] : []))),
+    prices: async (mints) => {
+      const at = new Date();
+      return new Map(
+        mints.flatMap((m) => {
+          const usd = table.get(m);
+          const stock = stocks.get(m);
+          return usd ? [[m, { usd, stock: stock ? { usd: stock, at } : null }] as const] : [];
+        }),
+      );
+    },
     logos: async (mints) => new Map(mints.flatMap((m) => (logos.has(m) ? [[m, logos.get(m)!] as const] : []))),
     listings: async (mints) => new Map(mints.flatMap((m) => (listings.has(m) ? [[m, listings.get(m)!] as const] : []))),
     listName: "the local token list",
@@ -119,11 +141,27 @@ function numberHeader(res: Response, name: string) {
 
 type JupiterToken = { id: string; icon?: string; isVerified?: boolean; liquidity?: number | null; tags?: string[] | null };
 
+/** A Price API v3 entry: the fields read from it. */
+type JupiterPrice = {
+  usdPrice?: number;
+  scaledUiConfig?: { usdPricePrescaled?: number };
+  /** On a tokenized stock: the stock's own price, as its issuer reports it (`id` names the issuer), and when Jupiter read it. */
+  stockData?: { id?: string; price?: number; updatedAt?: string };
+} | null;
+
+/** The stock behind a Price API v3 entry, when it carries a positive price and a readable time. */
+function stockOf(p: JupiterPrice): StockPrice | null {
+  const usd = parseDecimal(p?.stockData?.price ?? NaN);
+  const at = new Date(p?.stockData?.updatedAt ?? NaN);
+  return usd && Number.isFinite(at.getTime()) ? { usd, at } : null;
+}
+
 /**
- * Jupiter's Price API v3, which leaves out tokens it can't price reliably, and its Tokens API v2 for logos and for what
- * its list says about a mint: `isVerified` (Jupiter's verified set), `liquidity` (USD across the markets it routes) and
- * `tags` (its categories: `meme`, `defi`, `stocks`, `lst`, `major`, `stable`...). Uses the keyed host when an API key is
- * configured, the free one otherwise.
+ * Jupiter's Price API v3, which leaves out tokens it can't price reliably and gives a tokenized stock the price of the
+ * stock it tracks (`stockData`: on every stock mint of xStocks, Backpack, PreStocks and Tessera on 2026-11-04), and its
+ * Tokens API v2 for logos and for what its list says about a mint: `isVerified` (Jupiter's verified set), `liquidity`
+ * (USD across the markets it routes) and `tags` (its categories: `meme`, `defi`, `stocks`, `lst`, `major`, `stable`...).
+ * Uses the keyed host when an API key is configured, the free one otherwise.
  */
 export function jupiterMarket(apiKey: string | undefined, apiUrl?: string): QuoteMarket {
   // `apiUrl` names another host: the stand-in that answers from the mainnet snapshot on the local chain.
@@ -153,17 +191,14 @@ export function jupiterMarket(apiKey: string | undefined, apiUrl?: string): Quot
     }
   };
   return {
-    async usdPrices(mints) {
-      const out = new Map<string, Decimal>();
+    async prices(mints) {
+      const out = new Map<string, MintPrice>();
       for (let i = 0; i < mints.length; i += JUPITER_PRICE_IDS_MAX) {
-        const body = (await get(`/price/v3?ids=${mints.slice(i, i + JUPITER_PRICE_IDS_MAX).join(",")}`)) as Record<
-          string,
-          { usdPrice?: number; scaledUiConfig?: { usdPricePrescaled?: number } } | null
-        >;
+        const body = (await get(`/price/v3?ids=${mints.slice(i, i + JUPITER_PRICE_IDS_MAX).join(",")}`)) as Record<string, JupiterPrice>;
         for (const [mint, p] of Object.entries(body ?? {})) {
           // Curves work in raw units, so a ScaledUiAmount mint (most xStocks) needs the price per unscaled unit.
-          const price = parseDecimal(p?.scaledUiConfig?.usdPricePrescaled ?? p?.usdPrice ?? NaN);
-          if (price) out.set(mint, price);
+          const usd = parseDecimal(p?.scaledUiConfig?.usdPricePrescaled ?? p?.usdPrice ?? NaN);
+          if (usd) out.set(mint, { usd, stock: stockOf(p) });
         }
       }
       return out;
