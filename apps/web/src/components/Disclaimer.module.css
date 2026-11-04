@@ -1,0 +1,49 @@
+/* The disclaimer before a launch or a trade, on the site's dialog primitive (globals.css). */
+.dialog {
+  width: min(100% - 32px, 520px);
+  padding: clamp(20px, 4vw, 28px);
+}
+
+.dialog p {
+  margin-bottom: 12px;
+  color: var(--ink-2);
+}
+
+.title {
+  margin-bottom: 16px;
+  font: var(--font-section);
+  letter-spacing: -.01em;
+}
+
+.check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 20px 0 24px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.check input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 3px 0 0;
+  accent-color: var(--ink);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .dialog {
+    width: 100%;
+  }
+
+  .actions > * {
+    flex: 1 1 auto;
+  }
+}

@@ -50,6 +50,11 @@
   --font-subheading: 400 24px / 1.2 var(--serif);
   --font-brand: 400 25px / 1 var(--serif);
   --font-label: 600 15px / 1.3 var(--sans);
+  /* A coin's page: its pair as the title, and its price beside it (the spec's .coin-head h1 and .coin-price b). */
+  --font-coin: 400 clamp(36px, 5vw, 56px) / 1 var(--serif);
+  --font-price: 400 clamp(32px, 4vw, 44px) / 1 var(--serif);
+  /* A figure in a row of small ones, such as a chart's market cap and volume (the spec's .inline-stats dd). */
+  --font-stat: 500 17px / 1.3 var(--sans);
   /* The home page's pair, the coin and the asset it is priced in, in a pill under the headline. */
   --font-pair: 500 clamp(17px, 2vw, 20px) / 1 var(--sans);
   --font-control: 500 14px / 1 var(--sans);
