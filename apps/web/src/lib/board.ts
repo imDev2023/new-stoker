@@ -66,16 +66,6 @@ export const sameQuery = (a: BoardQuery, b: BoardQuery) => a.sort === b.sort && 
 /** Whether a query narrows the board, so an empty answer means "nothing matches" rather than "nothing launched". */
 export const isFiltered = (q: BoardQuery) => q.category !== null || q.q !== "";
 
-/**
- * A change over a window as the spec writes it (`change` in its lib.js): a signed percentage to at most one decimal, no
- * sign at zero, and its direction for the colour. Null where there is no trade to measure from.
- */
-export function formatChange(value: number | null): { text: string; direction: "up" | "down" | null } | null {
-  if (value === null) return null;
-  const text = `${(value * 100).toLocaleString("en-US", { maximumFractionDigits: 1, signDisplay: "exceptZero" })}%`;
-  return { text, direction: value > 0 ? "up" : value < 0 ? "down" : null };
-}
-
 /** How long ago, in the spec's one-letter units for a table cell: now, 8m, 3h, 2d. */
 export function formatAge(iso: string, now = Date.now()) {
   const s = (now - Date.parse(iso)) / 1000;

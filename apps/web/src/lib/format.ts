@@ -120,3 +120,10 @@ export function formatFigure(n: number) {
 export function formatCount(n: number) {
   return n.toLocaleString("en-US");
 }
+
+/** A change as a fraction (0.12 is up 12%), written signed to one decimal, with its direction for the colour; empty when null. */
+export function formatChange(change: number | null): { text: string; direction: "up" | "down" | null } {
+  if (change === null) return { text: "", direction: null };
+  const text = `${(change * 100).toLocaleString("en-US", { maximumFractionDigits: 1, signDisplay: "exceptZero" })}%`;
+  return { text, direction: change > 0 ? "up" : change < 0 ? "down" : null };
+}

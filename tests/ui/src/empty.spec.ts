@@ -1,7 +1,30 @@
 // The shell and the static pages before anything has launched, at desktop and phone width, light and dark: every control
 // is there, and the pulse strip waits for a real figure.
+import { QuoteAssetList } from "@launchpad/contract";
 import { expect, test } from "./fixtures";
 import { snap } from "./shots";
+
+test("home", async ({ page, stack }) => {
+  const quotes = QuoteAssetList.parse(await (await fetch(`${stack.apiUrl}/v1/quotes`)).json());
+  const launchable = quotes.quotes.filter((q) => q.launchable).length;
+  expect(launchable).toBeGreaterThan(0);
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("No one picks your pair. You do.");
+  // Every control is there before anything has launched: both ways to launch and the way to the board.
+  await expect(page.getByRole("main").getByRole("link", { name: "Stoke a coin" })).toHaveCount(2);
+  await expect(page.getByRole("main").getByRole("link", { name: "Explore coins" })).toBeVisible();
+  for (const name of ["All assets", "Every fee", "The public ledger"]) await expect(page.getByRole("link", { name })).toBeVisible();
+  // The roll is held on its first asset under reduced motion, which every screenshot project asks for.
+  await expect(page.locator("[data-roll] span span").first()).toHaveText("SOL");
+  await expect(page.locator("[data-roll] > span")).toHaveCSS("animation-name", "none");
+  // The assets are real before the first coin; the rest of the figures, Trending and the strip wait for real values.
+  const figures = page.getByRole("region", { name: "Figures" });
+  await expect(figures.getByRole("term")).toHaveText(["Assets"]);
+  await expect(figures.getByRole("definition")).toHaveText(launchable.toLocaleString("en-US"));
+  await expect(page.getByRole("heading", { name: "Trending" })).toHaveCount(0);
+  await expect(page.locator("[data-pulse]")).toHaveCount(0);
+  await snap(page, "home.png");
+});
 
 const DOCUMENTS = [
   ["/terms", "terms", "Terms of use"],

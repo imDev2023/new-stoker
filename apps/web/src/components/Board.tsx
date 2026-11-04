@@ -192,7 +192,7 @@ export function Board({ initial, initialQuery, renderedAt }: { initial: LaunchSu
         <div aria-busy={busy} data-board>
           {rows.length > 0 && (
             <CoinPanel>
-              <CoinTable launches={rows} now={now} />
+              <CoinTable launches={rows} label="Coins" now={now} />
             </CoinPanel>
           )}
           {nothingMatches && (

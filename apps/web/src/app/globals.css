@@ -50,8 +50,12 @@
   --font-subheading: 400 24px / 1.2 var(--serif);
   --font-brand: 400 25px / 1 var(--serif);
   --font-label: 600 15px / 1.3 var(--sans);
+  /* The home page's pair, the coin and the asset it is priced in, in a pill under the headline. */
+  --font-pair: 500 clamp(17px, 2vw, 20px) / 1 var(--sans);
   --font-control: 500 14px / 1 var(--sans);
   --font-code: 400 13.5px / 1.6 var(--mono);
+  /* A monogram on a 16px badge: an asset's first letter where it has no logo. */
+  --text-tiny: 10px;
   --text-micro: 12px;
   --text-caption: 13px;
   --text-small: 14px;
@@ -59,8 +63,6 @@
   --text-body: 16px;
   --text-prose: 17px;
   --text-lede: 18px;
-  /* A monogram in a 16px badge (a Quote Asset without a logo on a coin's picture); never text to read. */
-  --text-badge: 10px;
 
   /* Shape and motion. */
   --shell: 1120px;
@@ -78,6 +80,8 @@
   --dur-fast: .15s;
   --dur: .2s;
   --dur-slow: .3s;
+  /* One full turn of a cycling piece (the home page's pair roll), held still under reduced motion. */
+  --dur-cycle: 12s;
   --rule: linear-gradient(var(--line), var(--line)) top center / calc(100% - 2 * var(--gutter)) 1px no-repeat;
 }
 

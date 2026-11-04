@@ -1,0 +1,167 @@
+/* Home (the spec's `index.html` and its section of style.css): the hero, the three ideas, the statement and the invitation. */
+.hero {
+  padding-block: clamp(80px, 15vw, 176px) clamp(64px, 10vw, 120px);
+  text-align: center;
+}
+
+/* The pair: the coin and the asset it is priced in, the asset rolling through a few that Raydium quotes. */
+.pair {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .35em;
+  margin-top: clamp(36px, 5vw, 52px);
+  padding: .55em 1em;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font: var(--font-pair);
+  letter-spacing: .02em;
+}
+
+.slash {
+  color: var(--ink-3);
+}
+
+.roll {
+  display: inline-block;
+  height: 1.25em;
+  min-width: 3.4em;
+  overflow: hidden;
+  text-align: left;
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  animation: roll var(--dur-cycle) var(--ease) infinite;
+}
+
+.track span {
+  height: 1.25em;
+  line-height: 1.25em;
+}
+
+/* Five stops and a return to the first, which the track repeats at its end so the loop never jumps. */
+@keyframes roll {
+  0%, 16% { transform: translateY(0); }
+  20%, 36% { transform: translateY(-1.25em); }
+  40%, 56% { transform: translateY(-2.5em); }
+  60%, 76% { transform: translateY(-3.75em); }
+  80%, 96% { transform: translateY(-5em); }
+  100% { transform: translateY(-6.25em); }
+}
+
+/* Held still on its first asset, so a reader who asked for less motion, and every screenshot, sees SOL. */
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: clamp(32px, 5vw, 48px);
+}
+
+/* An idea: its title and a link on one side, the thing itself on the other; one column on a phone. */
+.idea {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(28px, 6vw, 80px);
+  align-items: center;
+  padding-block: clamp(64px, 10vw, 128px);
+}
+
+.idea + .idea,
+.band {
+  background: var(--rule);
+}
+
+.idea :global(.arrow) {
+  display: inline-block;
+  margin-top: 20px;
+}
+
+@media (max-width: 760px) {
+  .idea {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Half and half: what the Creator gets in the heat, what the platform keeps beside it. */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px;
+}
+
+.split span {
+  display: flex;
+  align-items: end;
+  height: 168px;
+  padding: 18px;
+  border-radius: var(--radius-sm);
+  font: var(--font-heading);
+}
+
+.you {
+  background: var(--heat);
+  color: var(--on-heat);
+}
+
+.us {
+  background: var(--sunken);
+  color: var(--ink-2);
+}
+
+.checks li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 0;
+  font-weight: 500;
+}
+
+.checks li + li {
+  border-top: 1px solid var(--line);
+}
+
+.checks li::before {
+  content: "";
+  flex: none;
+  width: 16px;
+  height: 16px;
+  background: var(--gold);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='m3 9.5 4 4 8-9' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.band {
+  padding-block: clamp(80px, 13vw, 160px);
+  text-align: center;
+}
+
+.statement {
+  max-width: 15em;
+  margin-inline: auto;
+  font: var(--font-statement);
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}
+
+.invite {
+  display: grid;
+  justify-items: center;
+  gap: 28px;
+}
