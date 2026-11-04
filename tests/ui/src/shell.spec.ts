@@ -2,7 +2,7 @@
 // toggle, the wallet, the welcome, the search shortcut, the pulse strip, the legal pages, and the rule that no program
 // code ever reaches the browser (ADR 0003).
 import { PlatformStats } from "@launchpad/contract";
-import { expect, test } from "./fixtures";
+import { expect, expectNoHorizontalOverflow, test } from "./fixtures";
 import { connectFromSite } from "./wallet";
 
 const SECTIONS = ["Explore", "Stocks", "Swap", "Assets", "Rewards", "Stats", "Curated", "Developers"];
@@ -22,6 +22,20 @@ test("the header names the eight sections and marks the one a page belongs to", 
     await page.goto(path);
     await expect(header.locator('[aria-current="page"]'), path).toHaveText(section);
   }
+});
+
+test("just above the phone bar the header keeps to the window, the last two sections waiting for the room", async ({ page }) => {
+  const sections = page.getByRole("banner").getByRole("navigation", { name: "Sections" }).getByRole("link");
+  for (const width of [901, 960, 1040]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto("/terms");
+    await expect(sections, `${width}px`).toHaveText(SECTIONS.slice(0, 6));
+    await expectNoHorizontalOverflow(page);
+  }
+  await page.setViewportSize({ width: 1041, height: 800 });
+  await page.goto("/terms");
+  await expect(sections).toHaveText(SECTIONS);
+  await expectNoHorizontalOverflow(page);
 });
 
 test.describe("on a phone", () => {
@@ -106,7 +120,8 @@ test.describe("a first visit", () => {
     await expect(welcome.getByRole("link", { name: "Risk disclosure" })).toHaveAttribute("target", "_blank");
     await welcome.getByRole("button", { name: "Continue" }).click();
     await expect(welcome).toHaveCount(0);
-    expect(await page.evaluate(() => localStorage.getItem("launchpad.disclaimer.v1"))).toBe("accepted");
+    // The close event that records it comes a task after the dialog hides.
+    await expect.poll(() => page.evaluate(() => localStorage.getItem("launchpad.disclaimer.v1"))).toBe("accepted");
     await page.goto("/privacy");
     await expect(page.getByRole("heading", { level: 1, name: "Privacy" })).toBeVisible();
     await page.waitForLoadState("networkidle");
@@ -119,22 +134,32 @@ test.describe("a first visit", () => {
     await expect(welcome).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(welcome).toHaveCount(0);
-    expect(await page.evaluate(() => localStorage.getItem("launchpad.disclaimer.v1"))).toBe("accepted");
+    // The close event that records it comes a task after the dialog hides.
+    await expect.poll(() => page.evaluate(() => localStorage.getItem("launchpad.disclaimer.v1"))).toBe("accepted");
+    await page.goto("/terms");
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByRole("button", { name: "Connect wallet" })).toBeEnabled();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 });
 
-test("'/' and ⌘K open the board's search from any page", async ({ page }) => {
-  await page.goto("/terms");
-  await expect(page.getByRole("heading", { level: 1, name: "Terms of use" })).toBeVisible();
-  await page.waitForLoadState("networkidle");
-  await expect(async () => {
-    await page.keyboard.press("/");
-    await expect(page).toHaveURL(/\/coins#search$/, { timeout: 1_000 });
-  }).toPass({ timeout: 30_000 });
-  await page.goto("/risk");
-  await page.waitForLoadState("networkidle");
-  await page.keyboard.press("ControlOrMeta+k");
-  await expect(page).toHaveURL(/\/coins#search$/);
+test.describe("the search shortcut", () => {
+  // The board is #6: until it lands, /coins is the 404 page, whose load the browser reports.
+  test.use({ expectedHttpErrors: [/\/coins/] });
+
+  test("'/' and ⌘K open the board's search from any page", async ({ page }) => {
+    await page.goto("/terms");
+    await expect(page.getByRole("heading", { level: 1, name: "Terms of use" })).toBeVisible();
+    await page.waitForLoadState("networkidle");
+    await expect(async () => {
+      await page.keyboard.press("/");
+      await expect(page).toHaveURL(/\/coins#search$/, { timeout: 1_000 });
+    }).toPass({ timeout: 30_000 });
+    await page.goto("/risk");
+    await page.waitForLoadState("networkidle");
+    await page.keyboard.press("ControlOrMeta+k");
+    await expect(page).toHaveURL(/\/coins#search$/);
+  });
 });
 
 test("the pulse shows the platform's real figures on every page but home", async ({ page, stack }) => {
