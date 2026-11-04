@@ -30,8 +30,8 @@ test("Trending lists the most traded coins, each leading to its page", async ({ 
     await expect(link).toContainText(`${launch.symbol}/${launch.quote.symbol}`);
     await expect(link).toHaveAttribute("href", `/coin/${launch.mint}`);
   }
-  await page.getByRole("link", { name: "All coins" }).click();
-  await expect(page).toHaveURL(/\/coins$/);
+  // The board is Explore's (#6): the link is checked by its address, not followed.
+  await expect(page.getByRole("link", { name: "All coins" })).toHaveAttribute("href", "/coins");
 });
 
 test("the pair rolls through the assets when motion is allowed", async ({ page }) => {
