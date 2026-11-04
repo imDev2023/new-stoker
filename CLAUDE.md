@@ -39,6 +39,7 @@ The owner's model is Top-pad's (2026-11-04: "like we have worked in top pad fold
 4. `spike/launchlab-devnet/README.md` - what LaunchLab really does on devnet, with tx evidence and gotchas.
 5. `research/README.md` - background on StonkFun only; don't re-derive its findings. `research/social/x-gap-analysis.md` in the private repo `imDev2023/Stoker-Markets-research` compares us with its full X timeline (1,121 posts) and is the evidence behind #41; `research/onchain/README.md` has its on-chain setup (1.00% to the platform and 0% to the creator on the curve, the creator's share forwarded off-chain).
 6. `docs/runbooks/mainnet.md` - the go-live runbook (#23): what an agent prepared, and what only the owner can do.
+7. `docs/research/programs.md` - which programs of our own, how each works on LaunchLab, and in what order (#4); the decision it proposes is ADR 0019, which waits on the owner, and no program is built before it is accepted.
 
 ## Code map
 
@@ -212,6 +213,7 @@ The owner's model is Top-pad's (2026-11-04: "like we have worked in top pad fold
 - A `<dialog>`'s `close` event comes a task after `close()` or Escape has hidden it (measured 2026-11-04: the welcome's acceptance read `null` straight after Continue's click and `accepted` one task later), so a test that reads what a close does polls for it, then proves it on the next page once that page has settled; reading it at once failed the welcome's tests on #2.
 - The spec's header needs about 1017px for the eight sections and two actions and scrolls sideways between 901px and that: the rebuild holds back Curated and Developers there (`SiteHeader.module.css`, under 1040px), and `shell.spec.ts` checks 901, 960, 1040 and 1041px. A section added to `NAV_LINKS` moves that width: measure it again.
 - `pnpm exec` in a package whose `package.json` changed runs an install first (pnpm 11) and rewrites `pnpm-lock.yaml`: commit the lockfile with the manifest, since CI installs with `--frozen-lockfile`.
+- What LaunchLab leaves a program of ours (read from its IDL for #4, 2026-11-04): `initialize_v2`'s `creator` is not a signer (only `payer` and `base_mint` sign), so a pool's creator can be a PDA with no program in the transaction; the Creator Fee vault is per (creator, Quote Asset), so a creator PDA per coin keeps each coin's fees apart; `creator_fee_rate` is not among `PlatformConfigParam`'s single fields but `AllInfo` carries it (and overwrites every other field with it, so build that update from the live account); LaunchLab has vesting of its own (`VestingParams`, released after migration), which our curve rules pin to 0. Nothing in LaunchLab can hold trading back once a pool exists, and a LaunchLab Token-2022 coin takes no transfer hook (6017).
 
 ## Multica dashboard
 
