@@ -445,7 +445,9 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
         { NEXT_PUBLIC_API_URL: apiUrl, API_KEY: webApiKey, NEXT_DIST_DIR: `.next-test-${webPort}`, NEXT_TELEMETRY_DISABLED: "1" },
       );
       cleanups.push(web.stop, () => rmSync(join(REPO, "apps", "web", `.next-test-${webPort}`), { recursive: true, force: true }));
-      await waitFor("web", async () => (await fetch(webUrl)).ok, 180_000, web.log);
+      // Served at all, not served a page: until the rebuild's Home exists (#5) the root answers the 404 page, and a
+      // page that throws answers 500, which is not ready.
+      await waitFor("web", async () => (await fetch(webUrl)).status < 500, 180_000, web.log);
     }
 
     await solRoutesReady;
