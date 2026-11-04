@@ -2,14 +2,14 @@
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: launchpad-postgres
+    container_name: new-stoker-postgres
     environment:
       POSTGRES_USER: launchpad
       POSTGRES_PASSWORD: launchpad
       POSTGRES_DB: launchpad
     ports:
-      - "127.0.0.1:5442:5432"
+      - "127.0.0.1:5462:5432"
     volumes:
-      - launchpad-postgres:/var/lib/postgresql/data
+      - new-stoker-postgres:/var/lib/postgresql/data
 volumes:
-  launchpad-postgres:
+  new-stoker-postgres:

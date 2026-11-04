@@ -1,5 +1,8 @@
 # Site design principles and the redesign brief
 
+> Superseded for the look by [ADR 0017](../adr/0017-the-site-rebuilt-in-the-playground-design.md) (2026-11-04): the rebuilt site follows the Playground's spec in `docs/design/playground/`.
+> This file is the original site's design record, kept for its history and for the content rules it holds (sections 10 to 13 say where words and figures go); the foundation ticket writes the rebuilt site's principles.
+
 Written 2026-10-10 (evening) from the owner's verdict on the site as built on PRs #90 to #92, for the session that builds the redesign.
 This supersedes the colour decision of 2026-10-09 (E Graphite primary, Oxblood and Midnight as alternates): the owner saw Graphite across the whole site and rejected it.
 The brand decisions that stand are unchanged: the name and words, the slogan, the E2 heating ring with its amber-to-ember heat ramp, the character; the home page as the spacious landing and every page past it as the terminal; light and dark following the visitor.

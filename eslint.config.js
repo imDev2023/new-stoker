@@ -6,6 +6,8 @@ export default tseslint.config(
   {
     ignores: [
       "**/node_modules/",
+      // The Playground's source, vendored as the rebuilt site's spec (ADR 0017): browser scripts kept as they were.
+      "docs/design/playground/",
       "**/.next*/",
       "**/.open-next/",
       "**/.wrangler/",

@@ -8,7 +8,7 @@ import {
 } from "@launchpad/contract";
 
 /** The web app is a client of the public API like any other; it never builds transactions itself (ADR 0003). */
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8791").replace(/\/$/, "");
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8691").replace(/\/$/, "");
 
 /** An error answer from the API, with its HTTP status so callers can tell a refusal from a failure. */
 export class ApiRequestError extends Error {
