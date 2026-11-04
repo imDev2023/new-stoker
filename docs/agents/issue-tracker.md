@@ -36,7 +36,7 @@ Run `gh issue view <number> --comments`.
 
 ## Multica mirror
 
-GitHub issues are the source of truth; the owner's Multica dashboard (workspace Pandora, project `MULTICA_PROJECT_ID`) only mirrors them.
+GitHub issues are the source of truth; the owner's Multica dashboard (workspace Pandora, project `e5972df9-f586-4e26-89ae-48c185bb8109`) only mirrors them.
 Every GitHub issue has one Multica ticket whose title starts with `#<number>`.
 Mirror at the end of each session with the `multica-sync` skill: status changes, new issues and the "Current step" section.
 Every Multica write passes `--no-start`, new tickets are assigned to `Farren Elli`, and no ticket is ever assigned to an agent.

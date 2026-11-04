@@ -27,7 +27,7 @@ The owner's model is Top-pad's (2026-11-04: "like we have worked in top pad fold
 - Never touch the original from here: its folder, worktrees, branches and issues, its Workers (`stoker-api`, `stoker-api-devnet`, `stoker-web`, `stoker-web-devnet`), its databases (Supabase `stoker-devnet` and `stoker-mainnet`), its Helius webhooks, and everything under `~/.config/stoker/`.
   This repository's Workers are `new-stoker-*`, neither `wrangler.jsonc` has a production environment until the owner's cutover, and the local stack has ports of its own (Run and test), so both projects run side by side.
 - Issue and PR numbers in everything inherited (the docs, ADRs 0001 to 0015, code comments, the history before the fork) are `imDev2023/Stoker-Markets`'s.
-  Write them as `Stoker-Markets#N` in new text; this repository's own are plain `#N`.
+  In issues and PRs write them as `imDev2023/Stoker-Markets#N`, the form GitHub links (the relay's map parser skips it, so the map's `## Next` must name only this repository's tickets, as plain `#N`); in files `Stoker-Markets#N` will do.
 
 ## Read first
 
@@ -209,7 +209,7 @@ The owner's model is Top-pad's (2026-11-04: "like we have worked in top pad fold
 
 ## Multica dashboard
 
-This project is mirrored on the owner's Multica dashboard (workspace Pandora) as project `MULTICA_PROJECT_ID`.
+This project is mirrored on the owner's Multica dashboard (workspace Pandora) as project `e5972df9-f586-4e26-89ae-48c185bb8109` ("new-stoker (Stoker rebuild)"; the original's is `c5707009-2225-4a7d-94e3-93a9eed5d951`).
 GitHub issues on `imDev2023/new-stoker` are the source of truth; Multica only mirrors them (see `docs/agents/issue-tracker.md`).
 At the end of every session, after the tracker is updated, run the `multica-sync` skill for this project: mirror ticket statuses, add any new tickets, and refresh the project's "Current step" section.
 Every Multica write passes `--no-start` and no ticket is ever assigned to an agent, so the sync never starts an agent run.
