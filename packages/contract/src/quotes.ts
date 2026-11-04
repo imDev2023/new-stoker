@@ -67,6 +67,14 @@ export const QuoteMarket = z.object({
   venue: z.string(),
   /** The ticker on that venue: "NVDA", "SOLUSD". */
   ticker: z.string(),
+  /**
+   * For a tokenized stock whose market is a stock or fund, the last price of that stock in US dollars per share, and when
+   * the price source reported it (#3): Jupiter's `stockData`, which relays the issuer's own reference price, extended
+   * hours included, as of the latest Quote Registry refresh. Absent for a coin's market and when the source gave none.
+   * Set beside the asset's own `price.usd` it shows how far the token trades from the stock; for a mint with scaled
+   * balances (`scaled_balance` label) `price.usd` is per unscaled unit, so the two differ by the issuer's multiplier too.
+   */
+  last: z.object({ price: z.number(), at: z.iso.datetime() }).optional(),
 });
 export type QuoteMarket = z.infer<typeof QuoteMarket>;
 
@@ -111,8 +119,22 @@ export const QuoteAsset = QuoteRef.extend({
   labels: z.array(QuoteLabel).nullable(),
   /** The market behind the asset, for the chart on its page; null when none is known: a private company's token, a collectible, a community token. */
   market: QuoteMarket.nullable(),
+  /**
+   * How its USD price moved over the last 24 hours, as a fraction (0.012 is up 1.2%), as on a Launch's market: the price
+   * at the latest refresh against the last one the Quote Registry recorded at least 24 hours before it, or, for an asset
+   * recorded for less than that, against its first record; 0 when it has not moved. Absent without a USD price now.
+   */
+  change24h: z.number().optional(),
 });
 export type QuoteAsset = z.infer<typeof QuoteAsset>;
 
 export const QuoteAssetList = z.object({ quotes: z.array(QuoteAsset) });
 export type QuoteAssetList = z.infer<typeof QuoteAssetList>;
+
+/**
+ * The intervals `GET /v1/quotes/:mint/candles` answers. A Quote Asset's candles are a `CandleList`, the shape a Launch's
+ * use, built from the USD prices the Quote Registry records at each refresh: US dollars per whole unit of the asset (per
+ * unscaled unit for a mint with scaled balances), each candle opening at the last price before its hour so candles join
+ * up, the newest 500 hours at most, and a volume of "0", since the registry records prices, not trades.
+ */
+export const QUOTE_CANDLE_INTERVALS = ["1h"] as const;

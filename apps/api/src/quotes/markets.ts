@@ -175,9 +175,18 @@ const COINS: Record<string, string> = {
   Df6yfrKC8kZE3KNkrHERKzAetSxbrWeniQfyJY4Jpump: "CRYPTO:CHILLGUYUSD", // CHILLGUY
 };
 
+type Listing = { mint: string; symbol: string | null; issuer: QuoteIssuer | null };
+
+/** The TradingView symbol of the stock or fund a tokenized stock tracks, or null for anything that is not a known stock's token. */
+export function trackedStock(r: Listing): string | null {
+  const listed = r.issuer ? STOCKS[r.issuer] : null;
+  // Own keys only: a ticker such as "constructor" must not find Object's.
+  return listed && r.symbol && Object.hasOwn(listed, r.symbol) ? listed[r.symbol]! : null;
+}
+
 /** The market behind a Quote Asset, or null when none is known. A stock's needs its issuer (proven by the mint's authorities) and the ticker the issuer gave it. */
-export function quoteMarket(r: { mint: string; symbol: string | null; issuer: QuoteIssuer | null }): QuoteMarket | null {
-  const symbol = (r.issuer && r.symbol ? STOCKS[r.issuer][r.symbol] : undefined) ?? COINS[r.mint];
+export function quoteMarket(r: Listing): QuoteMarket | null {
+  const symbol = trackedStock(r) ?? (Object.hasOwn(COINS, r.mint) ? COINS[r.mint] : undefined);
   if (!symbol) return null;
   const [venue, ticker] = symbol.split(":") as [string, string];
   return { symbol, venue, ticker };
