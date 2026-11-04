@@ -9,22 +9,21 @@ const LOOKS = [
 ] as const;
 
 const chrome = devices["Desktop Chrome"];
-/** The projects that take screenshots run with motion stilled: a baseline must not depend on where a cycle stands (the landing's pair cycle holds its first asset). */
+/** The projects that take screenshots run with motion stilled: a baseline must not depend on where an animation stands. */
 const still = { reducedMotion: "reduce" } as const;
 
 /**
- * One stack serves every project, so projects run in an order that keeps what each one sees deterministic: the empty
- * board first, then a fixed board is seeded and the visuals shot from it alone, then the behaviour flows, which launch
- * and trade coins of their own. The visuals come before the flows (2026-10-30) so that a filtered run of the seed and a
- * visual project (`--project seed --project visual-desktop-light --no-deps`, about three minutes) sees exactly the board
- * the full run sees; when the flows ran first, eight shots a look carried their leftover coins.
+ * One stack serves every project, so projects run in an order that keeps what each one sees deterministic: the shell and
+ * the static pages on the empty stack first, then a fixed board is seeded and the visuals that show its figures are shot
+ * from it alone, then the behaviour flows. Every spec a project's `testMatch` names, and no other, runs: a new spec is
+ * added here, or it never runs and the suite stays green by its absence.
  */
 const visuals = LOOKS.map((l) => `visual-${l.name}`);
 const projects: Project[] = [
   ...LOOKS.map((l) => ({ name: `empty-${l.name}`, testMatch: "empty.spec.ts", use: { ...chrome, ...l, ...still } })),
   { name: "seed", testMatch: "seed.setup.ts", dependencies: LOOKS.map((l) => `empty-${l.name}`) },
   ...LOOKS.map((l) => ({ name: `visual-${l.name}`, testMatch: "visual.spec.ts", dependencies: ["seed"], use: { ...chrome, ...l, ...still } })),
-  { name: "flows", testMatch: /(flows|trading|pairing|graduation|board|assets|launchModes|rewards|pay-with-sol|operator|labels|serverKey|pages|copies|landing|trust|seo)\.spec\.ts/, dependencies: visuals, use: { ...chrome, ...LOOKS[0] } },
+  { name: "flows", testMatch: /(shell|serverKey)\.spec\.ts/, dependencies: visuals, use: { ...chrome, ...LOOKS[0] } },
 ];
 
 export default defineConfig({
