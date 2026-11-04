@@ -63,13 +63,15 @@ A module takes its type from the roles in `globals.css`, never a literal size:
 | `--font-heading`, `--font-subheading` | A card's or a step's name |
 | `--font-brand` | The lockup |
 | `--font-label` | A bold label in the sans (`h3`) |
+| `--font-pair` | The home page's pair, in its pill under the headline |
 | `--font-control` | Buttons |
 | `--font-code` | Code |
 | `--text-micro` to `--text-lede` | The sans steps: 12, 13, 14, 15, 16, 17 and 18px |
+| `--text-tiny` | 10px, an asset's monogram on its 16px badge alone |
 
 ## Shape and motion
 
-A 1120px shell with a gutter of 16 to 40px, a 64px bar, radii from `--radius-xs` (6px) to `--radius-xl` (22px) and `--radius-pill`, three durations (`--dur-fast`, `--dur`, `--dur-slow`) on one easing, and three elevations (`--shadow`, `--shadow-control`, `--shadow-overlay`).
+A 1120px shell with a gutter of 16 to 40px, a 64px bar, radii from `--radius-xs` (6px) to `--radius-xl` (22px) and `--radius-pill`, three durations (`--dur-fast`, `--dur`, `--dur-slow`) on one easing, one cycle for a piece that loops (`--dur-cycle`, the home page's pair roll, held still under reduced motion), and three elevations (`--shadow`, `--shadow-control`, `--shadow-overlay`).
 Reduced motion stops every transition outright.
 
 ## The shell
