@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SCHEME_COOKIE } from "@/lib/scheme";
-import styles from "./SchemeToggle.module.css";
+import { SCHEME_COOKIE, type Scheme } from "@/lib/scheme";
 
 function Sun() {
   return (
@@ -22,19 +21,18 @@ function Moon() {
 }
 
 /**
- * Light or dark (owner, 2026-10-13): the page follows the visitor's system setting until this button is pressed, after
- * which the choice holds, as a cookie the layout reads so a page never paints the other mode first. The button shows
- * what pressing it brings: the moon in light mode, the sun in dark. `icon` is the square for the phone menu's foot;
- * `menu` is a row of the account menu (#131: a preference used once is not a top-level control), named the same.
+ * Light or dark (owner, 2026-10-13, kept by ADR 0017): the page follows the visitor's system setting until this row of
+ * the account menu is pressed, after which the choice holds as a cookie the root layout reads onto <html> as
+ * `data-theme`. The row names what pressing it brings.
  */
-export function SchemeToggle({ className = "", variant = "icon" }: { className?: string; variant?: "icon" | "menu" }) {
-  // Unknown until mounted: the server does not know the system setting, only an explicit choice.
+export function SchemeToggle({ className = "" }: { className?: string }) {
+  // Unknown until mounted: the server knows only an explicit choice, never the system setting.
   const [dark, setDark] = useState<boolean | null>(null);
 
   useEffect(() => {
     const system = matchMedia("(prefers-color-scheme: dark)");
     const read = () => {
-      const explicit = document.documentElement.dataset.scheme;
+      const explicit = document.documentElement.dataset.theme;
       setDark(explicit ? explicit === "dark" : system.matches);
     };
     read();
@@ -44,24 +42,16 @@ export function SchemeToggle({ className = "", variant = "icon" }: { className?:
   }, []);
 
   function flip() {
-    const next = dark ? "light" : "dark";
-    document.documentElement.dataset.scheme = next;
+    const next: Scheme = dark ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
     document.cookie = `${SCHEME_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
     setDark(next === "dark");
   }
 
-  const label = dark ? "Switch to light mode" : "Switch to dark mode";
-  if (variant === "menu") {
-    return (
-      <button type="button" role="menuitem" className={`${styles.row} ${className}`} onClick={flip} aria-label={label} disabled={dark === null}>
-        {dark ? <Sun /> : <Moon />}
-        {dark ? "Light mode" : "Dark mode"}
-      </button>
-    );
-  }
   return (
-    <button type="button" className={`${styles.button} ${className}`} onClick={flip} aria-label={label} disabled={dark === null}>
+    <button type="button" role="menuitem" className={className} onClick={flip} disabled={dark === null}>
       {dark ? <Sun /> : <Moon />}
+      {dark ? "Light mode" : "Dark mode"}
     </button>
   );
 }

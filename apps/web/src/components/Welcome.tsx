@@ -1,20 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { acceptDisclaimer, hasAcceptedDisclaimer } from "./Disclaimer";
-import { WELCOME } from "@/lib/legal";
-import { LEGAL_LINKS } from "@/lib/site";
+import { acceptDisclaimer, hasAcceptedDisclaimer, WELCOME } from "@/lib/legal";
 import styles from "./Welcome.module.css";
 
-const [TERMS, PRIVACY, RISK] = LEGAL_LINKS;
-
 /**
- * The welcome on a visitor's first visit (owner, 2026-10-30, #156): the open half of the pitch, one risk sentence, the
- * excluded regions and one button, over the page as a modal dialog, a full-width sheet on a phone. It mounts closed
- * and opens after hydration, so the server render and the first paint are the same with or without it. Accepted once
- * per browser on the disclaimer's own key, so a visitor who continued here is not asked again before their first
- * launch or trade; the gate blocks nothing (owner's rule: everything shows, the disclaimer is the notice), so Escape
- * and a press outside the dialog accept it like Continue. The legal pages open in a new tab, so the welcome stays put.
+ * The welcome on a visitor's first visit (owner, 2026-10-30, imDev2023/Stoker-Markets#156; kept by ADR 0017): the open
+ * half of the pitch, one risk sentence, the excluded regions and one button, over the page as a modal dialog, a sheet
+ * from the foot of a phone. It mounts closed and opens after hydration, so the server render and the first paint are
+ * the same with or without it. Accepted once per browser on the disclaimer's own key; it blocks nothing (owner's rule:
+ * everything shows, the disclaimer is the notice), so Escape and a press outside it accept it like Continue. The legal
+ * pages open in a new tab, so the welcome stays put.
  */
 export function Welcome() {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -41,7 +37,7 @@ export function Welcome() {
       ref={dialog}
       className={`dialog ${styles.dialog}`}
       aria-labelledby="welcome-title"
-      // Escape closes a modal dialog by itself (and a browser may not let that be prevented): the close is the acceptance.
+      // Escape closes a modal dialog by itself, and a browser may not let that be prevented: the close is the acceptance.
       onClose={accept}
       onClick={(e) => {
         // A press on the backdrop reaches the dialog itself, outside its own box.
@@ -49,23 +45,24 @@ export function Welcome() {
         if (e.target === e.currentTarget && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) accept();
       }}
     >
-      {/* The picture: "Ember dawn" (owner's pick, 2026-11-02, from the marketing folder's round), a 2:1 panel across the card's
-          top, served from `public` at 2x so it stays sharp; the panel's styles crop any file to 2:1. */}
+      {/* "Ember dawn", the owner's pick of 2026-11-02, served at twice the card's width. */}
       <div className={styles.cover}>
         <img src="/welcome.jpg" width={1248} height={624} alt="" />
       </div>
-      <h2 id="welcome-title" className={`t-h2 ${styles.title}`}>{WELCOME.title}</h2>
-      {WELCOME.lines.map((line) => (
-        <p key={line} className={`t-body ${styles.line}`}>{line}</p>
-      ))}
-      <button type="button" className={`button button-primary button-lg ${styles.continue}`} onClick={accept}>
-        {WELCOME.button}
-      </button>
-      <p className={`t-caption ${styles.terms}`}>
-        By continuing you accept the <a href={TERMS.href} target="_blank" rel="noopener">{TERMS.label}</a>, the{" "}
-        <a href={PRIVACY.href} target="_blank" rel="noopener">{PRIVACY.label} notice</a> and the{" "}
-        <a href={RISK.href} target="_blank" rel="noopener">{RISK.label}</a>, and confirm you are over 18.
-      </p>
+      <div className={styles.body}>
+        <h2 id="welcome-title" className={styles.title}>{WELCOME.title}</h2>
+        {WELCOME.lines.map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+        <button type="button" className={`button button-lg button-block ${styles.continue}`} onClick={accept}>
+          {WELCOME.button}
+        </button>
+        <p className={styles.terms}>
+          By continuing you accept the <a href="/terms" target="_blank" rel="noopener">Terms</a>, the{" "}
+          <a href="/privacy" target="_blank" rel="noopener">Privacy notice</a> and the{" "}
+          <a href="/risk" target="_blank" rel="noopener">Risk disclosure</a>, and confirm you are over 18.
+        </p>
+      </div>
     </dialog>
   );
 }

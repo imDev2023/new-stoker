@@ -1,47 +1,39 @@
 // The tokens and primitives come first, so a component's module can override a primitive's defaults on a tied selector.
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
-import { FeeChangeBanner } from "@/components/FeeChangeBanner";
-import { ClusterNotice } from "@/components/ClusterNotice";
+import { PhoneBar } from "@/components/PhoneBar";
 import { Providers } from "@/components/Providers";
+import { Pulse } from "@/components/Pulse";
+import { RingDefs } from "@/components/Ring";
+import { SearchShortcut } from "@/components/SearchShortcut";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { ThemeOverride } from "@/components/ThemeOverride";
 import { Welcome } from "@/components/Welcome";
-import { getPlatform, listAnnouncements } from "@/lib/api";
-import { SHARED_OPEN_GRAPH, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, TWITTER_CARD } from "@/lib/meta";
+import { getPlatform, getStats } from "@/lib/api";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE } from "@/lib/meta";
 import { siteOrigin } from "@/lib/origin";
-import { SCHEME_COOKIE } from "@/lib/scheme";
-import { THEME_GROUNDS, themeFrom } from "@/lib/theme";
+import { isScheme, PAPER, SCHEME_COOKIE } from "@/lib/scheme";
 
-// The families (owner, 2026-10-11, on "Stoker Type"): the display face carries the voice through its optical-size and
-// width axes, the body and the figures stay plain, so a dense row reads while a headline and the wordmark stand out.
-const bricolage = Bricolage_Grotesque({ subsets: ["latin"], axes: ["opsz", "wdth"], variable: "--font-bricolage", display: "swap" });
-const instrumentSans = Instrument_Sans({ subsets: ["latin"], variable: "--font-instrument-sans", display: "swap" });
-const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-jetbrains-mono", display: "swap" });
-
-/** The scheme this build is made with; `?theme=` on a page can show another (src/lib/theme.ts). */
-const theme = themeFrom(process.env.NEXT_PUBLIC_THEME);
+// The spec's three families (docs/design/playground/src/layout.html), served by the app itself.
+const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-instrument-serif", display: "swap" });
+const sans = Instrument_Sans({ subsets: ["latin"], variable: "--font-instrument-sans", display: "swap" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono", display: "swap" });
 
 export async function generateMetadata(): Promise<Metadata> {
   // Only mainnet is indexable: the devnet rehearsal and a local stack carry test coins that would otherwise be indexed
-  // under the brand (runbook, section 12, item 10). The platform is read again below; Next memoises the fetch.
+  // under the brand. The platform is read again below; Next memoises the fetch.
   const [{ cluster }, origin] = await Promise.all([getPlatform(), siteOrigin()]);
   return {
-    // Every relative address a page gives out (its canonical link, its card, its share image) resolves against the
-    // origin the request came in on, so each deployment names itself (#83).
+    // Every relative address a page gives out resolves against the origin the request came in on, so each deployment names itself.
     metadataBase: new URL(origin),
     title: { default: SITE_TITLE, template: `%s · ${SITE_NAME}` },
     description: SITE_DESCRIPTION,
     applicationName: SITE_NAME,
-    openGraph: SHARED_OPEN_GRAPH,
-    twitter: TWITTER_CARD,
     icons: {
-      // The ico for the browsers that want one, the SVG for the rest, and `/icon.png`, the same file the PlatformConfig's
-      // `img` names on-chain (runbook, section 2), so it must stay at this address.
+      // `/icon.png` is the file the PlatformConfig's `img` names on-chain, so it stays at this address.
       icon: [
         { url: "/favicon.ico", sizes: "32x32" },
         { url: "/icon.svg", type: "image/svg+xml" },
@@ -53,16 +45,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** The browser's own chrome follows the page: the toggle's choice when there is one, the system setting otherwise. */
+/** The browser's own chrome follows the page: the visitor's choice when there is one, the system setting otherwise. */
 export async function generateViewport(): Promise<Viewport> {
   const scheme = (await cookies()).get(SCHEME_COOKIE)?.value;
-  const grounds = THEME_GROUNDS[theme];
   return {
-    themeColor: scheme === "light" || scheme === "dark"
-      ? grounds[scheme]
+    themeColor: isScheme(scheme)
+      ? PAPER[scheme]
       : [
-          { media: "(prefers-color-scheme: light)", color: grounds.light },
-          { media: "(prefers-color-scheme: dark)", color: grounds.dark },
+          { media: "(prefers-color-scheme: light)", color: PAPER.light },
+          { media: "(prefers-color-scheme: dark)", color: PAPER.dark },
         ],
   };
 }
@@ -70,24 +61,23 @@ export async function generateViewport(): Promise<Viewport> {
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  // A fee change everyone should see coming; the banner is left out rather than the page failing if the API is down.
-  const [platform, announcements, jar] = await Promise.all([getPlatform(), listAnnouncements().catch(() => null), cookies()]);
-  const upcoming = announcements?.announcements.find((a) => a.appliedSignature === null && new Date(a.effectiveAt).getTime() > Date.now() - 24 * 3600_000) ?? null;
-  // Light or dark chosen with the header's toggle (SchemeToggle); without the cookie the page follows the system setting.
+  // The strip's figures are left out rather than the page failing if they can't be read.
+  const [platform, stats, jar] = await Promise.all([getPlatform(), getStats().catch(() => null), cookies()]);
   const scheme = jar.get(SCHEME_COOKIE)?.value;
   return (
-    // `?theme=` may change `data-theme` after hydration (ThemeOverride), which is intended, not a mismatch.
-    <html lang="en" data-theme={theme} data-scheme={scheme === "light" || scheme === "dark" ? scheme : undefined} className={`${bricolage.variable} ${instrumentSans.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html lang="en" data-theme={isScheme(scheme) ? scheme : undefined} className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
       <body>
-        <ThemeOverride />
+        <a className="skip" href="#main">Skip to content</a>
         <Providers rpcUrl={platform.rpcUrl}>
-          <SiteHeader cluster={platform.cluster} />
-          {platform.cluster === "devnet" && <ClusterNotice />}
-          {upcoming && <FeeChangeBanner announcement={upcoming} platform={platform} />}
-          <main>{children}</main>
-          <SiteFooter platform={platform} />
+          <SiteHeader />
+          <Pulse stats={stats} />
+          <main id="main">{children}</main>
+          <SiteFooter />
+          <PhoneBar />
           <Welcome />
+          <SearchShortcut />
         </Providers>
+        <RingDefs />
       </body>
     </html>
   );

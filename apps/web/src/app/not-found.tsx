@@ -1,15 +1,16 @@
 import Link from "next/link";
-import { EmptyState } from "@/components/EmptyState";
+import { Ring } from "@/components/Ring";
 import styles from "./not-found.module.css";
 
-/** Nothing at this address: the one EmptyState, one line and the way back (principles, section 7). */
+/** Nothing at this address: the ring, one line and the way home (the spec's 404). */
 export default function NotFound() {
   return (
-    <div className={`shell ${styles.page}`}>
-      <h1 className="visually-hidden">Not found</h1>
-      <EmptyState title="No coin at this address" className={styles.card} action={<Link href="/coins" className="button button-primary">All coins</Link>}>
-        It may still be confirming. Check the address, or wait a few seconds and reload.
-      </EmptyState>
-    </div>
+    <section className={`shell ${styles.band}`}>
+      <Ring size={96} />
+      <h1>Nothing here.</h1>
+      <Link className="button button-lg" href="/">
+        Home
+      </Link>
+    </section>
   );
 }

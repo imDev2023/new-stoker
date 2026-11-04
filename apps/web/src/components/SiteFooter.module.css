@@ -1,230 +1,68 @@
-/* The landing's foot: a well under a hairline, the brand in four columns and the groups in eight, then the addresses and the disclaimer. */
-.footer {
-  margin-top: 64px;
+.foot {
+  margin-top: auto;
+  padding-block: 56px 40px;
   border-top: 1px solid var(--line);
   background: var(--sunken);
+  font-size: var(--text-small);
 }
 
-.inner {
-  row-gap: 32px;
-  padding-top: 48px;
-  padding-bottom: 32px;
-}
-
-.brand {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 14px;
-}
-
-.wordmark,
-.lockup {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: var(--font-display);
-  font-stretch: 100%;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  text-decoration: none;
-}
-
-.wordmark {
-  font-size: var(--wordmark);
-}
-
-.mark {
-  flex: none;
-  width: 28px;
-  height: 28px;
-}
-
-.tagline {
-  margin: 0;
-  max-width: 30ch;
-  color: var(--ink-2);
-  font-size: var(--text-ui);
-  line-height: 1.5;
-}
-
-.groups {
+.grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 24px;
+  grid-template-columns: 2fr repeat(4, 1fr);
+  gap: 32px;
+  align-items: start;
 }
 
-/* A group's heading: the UI sans, sentence case, a step darker than its links. */
-.title {
-  margin: 0 0 10px;
-  font-family: var(--font-body);
-  font-size: var(--text-caption);
-  font-weight: 600;
+.grid nav {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  color: var(--ink-2);
+}
+
+.grid nav a,
+.social a {
+  transition: color var(--dur) var(--ease);
+}
+
+.grid nav a:hover,
+.social a:hover {
   color: var(--ink);
 }
 
-.list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.list a,
-.links a {
-  color: var(--ink-2);
-  font-size: var(--text-ui);
-  text-decoration: none;
-  overflow-wrap: anywhere;
-  transition: color var(--dur-fast) var(--ease-standard);
-}
-
-.list a:hover,
-.links a:hover {
-  color: var(--accent);
-}
-
-/* The status: a dot in the direction colour and the network, in the caption step. */
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: var(--text-caption);
-  color: var(--ink-2);
-  white-space: nowrap;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-pill);
-}
-
-.online {
-  background: var(--up);
-  box-shadow: 0 0 0 3px var(--up-bg);
-}
-
-.offline {
-  background: var(--down);
-  box-shadow: 0 0 0 3px var(--down-bg);
-}
-
-/* The addresses as a definition list in a row, the label a step lighter than its value. */
-.chain {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 32px;
-  margin: 0;
+.legal {
+  display: grid;
+  gap: 16px;
+  margin-top: 48px;
   padding-top: 24px;
   border-top: 1px solid var(--line);
-}
-
-.chain div {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.chain dt {
-  font-size: var(--text-caption);
-  color: var(--ink-3);
-}
-
-.chain dd {
-  margin: 0;
-}
-
-.chain a {
   color: var(--ink-2);
-  text-decoration: none;
 }
 
-.chain a:hover {
-  color: var(--accent);
-}
-
-/* The disclaimer at the caption step, opening with its one bold sentence in the ink. */
-.legal {
-  color: var(--ink-3);
-  font-size: var(--text-caption);
-  line-height: 1.5;
-}
-
-.legal p {
-  margin: 0;
-  max-width: 100ch;
-}
-
-.legal strong,
-.line strong {
+.legal strong {
   color: var(--ink);
   font-weight: 600;
-}
-
-.legal a,
-.line a {
-  color: var(--accent);
-}
-
-/* The terminal's foot: one row on the well, the lockup small, the links, the socials and the status; the risk line wraps under them when the row is full. */
-.compact {
-  margin-top: 48px;
-  border-top: 1px solid var(--line);
-  background: var(--sunken);
 }
 
 .row {
   display: flex;
+  justify-content: space-between;
+  gap: 16px;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 24px;
-  min-height: 56px;
-  padding-top: 12px;
-  padding-bottom: 12px;
 }
 
-.lockup {
-  font-size: var(--text-body);
-}
-
-.markSmall {
-  flex: none;
-  width: 22px;
-  height: 22px;
-}
-
-.links {
+.social {
   display: flex;
+  gap: 20px;
   flex-wrap: wrap;
-  gap: 4px 18px;
 }
 
-.line {
-  flex: 1 1 100%;
-  margin: 0;
-  font-size: var(--text-caption);
-  color: var(--ink-3);
-}
-
-@media (min-width: 1100px) {
-  .line {
-    flex: 1 1 auto;
-    text-align: right;
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
   }
-}
 
-@media (max-width: 880px) {
-  .groups {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Two columns fit a phone; one column only on the narrowest screens. */
-@media (max-width: 340px) {
-  .groups {
-    grid-template-columns: 1fr;
+  .brand {
+    grid-column: 1 / -1;
   }
 }

@@ -2,162 +2,90 @@
   position: relative;
 }
 
-/* The menu opens under the button's right edge, so an inline button keeps to the right of its row even when it wraps. */
-.inline {
-  margin-left: auto;
-}
-
-/* In the phone menu's foot the control fills the width like the launch button above it. */
-.inMenu,
-.inMenu .connect,
-.inMenu .connected {
-  width: 100%;
-}
-
-@media (max-width: 560px) {
-  .inline {
-    width: 100%;
-  }
-  .inline .connect,
-  .inline .connected {
-    width: 100%;
-    height: 48px;
-  }
-  .inline .menu,
-  .inMenu .menu {
-    left: 0;
-    min-width: 0;
-  }
-}
-
-/* The button itself is the primitive (a ghost in the header, the primary inline); these only place the glyph, the avatar and the address. */
-.connect,
 .connected {
   gap: 8px;
-}
-
-.connected {
   padding-left: 8px;
 }
 
-.connect:disabled {
-  cursor: progress;
-}
-
-.connectGlyph {
-  display: none;
+.address {
+  font-size: var(--text-caption);
 }
 
 .avatar {
   display: inline-block;
   flex: none;
-  border-radius: var(--radius-pill);
-  box-shadow: inset 0 0 0 1px var(--line);
+  border-radius: 50%;
 }
 
-/* Under 1100px the header has no room for the words beside the pill: the glyph alone, the words kept as the button's name; connected, the avatar alone, the address kept the same way. */
-@media (max-width: 1100px) {
-  .header .connect,
-  .header .connected {
-    width: 40px;
-    padding: 0;
-    justify-content: center;
-  }
-  .header .connectGlyph {
-    display: inline-flex;
-  }
-  .header .connectWord,
-  .header .address {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-}
-
-.glyph {
-  flex: none;
-  color: var(--ink-2);
-}
-
-/* The menu floats at the overlay level, entering from the button it opens from. */
+/* The menu opens under its button, against the right edge. */
 .menu {
   position: absolute;
-  right: 0;
   top: calc(100% + 8px);
-  min-width: 232px;
+  right: 0;
+  z-index: 30;
+  display: grid;
+  min-width: 240px;
+  max-width: calc(100vw - 2 * var(--gutter));
   padding: 6px;
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--surface-3);
-  color: var(--on-surface-3);
-  box-shadow: var(--highlight), var(--shadow-overlay);
-  z-index: 20;
-  transform-origin: top right;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-overlay);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .menu {
-    animation: open var(--dur-base) var(--ease-enter);
-  }
-  @keyframes open {
-    from {
-      opacity: 0;
-      transform: scale(0.96);
-    }
-  }
-}
-
-.menu img {
-  border-radius: var(--radius-control);
-}
-
-.menu button,
-.menu .menuLink {
+.item {
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 10px 12px;
+  height: 40px;
+  padding: 0 12px;
   border: 0;
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-sm);
   background: none;
-  text-align: left;
-  font-size: var(--text-ui);
+  color: var(--ink);
+  font-size: var(--text-small);
   font-weight: 500;
-  text-decoration: none;
+  text-align: left;
+  white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease-standard);
+  transition: background var(--dur-fast) var(--ease);
 }
 
-.menu button:hover,
-.menu .menuLink:hover {
-  background: var(--hover);
+.item:hover {
+  background: var(--sunken);
 }
 
-.menu button:focus-visible,
-.menu .menuLink:focus-visible {
-  outline: none;
-  box-shadow: var(--ring);
+.item:disabled {
+  cursor: default;
 }
 
-/* The toggle under a hairline, the menu's last row. */
+.item img {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-xs);
+}
+
+.item svg {
+  color: var(--ink-2);
+}
+
+.empty {
+  padding: 8px 12px 10px;
+  font-size: var(--text-small);
+  color: var(--ink-2);
+  white-space: normal;
+}
+
+.empty a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+}
+
 .foot {
   margin-top: 6px;
   padding-top: 6px;
   border-top: 1px solid var(--line);
-}
-
-.empty {
-  margin: 0;
-  padding: 10px 12px;
-  font-size: var(--text-ui);
-  color: var(--ink-2);
-}
-
-.empty a {
-  color: var(--accent);
 }

@@ -1,0 +1,30 @@
+/* The strip under the header: the platform's figures now, on every page but home. */
+.pulse {
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  font-size: var(--text-caption);
+}
+
+.row {
+  position: relative;
+  display: flex;
+  gap: 28px;
+  height: 38px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.row div {
+  display: flex;
+  gap: 8px;
+}
+
+.row dt {
+  color: var(--ink-3);
+}
+
+.row dd {
+  font-weight: 600;
+}

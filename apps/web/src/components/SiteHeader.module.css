@@ -1,217 +1,89 @@
-/*
- * Opaque and still (NN/g's sticky-header rules): the page's canvas colour, no blur, no hairline, since the pill is the
- * header's edge. Opaque everywhere, so nothing inside it is ever contained by a backdrop filter (the trap of 2026-10-13).
- */
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: var(--bg);
-}
-
-/* The bar's edges are the page's own column (`--max`: the landing's, or the terminal's past it, set on the body), so the mark and the account sit on the content's grid. */
+/* The bar, from the spec's layout: the lockup, the eight sections, then the wallet and the one filled action. */
 .bar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  backdrop-filter: saturate(1.4) blur(18px);
+  -webkit-backdrop-filter: saturate(1.4) blur(18px);
+  border-bottom: 1px solid var(--line);
+}
+
+.row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  height: var(--header-h);
-  max-width: var(--max);
-  margin: 0 auto;
-  padding: 0 var(--gutter);
+  gap: 36px;
+  height: var(--bar-h);
 }
 
-/* The lockup as one mark: the ring at 24px with the word at the same height, no gap to speak of. */
-.wordmark {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-display);
-  font-stretch: 100%;
-  font-weight: 800;
-  font-size: var(--text-h3);
-  letter-spacing: -0.01em;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity var(--dur-fast) var(--ease-standard);
-}
-
-.mark {
-  flex: none;
-  width: 24px;
-  height: 24px;
-}
-
-.cluster {
-  margin-left: 4px;
-}
-
-/*
- * The pill, raised on surface-3 with the shadow, centred in the room between the wordmark and the actions: in the flow,
- * never over them, so a narrower window can only bring it nearer (centred on the window it ran into the actions).
- */
-.pill {
+.nav {
   display: flex;
-  flex: none;
-  gap: 2px;
-  margin: 0 auto;
-  padding: 4px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
-  background: var(--surface-3);
-  box-shadow: var(--highlight), var(--shadow-raised);
-  transition: opacity var(--dur-base) var(--ease-standard), transform var(--dur-base) var(--ease-standard);
+  gap: 26px;
+  margin-right: auto;
+  font-size: var(--text-small);
 }
 
-/* A section: the UI sans at 14px; the current one on the plate, a change of fill and colour, never of weight. */
-.link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
-  border-radius: var(--radius-pill);
+.nav a {
+  position: relative;
   color: var(--ink-2);
-  font-size: var(--text-ui);
-  font-weight: 500;
-  white-space: nowrap;
-  text-decoration: none;
-  transition: background-color var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+  transition: color var(--dur) var(--ease);
 }
 
-.link:hover {
+.nav a:hover,
+.nav a[aria-current] {
   color: var(--ink);
 }
 
-.link[aria-current="page"] {
-  background: var(--plate);
-  color: var(--on-plate);
-}
-
-/* The word and its twin stacked in a clipped box; the hover slides both up by one line. */
-.swap {
-  position: relative;
-  display: block;
-  overflow: hidden;
-  line-height: 1.25;
-}
-
-.word,
-.under {
-  display: block;
-}
-
-.under {
+/* The current section's rule sits on the bar's own hairline. */
+.nav a[aria-current]::after {
+  content: "";
   position: absolute;
-  inset: 0;
-  transform: translateY(100%);
-}
-
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .word,
-  .under {
-    transition: transform var(--dur-base) var(--ease-standard);
-  }
-  .link:hover .word {
-    transform: translateY(-100%);
-  }
-  .link:hover .under {
-    transform: translateY(0);
-  }
-}
-
-/* "soon" beside Curated until a Curated Launch exists: the tag primitive in sentence case, since it is a word, not a label. */
-.soon {
-  font-size: var(--text-label);
-  text-transform: none;
-}
-
-.link[aria-current="page"] .soon {
-  border-color: color-mix(in srgb, var(--on-plate) 30%, transparent);
-  color: var(--on-plate);
+  left: 0;
+  right: 0;
+  bottom: -23px;
+  height: 1px;
+  background: var(--ink);
 }
 
 .actions {
   display: flex;
-  align-items: center;
   gap: 8px;
 }
 
-.launch {
-  gap: 7px;
-  padding: 0 16px 0 14px;
-  transition: opacity var(--dur-fast) var(--ease-standard);
-}
-
-/* On its own page the one filled action is marked current: an inner ring in its text colour, which a hover never gives it. */
-.launch[aria-current="page"] {
-  box-shadow: var(--glow), inset 0 0 0 2px color-mix(in srgb, var(--on-button) 45%, transparent);
-}
-
-/* The wallet as a quiet ghost: no border until hovered, the avatar alone once connected. */
-.wallet :global(.button-ghost) {
-  border-color: transparent;
-  color: var(--ink-2);
-}
-
-.wallet :global(.button-ghost:hover:not(:disabled)) {
-  border-color: var(--line-strong);
-  color: var(--ink);
-}
-
-/* The bottom tab bar belongs to the phone; above 768px it is not rendered to the eye. */
-.tabs {
-  display: none;
-}
-
-/* Under 1100px the pill keeps its six words and the rest gives way around it: "Stoke" alone on the button, the account's glyph or avatar alone (the words stay as each one's name), no cluster tag. */
-@media (max-width: 1100px) {
-  .launch {
-    padding: 0 12px 0 10px;
-  }
-  /* Out of sight, kept as the button's name. */
-  .launchRest {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-  .cluster {
+/* The eight sections and the two actions need about 1017px: the spec's header overflowed the window between 901px and
+   that, so there the last two sections (Curated, Developers, both in the footer) wait for the room. */
+@media (max-width: 1040px) {
+  .nav a:nth-child(n + 7) {
     display: none;
   }
 }
 
-/* Under 900px the words sit closer and the lockup is the mark alone, down to the phone, which has the room for the word again. */
-@media (min-width: 768px) and (max-width: 900px) {
-  .link {
-    padding: 0 10px;
-  }
-  /* Out of sight, kept as the link's name. */
-  .wordmarkWord {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-}
-
-/* Under 768px the bar keeps the lockup alone; the pill, the launch button and the account are the tab bar's. */
-@media (max-width: 767px) {
-  .pill,
-  .launch,
-  .wallet {
-    display: none;
-  }
+/* Under 900px the sections move to the phone bar at the window's foot (PhoneBar), and the bar turns opaque: a backdrop
+   filter makes an element the containing block of anything fixed inside it. */
+@media (max-width: 900px) {
   .bar {
-    gap: 8px;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--paper);
   }
-  .tabs {
-    display: contents;
+
+  .row {
+    justify-content: space-between;
+  }
+
+  .nav {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .row {
+    gap: 12px;
+  }
+
+  .actions :global(.button) {
+    height: 34px;
+    padding: 0 12px;
+    font-size: var(--text-caption);
   }
 }

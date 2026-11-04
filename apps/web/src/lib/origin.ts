@@ -8,7 +8,7 @@ import { headers } from "next/headers";
  */
 export async function siteOrigin(): Promise<string> {
   const h = await headers();
-  const host = h.get("host") ?? "localhost:3200";
+  const host = h.get("host") ?? "localhost:3100";
   const proto = h.get("x-forwarded-proto") ?? (/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host) ? "http" : "https");
   return `${proto}://${host}`;
 }
