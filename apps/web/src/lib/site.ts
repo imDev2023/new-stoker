@@ -1,7 +1,7 @@
 /**
- * Where the site points outside itself: the socials and the contact address. The header and the footer read from
- * here, so a link is changed in one place. Nothing on the site links to the repository (owner, 2026-10-30: the footer's
- * GitHub link was removed from the live site; the API reference was already a page of the site, 2026-10-25).
+ * Where the site's links go: the header's sections, the footer's groups, the socials and the contact address, read
+ * by the header, the phone bar and the footer, so a link is changed in one place. Every route is production's; Stocks
+ * is the spec's new section (docs/design/playground). Nothing links to the repository (owner, 2026-10-30).
  *
  * PLACEHOLDERS (owner, 2026-10-07): the X and Telegram addresses are the handles the owner intends and may not exist
  * yet; replace them before the site opens.
@@ -12,71 +12,52 @@ export const SITE_LINKS = {
   email: "info@stoker.markets",
 } as const;
 
-/** Launching is the header's one button, not a link among the others; every launch button says this (owner, 2026-10-09). */
-export const LAUNCH_LINK = { href: "/launch", label: "Stoke a coin" } as const;
+export type NavLink = { href: string; label: string; also?: readonly string[] };
 
-export type NavLink = { href: string; label: string; also?: string };
+/** Launching is the header's one filled button; every launch button says this (owner, 2026-10-09). */
+export const LAUNCH_LINK = { href: "/launch", label: "Stoke a coin" } as const satisfies NavLink;
 
 /**
- * The header's sections in the order a trader reaches for them (owner, 2026-10-30, H9's order: the board's link reads
- * "Explore", owner 2026-10-25; "Swap" is Jupiter's swap as a section of its own, owner 2026-10-30, after it was built
- * as a hero candidate; Burns and Revenue sit under "Stats", owner 2026-10-25, renamed from Ledger the same night, the
- * Ledger staying the glossary's word for the public record, current on either page; "Curated" last, the platform's
- * own approved launches open to STOKER stakers, #118, tagged "soon" in the header until one exists).
+ * The header's eight sections, in the spec's order; the phone bar under 900px keeps the first five. A detail page
+ * belongs to its list's section (a coin to Explore, an asset to Assets, a stock to Stocks), and Burns to Stats
+ * (owner, 2026-10-25).
  */
 export const NAV_LINKS = [
-  { href: "/coins", label: "Explore" },
+  { href: "/coins", label: "Explore", also: ["/coin"] },
+  { href: "/stocks", label: "Stocks", also: ["/stock"] },
   { href: "/swap", label: "Swap" },
-  { href: "/assets", label: "Assets" },
+  { href: "/assets", label: "Assets", also: ["/asset"] },
   { href: "/rewards", label: "Rewards" },
-  { href: "/revenue", label: "Stats", also: "/burns" },
+  { href: "/revenue", label: "Stats", also: ["/burns"] },
   { href: "/curated", label: "Curated" },
+  { href: "/api", label: "Developers" },
 ] as const satisfies readonly NavLink[];
 
-/** The sections by name, so a list that picks a few never counts on the order above. */
-export const [EXPLORE_LINK, SWAP_LINK, ASSETS_LINK, REWARDS_LINK, STATS_LINK, CURATED_LINK] = NAV_LINKS;
+/** How many sections the phone bar shows. */
+export const PHONE_SECTIONS = 5;
 
-/**
- * The API's reference is a page of the site (owner, 2026-10-25: everything on the page, no link out to the repository),
- * set last in the pill and the menu as "Developers" (owner, 2026-10-25), and in the footer as "API".
- */
-export const API_LINK = { href: "/api", label: "Developers" } as const satisfies NavLink;
+/** The section a path belongs to, or null: its own route, or one of the routes it stands for. */
+export function sectionOf(pathname: string): string | null {
+  const top = `/${pathname.split("/")[1] ?? ""}`;
+  const links: readonly NavLink[] = NAV_LINKS;
+  return links.find((l) => l.href === top || l.also?.includes(top))?.href ?? null;
+}
 
-/** The Fees page (owner, 2026-10-30): the one place on the site that shows a fee figure, linked from both footers' Legal group. */
-export const FEES_LINK = { href: "/fees", label: "Fees" } as const satisfies NavLink;
-
-/** The legal pages (#131): drafts the owner approves before the site opens, linked from both footers, with the Fees page beside them. */
+/** The legal pages, with the Fees page, the one place a fee figure is shown (owner, 2026-10-30). */
 export const LEGAL_LINKS = [
+  { href: "/fees", label: "Fees" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
   { href: "/risk", label: "Risk disclosure" },
-  FEES_LINK,
 ] as const satisfies readonly NavLink[];
 
-/**
- * The landing's footer, grouped by audience (#131, after the research's footers): what a trader opens, what a creator
- * opens, the platform's own records, and the legal pages with the contact. A Creator's earnings page is their own
- * (owner, 2026-10-08): nothing links to it but the account menu, once the connected wallet has launched a coin.
- */
+/** The footer, grouped as the spec groups it. A Creator's earnings page is their own and linked from the account menu only. */
 export const FOOTER_GROUPS = [
-  { title: "Trade", links: [EXPLORE_LINK, SWAP_LINK, ASSETS_LINK, REWARDS_LINK] },
-  { title: "Create", links: [LAUNCH_LINK, CURATED_LINK] },
+  { title: "Trade", links: [{ href: "/coins", label: "Explore" }, { href: "/stocks", label: "Stocks" }, { href: "/swap", label: "Swap" }, { href: "/assets", label: "Assets" }] },
+  { title: "Create", links: [LAUNCH_LINK, { href: "/rewards", label: "Rewards" }, { href: "/curated", label: "Curated" }] },
   {
-    title: "Platform",
-    links: [
-      { href: "/revenue", label: "Revenue" },
-      { href: "/burns", label: "Burns" },
-      { href: "/announcements", label: "Announcements" },
-      { href: API_LINK.href, label: "API" },
-    ],
+    title: "Records",
+    links: [{ href: "/revenue", label: "Stats" }, { href: "/burns", label: "Burns" }, { href: "/announcements", label: "Announcements" }, { href: "/api", label: "Developers" }],
   },
-  { title: "Legal", links: [...LEGAL_LINKS, { href: `mailto:${SITE_LINKS.email}`, label: "Contact" }] },
-] as const;
-
-/** The site's own pages, as the sitemap names them (#83): every internal link of the landing's footer, once each. */
-export const SITE_PAGES: readonly NavLink[] = FOOTER_GROUPS.flatMap((g): NavLink[] => [...g.links]).filter(
-  (l, i, all) => l.href.startsWith("/") && all.findIndex((o) => o.href === l.href) === i,
-);
-
-/** The one-row footer of every terminal page: the developers' page and the legal pages, so the page ends with its data. */
-export const COMPACT_FOOTER_LINKS = [{ href: API_LINK.href, label: "API" }, ...LEGAL_LINKS] as const satisfies readonly NavLink[];
+  { title: "Legal", links: LEGAL_LINKS },
+] as const satisfies readonly { title: string; links: readonly NavLink[] }[];

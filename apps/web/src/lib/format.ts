@@ -110,3 +110,13 @@ export function explorerUrl(kind: "tx" | "address", value: string, platform: { c
         : `?cluster=custom&customUrl=${encodeURIComponent(platform.rpcUrl)}`;
   return `https://explorer.solana.com/${kind}/${value}${suffix}`;
 }
+
+/** A figure as a strip or a row of figures writes it: compact from 10,000 (12.3K), whole from 10, two decimals below. */
+export function formatFigure(n: number) {
+  return n.toLocaleString("en-US", n >= 10_000 ? { notation: "compact", maximumSignificantDigits: 3 } : { maximumFractionDigits: n < 10 ? 2 : 0 });
+}
+
+/** A count with thousands separators. */
+export function formatCount(n: number) {
+  return n.toLocaleString("en-US");
+}

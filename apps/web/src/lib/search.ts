@@ -1,6 +1,7 @@
 /**
- * The site's one search is the board's (owner, 2026-10-31, after the header's own search was dropped): "/" and ⌘K reach
- * it from anywhere (SearchShortcut), and the hero's field sends its query to the board (LandingSearch).
+ * The site's one search is the board's (owner, 2026-10-31; the spec's "/" to search): "/" and ⌘K reach it from any page
+ * (components/SearchShortcut.tsx), focusing the field in place on the board and opening the board with it focused
+ * from anywhere else.
  */
 
 /** The attribute the board's search field carries, so the shortcut finds it on the page it is on. */
