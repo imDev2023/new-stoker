@@ -51,6 +51,7 @@ export function Board({ initial, initialQuery, renderedAt }: { initial: LaunchSu
   const latest = useRef(initialQuery);
   const debounce = useRef<ReturnType<typeof setTimeout>>(undefined);
   const field = useRef<HTMLInputElement>(null);
+  const chips = useRef<HTMLDivElement>(null);
 
   // Sent here by "/" or ⌘K from another page (SearchShortcut): the field takes focus and the hash goes.
   useEffect(() => {
@@ -58,6 +59,17 @@ export function Board({ initial, initialQuery, renderedAt }: { initial: LaunchSu
     field.current?.focus();
     window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
   }, []);
+
+  // On a phone the chips slide sideways: the chosen kind is brought into the row's view (a link may name the last one),
+  // the row alone scrolled, never the page.
+  useEffect(() => {
+    const row = chips.current;
+    const chosen = row?.querySelector<HTMLElement>("label:has(input:checked)");
+    if (!row || !chosen || row.scrollWidth <= row.clientWidth) return;
+    // The row is positioned, so a chip's offset is measured from the row's own edge.
+    const left = chosen.offsetLeft;
+    if (left < row.scrollLeft || left + chosen.offsetWidth > row.scrollLeft + row.clientWidth) row.scrollLeft = left - 16;
+  }, [query.category]);
 
   const load = useCallback(async (q: BoardQuery) => {
     try {
@@ -163,7 +175,7 @@ export function Board({ initial, initialQuery, renderedAt }: { initial: LaunchSu
             ))}
           </div>
         </div>
-        <div className={styles.chips} role="radiogroup" aria-label="Paired with" data-scrolls>
+        <div ref={chips} className={styles.chips} role="radiogroup" aria-label="Paired with" data-scrolls>
           {[{ value: null, label: "All" }, ...KINDS].map((k) => (
             <label key={k.label} className="chip chip-pick">
               <input

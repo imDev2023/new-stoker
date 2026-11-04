@@ -202,3 +202,18 @@ test("a coin's trend line is its last day of hourly closes, coloured by where it
   await expect(line(others[0]!)).toHaveAttribute("data-spark", "empty");
   await expect(line(others[0]!).locator("polyline")).toHaveCount(0);
 });
+
+test.describe("on a phone", () => {
+  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+
+  test("the chips slide sideways in one line, and a link to the last kind shows its chip", async ({ page }) => {
+    await page.goto("/coins?category=community");
+    const chip = pick(paired(page), "Community");
+    await expect(paired(page).getByRole("radio", { name: "Community" })).toBeChecked();
+    await expect(chip).toBeInViewport({ ratio: 1 });
+    // One line: every chip at the same height.
+    const tops = await paired(page).locator("label").evaluateAll((labels) => new Set(labels.map((l) => l.getBoundingClientRect().top)).size);
+    expect(tops).toBe(1);
+    await expect(page.getByText("Nothing matches.")).toBeVisible();
+  });
+});
