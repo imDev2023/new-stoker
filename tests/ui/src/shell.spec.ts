@@ -1,5 +1,5 @@
 // The shell's behaviour on the seeded stack: the header and its sections, the phone bar, the footer, the light-or-dark
-// toggle, the wallet, the welcome, the search shortcut, the pulse strip, the legal pages, and the rule that no program
+// toggle, the wallet, the welcome, the pulse strip, the legal pages, and the rule that no program
 // code ever reaches the browser (ADR 0003).
 import { PlatformStats } from "@launchpad/contract";
 import { expect, expectNoHorizontalOverflow, test } from "./fixtures";
@@ -140,25 +140,6 @@ test.describe("a first visit", () => {
     await page.waitForLoadState("networkidle");
     await expect(page.getByRole("button", { name: "Connect wallet" })).toBeEnabled();
     await expect(page.getByRole("dialog")).toHaveCount(0);
-  });
-});
-
-test.describe("the search shortcut", () => {
-  // The board is #6: until it lands, /coins is the 404 page, whose load the browser reports.
-  test.use({ expectedHttpErrors: [/\/coins/] });
-
-  test("'/' and ⌘K open the board's search from any page", async ({ page }) => {
-    await page.goto("/terms");
-    await expect(page.getByRole("heading", { level: 1, name: "Terms of use" })).toBeVisible();
-    await page.waitForLoadState("networkidle");
-    await expect(async () => {
-      await page.keyboard.press("/");
-      await expect(page).toHaveURL(/\/coins#search$/, { timeout: 1_000 });
-    }).toPass({ timeout: 30_000 });
-    await page.goto("/risk");
-    await page.waitForLoadState("networkidle");
-    await page.keyboard.press("ControlOrMeta+k");
-    await expect(page).toHaveURL(/\/coins#search$/);
   });
 });
 

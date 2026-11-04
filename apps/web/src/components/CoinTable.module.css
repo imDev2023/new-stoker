@@ -16,6 +16,13 @@
 
 .curve { display: inline-block; width: 72px; height: 4px; vertical-align: middle; }
 
+.phoneChange { display: none; }
+
 @media (max-width: 640px) {
   .hideSm { display: none; }
+  .phoneChange { display: block; margin-top: 2px; font-size: var(--text-caption); }
+  /* The coin's cell wraps, so the price and the day's change stay on the screen beside it (the spec's phone rule meant
+     the first column; the star took that place). A ticker of ten wide letters breaks rather than pushing them off. */
+  .coinCell { white-space: normal !important; width: 100%; }
+  .names { min-width: 0; overflow-wrap: break-word; }
 }

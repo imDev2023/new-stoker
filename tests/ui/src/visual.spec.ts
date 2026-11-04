@@ -1,5 +1,7 @@
 // What the seeded stack shows in the shell, at desktop and phone width, light and dark: the pulse strip with the seed's
-// real figures, the welcome on a first visit and the account menu, against committed baselines.
+// real figures, the welcome on a first visit and the account menu, and Explore's board seeded, filtered by an asset,
+// searched and watchlisted, against committed baselines.
+import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
 import { DIALOG_STYLES, dynamic, snap } from "./shots";
 import { connectTestWallet, TEST_WALLET_NAME } from "./wallet";
@@ -56,4 +58,47 @@ test("not found with the pulse", async ({ page }) => {
   await page.goto("/nothing-here");
   await expect(page.locator("[data-pulse]")).toBeVisible();
   await snap(page, "404-seeded.png");
+});
+
+/** The board's trend lines are drawn from hourly candles, so whether a seeded coin has one depends on the hour the seed ran. */
+const boardMask = (page: Page) => [...dynamic(page), page.locator("[data-spark]")];
+const paired = (page: Page) => page.getByRole("radiogroup", { name: "Paired with" });
+const coinRows = (page: Page) => page.getByRole("table", { name: "Coins" }).locator("tbody tr");
+
+test.describe("the board", () => {
+  test("seeded", async ({ page }) => {
+    await page.goto("/coins");
+    await expect(coinRows(page).first()).toBeVisible();
+    await snap(page, "coins-seeded.png", boardMask);
+  });
+
+  test("filtered by an asset", async ({ page }) => {
+    await page.goto("/coins");
+    await paired(page).locator("label").filter({ hasText: /^Currencies$/ }).click();
+    await expect(page).toHaveURL(/category=stablecoin/);
+    await expect(coinRows(page)).toHaveCount(1);
+    await expect(coinRows(page).first()).toContainText("USDP/USDC");
+    await snap(page, "coins-currencies.png", boardMask);
+  });
+
+  test("searched", async ({ page }) => {
+    await page.goto("/coins");
+    await page.getByRole("searchbox", { name: "Search" }).fill("harbor");
+    await expect(page).toHaveURL(/q=harbor/);
+    await expect(coinRows(page)).toHaveCount(1);
+    await page.getByRole("searchbox", { name: "Search" }).blur();
+    await snap(page, "coins-searched.png", boardMask);
+  });
+
+  test("watchlisted", async ({ page }) => {
+    await page.goto("/coins");
+    for (const symbol of ["HRBR", "GOWN"]) {
+      const star = page.getByRole("button", { name: `Watch ${symbol}`, exact: true });
+      await star.click();
+      await expect(star).toHaveAttribute("aria-pressed", "true");
+    }
+    await page.getByRole("checkbox", { name: "Watchlist" }).check({ force: true });
+    await expect(coinRows(page)).toHaveCount(2);
+    await snap(page, "coins-watchlist.png", boardMask);
+  });
 });

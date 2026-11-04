@@ -36,7 +36,7 @@ export function CoinTable({ launches, now, compact = false, label = "Coins" }: {
           {!compact && <th scope="col" className={styles.starCell}><span className="visually-hidden">Watch</span></th>}
           <th scope="col">Coin</th>
           <th scope="col" className="r">Price</th>
-          <th scope="col" className="r">24h</th>
+          <th scope="col" className={`r ${styles.hideSm}`}>24h</th>
           <th scope="col" className={styles.hideSm}><span className="visually-hidden">Trend</span></th>
           <th scope="col" className={`r ${styles.hideSm}`}>Volume</th>
           <th scope="col" className={`r ${styles.hideSm}`}>Market cap</th>
@@ -62,7 +62,7 @@ export function CoinTable({ launches, now, compact = false, label = "Coins" }: {
                   />
                 </td>
               )}
-              <td>
+              <td className={styles.coinCell}>
                 <Link className={styles.coin} href={`/coin/${l.mint}`}>
                   <PairTile image={l.image} symbol={l.symbol} quote={l.quote} />
                   <span className={styles.names}>
@@ -77,8 +77,10 @@ export function CoinTable({ launches, now, compact = false, label = "Coins" }: {
                     {formatPriceCompact(l.market.price)} <span className={`muted ${styles.hideSm}`}>{quoteTicker(l.quote)}</span>
                   </>
                 )}
+                {/* On a phone the day's change sits under the price, so the coin keeps room for its name. */}
+                {change && <span className={`${styles.phoneChange} ${change.direction ?? ""}`}>{change.text}</span>}
               </td>
-              <td className={`r num ${change?.direction ?? ""}`}>{change?.text}</td>
+              <td className={`r num ${styles.hideSm} ${change?.direction ?? ""}`}>{change?.text}</td>
               <td className={styles.hideSm}>
                 {i < TRENDS && <Sparkline mint={l.mint} />}
               </td>
