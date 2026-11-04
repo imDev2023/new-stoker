@@ -129,7 +129,7 @@ export default async function HomePage() {
             <Link className="arrow" href="/coins">All coins</Link>
           </div>
           <div className="panel table-wrap">
-            <CoinTable launches={traded} candles={candles} label="Trending" />
+            <CoinTable compact launches={traded} candles={candles} label="Trending" />
           </div>
         </section>
       )}

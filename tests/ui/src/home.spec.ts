@@ -25,6 +25,8 @@ test("Trending lists the most traded coins, each leading to its page", async ({ 
   await page.goto("/");
   const rows = page.getByRole("table", { name: "Trending" }).getByRole("row");
   await expect(rows).toHaveCount(traded.length + 1);
+  // The compact table: the board's star, curve and age stay on Explore.
+  await expect(page.getByRole("table", { name: "Trending" }).getByRole("columnheader")).toHaveText(["Coin", "Price", "24h", "Trend", "Volume", "Market cap"]);
   for (const [i, launch] of traded.entries()) {
     const link = rows.nth(i + 1).getByRole("link");
     await expect(link).toContainText(`${launch.symbol}/${launch.quote.symbol}`);
