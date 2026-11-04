@@ -23,7 +23,7 @@ const projects: Project[] = [
   ...LOOKS.map((l) => ({ name: `empty-${l.name}`, testMatch: "empty.spec.ts", use: { ...chrome, ...l, ...still } })),
   { name: "seed", testMatch: "seed.setup.ts", dependencies: LOOKS.map((l) => `empty-${l.name}`) },
   ...LOOKS.map((l) => ({ name: `visual-${l.name}`, testMatch: "visual.spec.ts", dependencies: ["seed"], use: { ...chrome, ...l, ...still } })),
-  { name: "flows", testMatch: /(shell|serverKey)\.spec\.ts/, dependencies: visuals, use: { ...chrome, ...LOOKS[0] } },
+  { name: "flows", testMatch: /(shell|serverKey|home)\.spec\.ts/, dependencies: visuals, use: { ...chrome, ...LOOKS[0] } },
 ];
 
 export default defineConfig({

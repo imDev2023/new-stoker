@@ -52,6 +52,14 @@ test("account menu", async ({ page, wallet }) => {
   await expect(page).toHaveScreenshot("menu-connected.png", { mask: dynamic(page) });
 });
 
+test("home", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("region", { name: "Figures" }).getByRole("term")).toHaveText(["Assets", "Coins", "Graduated", "24h volume"]);
+  await expect(page.getByRole("table", { name: "Trending" }).getByRole("row")).toHaveCount(6);
+  // A coin's line is drawn from hourly candles, so where an hour fell during the seed moves it: masked, like a time.
+  await snap(page, "home-seeded.png", (p) => [...dynamic(p), p.locator("[data-spark]").filter({ visible: true })]);
+});
+
 test("not found with the pulse", async ({ page }) => {
   await page.goto("/nothing-here");
   await expect(page.locator("[data-pulse]")).toBeVisible();

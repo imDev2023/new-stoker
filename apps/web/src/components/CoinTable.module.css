@@ -1,0 +1,47 @@
+/* The coins table: Home's trending five and, with more columns, Explore's board. */
+.coin {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.names {
+  display: grid;
+}
+
+.names b {
+  font-weight: 600;
+}
+
+.names > span {
+  color: var(--ink-3);
+  font-size: var(--text-caption);
+}
+
+.spark {
+  display: block;
+  width: 88px;
+  height: 28px;
+  fill: none;
+  stroke: var(--ink-3);
+  stroke-width: 1.5;
+}
+
+.spark polyline {
+  vector-effect: non-scaling-stroke;
+}
+
+.spark.up {
+  stroke: var(--up);
+}
+
+.spark.down {
+  stroke: var(--down);
+}
+
+/* What a phone leaves out: the line, the volume, the market cap and the asset after a price. */
+@media (max-width: 640px) {
+  .wide {
+    display: none;
+  }
+}
