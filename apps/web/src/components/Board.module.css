@@ -1,0 +1,19 @@
+/* Explore's board: the toolbar and the chips over the table (the spec's coins page and its .chips and .band). */
+.board { padding-top: 0; }
+
+/* The watchlist sits beside the sort, the search alone on the left; on a phone each wraps to a line of its own. */
+.watch { margin-left: auto; }
+
+/* The "Paired with" chips: one line on a desktop; on a phone one line that slides sideways rather than four that push
+   the coins down (production's sliding row, owner 2026-10-31). */
+.chips { position: relative; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+
+/* Nothing matches: the spec's band, one sentence in the serif. */
+.empty { padding-block: clamp(80px, 13vw, 160px); text-align: center; background: var(--rule); }
+.statement { max-width: 15em; margin-inline: auto; font: var(--font-statement); letter-spacing: -.02em; text-wrap: balance; }
+
+@media (max-width: 640px) {
+  .watch { margin-left: 0; }
+  .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+  .chips > * { flex: none; }
+}

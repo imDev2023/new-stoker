@@ -1,0 +1,21 @@
+/* The coins table's own pieces (the spec's .star, .spark, .cell-coin, .progress.mini and .hide-sm). */
+
+/* A visually-hidden span inside a box that scrolls sideways is placed against the page unless the box is (CLAUDE.md). */
+.wrap { position: relative; }
+
+.starCell { width: 36px; padding-right: 0 !important; }
+.star { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: var(--radius-xs); background: none; color: var(--ink-3); cursor: pointer; }
+.star::before { content: "☆"; font-size: var(--text-prose); line-height: 1; }
+.star[aria-pressed="true"] { color: var(--gold); }
+.star[aria-pressed="true"]::before { content: "★"; }
+.star:hover { background: var(--sunken); color: var(--ink); }
+
+.coin { display: flex; align-items: center; gap: 12px; }
+.coin b { font-weight: 600; }
+.names > span { display: block; color: var(--ink-3); font-size: var(--text-caption); }
+
+.curve { display: inline-block; width: 72px; height: 4px; vertical-align: middle; }
+
+@media (max-width: 640px) {
+  .hideSm { display: none; }
+}

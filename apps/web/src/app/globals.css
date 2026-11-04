@@ -59,6 +59,8 @@
   --text-body: 16px;
   --text-prose: 17px;
   --text-lede: 18px;
+  /* A monogram in a 16px badge (a Quote Asset without a logo on a coin's picture); never text to read. */
+  --text-badge: 10px;
 
   /* Shape and motion. */
   --shell: 1120px;
