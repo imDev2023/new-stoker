@@ -41,7 +41,7 @@ export function CoinTable({ launches, now, compact = false, label = "Coins" }: {
           <th scope="col" className={`r ${styles.hideSm}`}>Volume</th>
           <th scope="col" className={`r ${styles.hideSm}`}>Market cap</th>
           {!compact && <th scope="col" className={`r ${styles.hideSm}`}>Curve</th>}
-          {!compact && <th scope="col" className={`r ${styles.hideSm}`}>Age</th>}
+          {!compact && <th scope="col" className={`r ${styles.age} ${styles.hideSm}`}>Age</th>}
         </tr>
       </thead>
       <tbody>
@@ -105,7 +105,7 @@ export function CoinTable({ launches, now, compact = false, label = "Coins" }: {
                 </td>
               )}
               {!compact && (
-                <td className={`r muted ${styles.hideSm}`}>
+                <td className={`r muted ${styles.age} ${styles.hideSm}`}>
                   <time dateTime={l.createdAt}>{formatAge(l.createdAt, now)}</time>
                 </td>
               )}

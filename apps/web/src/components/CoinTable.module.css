@@ -14,6 +14,9 @@
 .coin b { font-weight: 600; }
 .names > span { display: block; color: var(--ink-3); font-size: var(--text-caption); }
 
+/* The age ticks from "now" to "59m" and on: a set width, so a tick never moves every column of the table. */
+.age { width: 72px; }
+
 .curve { display: inline-block; width: 72px; height: 4px; vertical-align: middle; }
 
 .phoneChange { display: none; }
