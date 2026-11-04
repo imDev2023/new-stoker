@@ -50,6 +50,14 @@
   gap: 8px;
 }
 
+/* The eight sections and the two actions need about 1017px: the spec's header overflowed the window between 901px and
+   that, so there the last two sections (Curated, Developers, both in the footer) wait for the room. */
+@media (max-width: 1040px) {
+  .nav a:nth-child(n + 7) {
+    display: none;
+  }
+}
+
 /* Under 900px the sections move to the phone bar at the window's foot (PhoneBar), and the bar turns opaque: a backdrop
    filter makes an element the containing block of anything fixed inside it. */
 @media (max-width: 900px) {
