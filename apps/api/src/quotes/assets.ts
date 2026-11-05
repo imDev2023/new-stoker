@@ -5,7 +5,7 @@ import { RATE_DENOMINATOR, readCurveRules, WSOL_MINT } from "@launchpad/chain";
 import type { GraduationTarget, QuoteAsset, QuoteRef } from "@launchpad/contract";
 import { quoteAssets, type Db } from "@launchpad/db";
 import type { Config } from "../env";
-import { quoteMarket } from "./markets";
+import { quoteMarket, trackedStock } from "./markets";
 import { graduationTargetRaw, type QuoteMarket } from "./pricing";
 import { bandOf, launchBlocker } from "./rules";
 
@@ -19,8 +19,11 @@ export function toQuoteRef(r: Pick<Row, "mint" | "symbol" | "name" | "decimals" 
   return { mint: r.mint, symbol: r.symbol, name: r.name, decimals: r.decimals, logo: r.logo, category: r.category, issuer: r.issuer };
 }
 
-/** A registry row as the API shows it: launchable only if the latest price and our on-chain rule agree. */
-export function toQuoteAsset(cfg: Config, r: Row): QuoteAsset {
+/**
+ * A registry row as the API shows it: launchable only if the latest price and our on-chain rule agree. `change24h` is
+ * measured from the recorded prices (`quoteChanges`), absent when there is none.
+ */
+export function toQuoteAsset(cfg: Config, r: Row, change24h?: number): QuoteAsset {
   const target = r.graduationTarget ? BigInt(r.graduationTarget) : null;
   const reason = launchBlocker(ticker(r), target, band(r));
   return {
@@ -34,8 +37,16 @@ export function toQuoteAsset(cfg: Config, r: Row): QuoteAsset {
     referralShare: referralShare(cfg, r.maxShareFeeRate),
     liquidityUsd: r.liquidityUsd,
     labels: r.labels ?? null,
-    market: quoteMarket(r),
+    market: marketOf(r),
+    ...(change24h === undefined ? {} : { change24h }),
   };
+}
+
+/** The market behind a row, with the tracked stock's last price where the asset tracks a stock and the source gave one. */
+function marketOf(r: Row): QuoteAsset["market"] {
+  const market = quoteMarket(r);
+  if (!market || !trackedStock(r) || r.stockPriceUsd === null || r.stockPriceAt === null) return market;
+  return { ...market, last: { price: Number(r.stockPriceUsd), at: r.stockPriceAt.toISOString() } };
 }
 
 /** The referral share fee on trades paired with an asset: our rate, capped by what its GlobalConfig allows (often nothing). */
@@ -69,12 +80,12 @@ export async function priceLaunch(db: Db, cfg: Config, market: QuoteMarket, quot
   const lamports = BigInt(cfg.graduationTargetLamports.toString());
   let target: bigint | null = lamports;
   if (row.mint !== WSOL) {
-    const usd = await market.usdPrices([row.mint, WSOL]).catch((e: unknown) => {
+    const prices = await market.prices([row.mint, WSOL]).catch((e: unknown) => {
       console.error("price source failed", e);
       throw new HTTPException(503, { message: "Prices are unavailable right now, so no Graduation Target can be set. Try again in a minute." });
     });
-    const quoteUsd = usd.get(row.mint);
-    const solUsd = usd.get(WSOL);
+    const quoteUsd = prices.get(row.mint)?.usd;
+    const solUsd = prices.get(WSOL)?.usd;
     target = quoteUsd && solUsd ? graduationTargetRaw(lamports, row.decimals, quoteUsd, solUsd) : null;
   }
   const connection = new Connection(cfg.rpcUrl, "confirmed");
