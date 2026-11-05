@@ -151,6 +151,235 @@
   color-scheme: light;
 }
 
+/* Review-only candidates (#26), removed once the owner picks ---------------
+   The rebuild read too much like Peak (launchonpeak.fun: a cream page, Instrument Sans, JetBrains Mono, a serif headline,
+   orange buttons). Each candidate moves the page off cream and swaps the sans and the mono; Instrument Serif stays, and
+   the heat stays on the ring alone (components/Ring.tsx draws its own stops), so everything else the heat painted ("You
+   do.", the Creator's half, a curve's progress, a coin's letter tile) takes a ramp of the gold instead. The root layout
+   writes the visitor's pick onto <html> as data-paper and data-type (lib/looks.ts, components/LookSwitch.tsx); each
+   paper sets every colour token in both schemes, its dark written twice like the base's, and scripts/contrast.mjs
+   holds every one to the same floors. */
+:root[data-paper="porcelain"] {
+  --paper: #f3f5f8;
+  --surface: #ffffff;
+  --sunken: #e8ecf1;
+  --line: rgb(14 18 24 / 14%);
+  --line-strong: rgb(14 18 24 / 23%);
+  --ink: #0e1218;
+  --ink-2: #48505b;
+  --ink-3: #5c6470;
+  --gold: #855a10;
+  --button: #0e1218;
+  --on-button: #f3f5f8;
+  --up: #1d7346;
+  --down: #ac3a2a;
+  --heat-from: #7a500d;
+  --heat-to: #a8771f;
+  --on-heat: #fffaf0;
+  --scrim: rgb(14 18 24 / 40%);
+  --shadow: 0 1px 0 rgb(14 18 24 / 4%), 0 12px 32px -18px rgb(14 18 24 / 22%);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 8%);
+  --shadow-overlay: 0 1px 0 rgb(14 18 24 / 4%), 0 24px 64px -24px rgb(14 18 24 / 40%);
+}
+:root[data-paper="sage"] {
+  --paper: #eef1ea;
+  --surface: #fafbf8;
+  --sunken: #e3e7dd;
+  --line: rgb(17 20 15 / 15%);
+  --line-strong: rgb(17 20 15 / 23%);
+  --ink: #11140f;
+  --ink-2: #464c41;
+  --ink-3: #5c6357;
+  --gold: #825810;
+  --button: #11140f;
+  --on-button: #eef1ea;
+  --up: #1d7346;
+  --down: #ac3a2a;
+  --heat-from: #7a500d;
+  --heat-to: #a8771f;
+  --on-heat: #fffaf0;
+  --scrim: rgb(17 20 15 / 40%);
+  --shadow: 0 1px 0 rgb(17 20 15 / 4%), 0 12px 32px -18px rgb(17 20 15 / 22%);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 8%);
+  --shadow-overlay: 0 1px 0 rgb(17 20 15 / 4%), 0 24px 64px -24px rgb(17 20 15 / 40%);
+}
+:root[data-paper="white"] {
+  --paper: #ffffff;
+  --surface: #ffffff;
+  --sunken: #f2f2f2;
+  --line: rgb(10 10 10 / 13%);
+  --line-strong: rgb(10 10 10 / 22%);
+  --ink: #0a0a0a;
+  --ink-2: #4d4d4d;
+  --ink-3: #616161;
+  --gold: #8a5d12;
+  --button: #0a0a0a;
+  --on-button: #ffffff;
+  --up: #1d7346;
+  --down: #ac3a2a;
+  --heat-from: #7a500d;
+  --heat-to: #a8771f;
+  --on-heat: #fffaf0;
+  --scrim: rgb(10 10 10 / 40%);
+  --shadow: 0 1px 0 rgb(10 10 10 / 4%), 0 12px 32px -18px rgb(10 10 10 / 20%);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 8%);
+  --shadow-overlay: 0 1px 0 rgb(10 10 10 / 4%), 0 24px 64px -24px rgb(10 10 10 / 36%);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-paper="porcelain"]:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0b0d11;
+    --surface: #13161c;
+    --sunken: #08090c;
+    --line: rgb(236 240 246 / 9%);
+    --line-strong: rgb(236 240 246 / 18%);
+    --ink: #eef1f6;
+    --ink-2: #cdd3dc;
+    --ink-3: #b2bac5;
+    --gold: #deb164;
+    --button: #eef1f6;
+    --on-button: #0b0d11;
+    --up: #60c68f;
+    --down: #ff9d88;
+    --heat-from: #c9973f;
+    --heat-to: #e9c47c;
+    --on-heat: #1a1206;
+    --scrim: rgb(0 0 0 / 60%);
+    --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
+    --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
+  }
+  :root[data-paper="sage"]:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0b0d0a;
+    --surface: #141712;
+    --sunken: #080a07;
+    --line: rgb(236 241 232 / 9%);
+    --line-strong: rgb(236 241 232 / 18%);
+    --ink: #eef1ea;
+    --ink-2: #ced4c7;
+    --ink-3: #b2b9aa;
+    --gold: #deb164;
+    --button: #eef1ea;
+    --on-button: #0b0d0a;
+    --up: #60c68f;
+    --down: #ff9d88;
+    --heat-from: #c9973f;
+    --heat-to: #e9c47c;
+    --on-heat: #1a1206;
+    --scrim: rgb(0 0 0 / 60%);
+    --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
+    --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
+  }
+  :root[data-paper="white"]:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0a0a0a;
+    --surface: #151515;
+    --sunken: #050505;
+    --line: rgb(240 240 240 / 10%);
+    --line-strong: rgb(240 240 240 / 18%);
+    --ink: #f2f2f2;
+    --ink-2: #d0d0d0;
+    --ink-3: #b4b4b4;
+    --gold: #deb164;
+    --button: #f2f2f2;
+    --on-button: #0a0a0a;
+    --up: #60c68f;
+    --down: #ff9d88;
+    --heat-from: #c9973f;
+    --heat-to: #e9c47c;
+    --on-heat: #1a1206;
+    --scrim: rgb(0 0 0 / 60%);
+    --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
+    --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
+  }
+}
+:root[data-paper="porcelain"][data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0b0d11;
+  --surface: #13161c;
+  --sunken: #08090c;
+  --line: rgb(236 240 246 / 9%);
+  --line-strong: rgb(236 240 246 / 18%);
+  --ink: #eef1f6;
+  --ink-2: #cdd3dc;
+  --ink-3: #b2bac5;
+  --gold: #deb164;
+  --button: #eef1f6;
+  --on-button: #0b0d11;
+  --up: #60c68f;
+  --down: #ff9d88;
+  --heat-from: #c9973f;
+  --heat-to: #e9c47c;
+  --on-heat: #1a1206;
+  --scrim: rgb(0 0 0 / 60%);
+  --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
+}
+:root[data-paper="sage"][data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0b0d0a;
+  --surface: #141712;
+  --sunken: #080a07;
+  --line: rgb(236 241 232 / 9%);
+  --line-strong: rgb(236 241 232 / 18%);
+  --ink: #eef1ea;
+  --ink-2: #ced4c7;
+  --ink-3: #b2b9aa;
+  --gold: #deb164;
+  --button: #eef1ea;
+  --on-button: #0b0d0a;
+  --up: #60c68f;
+  --down: #ff9d88;
+  --heat-from: #c9973f;
+  --heat-to: #e9c47c;
+  --on-heat: #1a1206;
+  --scrim: rgb(0 0 0 / 60%);
+  --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
+}
+:root[data-paper="white"][data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0a0a0a;
+  --surface: #151515;
+  --sunken: #050505;
+  --line: rgb(240 240 240 / 10%);
+  --line-strong: rgb(240 240 240 / 18%);
+  --ink: #f2f2f2;
+  --ink-2: #d0d0d0;
+  --ink-3: #b4b4b4;
+  --gold: #deb164;
+  --button: #f2f2f2;
+  --on-button: #0a0a0a;
+  --up: #60c68f;
+  --down: #ff9d88;
+  --heat-from: #c9973f;
+  --heat-to: #e9c47c;
+  --on-heat: #1a1206;
+  --scrim: rgb(0 0 0 / 60%);
+  --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
+}
+/* The type pairs: a new sans and a new mono each, the serif kept (layout.tsx loads them without preloading, so the
+   control's pages fetch none of them). */
+:root[data-type="plex"] {
+  --sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+:root[data-type="albert"] {
+  --sans: var(--font-albert-sans), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--font-dm-mono), ui-monospace, monospace;
+}
+:root[data-type="atkinson"] {
+  --sans: var(--font-atkinson-next), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--font-atkinson-mono), ui-monospace, monospace;
+}
+
 /* Base -------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--bar-h) + 16px); }

@@ -1,7 +1,9 @@
 // The tokens and primitives come first, so a component's module can override a primitive's defaults on a tied selector.
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import { Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import {
+  Albert_Sans, Atkinson_Hyperlegible_Mono, Atkinson_Hyperlegible_Next, DM_Mono, IBM_Plex_Mono, IBM_Plex_Sans, Instrument_Sans, Instrument_Serif, JetBrains_Mono,
+} from "next/font/google";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import { PhoneBar } from "@/components/PhoneBar";
@@ -15,12 +17,22 @@ import { Welcome } from "@/components/Welcome";
 import { getPlatform, getStats } from "@/lib/api";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE } from "@/lib/meta";
 import { siteOrigin } from "@/lib/origin";
+import { LookSwitch } from "@/components/LookSwitch";
+import { isPaper, isTypePair, PAPER_COOKIE, TYPE_COOKIE } from "@/lib/looks";
 import { isScheme, PAPER, SCHEME_COOKIE } from "@/lib/scheme";
 
 // The spec's three families (docs/design/playground/src/layout.html), served by the app itself.
 const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-instrument-serif", display: "swap" });
 const sans = Instrument_Sans({ subsets: ["latin"], variable: "--font-instrument-sans", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono", display: "swap" });
+// Review-only (#26; lib/looks.ts): the candidates' type pairs, never preloaded, so a page in the current look fetches none of them.
+const plexSans = IBM_Plex_Sans({ subsets: ["latin"], variable: "--font-plex-sans", display: "swap", preload: false });
+const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap", preload: false });
+const albertSans = Albert_Sans({ subsets: ["latin"], variable: "--font-albert-sans", display: "swap", preload: false });
+const dmMono = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-dm-mono", display: "swap", preload: false });
+const atkinsonNext = Atkinson_Hyperlegible_Next({ subsets: ["latin"], variable: "--font-atkinson-next", display: "swap", preload: false });
+const atkinsonMono = Atkinson_Hyperlegible_Mono({ subsets: ["latin"], variable: "--font-atkinson-mono", display: "swap", preload: false });
+const candidateFonts = [plexSans, plexMono, albertSans, dmMono, atkinsonNext, atkinsonMono].map((font) => font.variable).join(" ");
 
 export async function generateMetadata(): Promise<Metadata> {
   // Only mainnet is indexable: the devnet rehearsal and a local stack carry test coins that would otherwise be indexed
@@ -64,8 +76,16 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   // The strip's figures are left out rather than the page failing if they can't be read.
   const [platform, stats, jar] = await Promise.all([getPlatform(), getStats().catch(() => null), cookies()]);
   const scheme = jar.get(SCHEME_COOKIE)?.value;
+  const paper = jar.get(PAPER_COOKIE)?.value;
+  const type = jar.get(TYPE_COOKIE)?.value;
   return (
-    <html lang="en" data-theme={isScheme(scheme) ? scheme : undefined} className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
+    <html
+      lang="en"
+      data-theme={isScheme(scheme) ? scheme : undefined}
+      data-paper={isPaper(paper) ? paper : undefined}
+      data-type={isTypePair(type) ? type : undefined}
+      className={`${serif.variable} ${sans.variable} ${mono.variable} ${candidateFonts}`}
+    >
       <body>
         <a className="skip" href="#main">Skip to content</a>
         <Providers rpcUrl={platform.rpcUrl}>
@@ -76,6 +96,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <PhoneBar />
           <Welcome />
           <SearchShortcut />
+          <LookSwitch />
         </Providers>
         <RingDefs />
       </body>

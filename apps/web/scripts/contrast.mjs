@@ -94,7 +94,8 @@ const PAIRS = [
 /** Hairlines want Lc 15 against the light grounds they sit on (production's floor; dark hairlines are not held to it). */
 const LINES = [["line", ["paper", "surface", "sunken"], 15]];
 
-for (const [mode, vars] of [["light", { ...light }], ["dark", { ...light, ...darkMedia }]]) {
+/** Every text role and hairline of one palette, as the page would draw it, against the floors. */
+function check(mode, vars, hairlines) {
   const colour = (name) => {
     const mix = name.match(/^mix:([\w-]+):(\d+)$/);
     if (mix) {
@@ -121,7 +122,7 @@ for (const [mode, vars] of [["light", { ...light }], ["dark", { ...light, ...dar
       rows.push(`${fg} on ${ground} ${r.toFixed(2)}:1 Lc ${l.toFixed(0)}`);
     }
   }
-  if (mode === "light") {
+  if (hairlines) {
     for (const [line, grounds, lc] of LINES) {
       for (const ground of grounds) {
         const b = colour(ground);
@@ -132,6 +133,31 @@ for (const [mode, vars] of [["light", { ...light }], ["dark", { ...light, ...dar
     }
   }
   console.log(`${mode}: ${rows.join(", ")}`);
+}
+
+check("light", { ...light }, true);
+check("dark", { ...light, ...darkMedia }, false);
+
+// Review-only (#26): each candidate paper sets every colour token for light and for dark, its dark written twice like
+// the base's, and lies over the base in the cascade (the base, its dark, the paper's light, the paper's dark), so each
+// is checked as the page draws it. Removed with the candidates once the owner picks.
+const papers = (re) => Object.fromEntries([...css.matchAll(re)].map((m) => [m[1], tokens(m[2])]));
+const paperLight = papers(/^:root\[data-paper="([\w-]+)"\]\s*\{([^}]*)\}/gm);
+const paperDarkMedia = papers(/:root\[data-paper="([\w-]+)"\]:not\(\[data-theme="light"\]\)\s*\{([^}]*)\}/g);
+const paperDarkPinned = papers(/:root\[data-paper="([\w-]+)"\]\[data-theme="dark"\]\s*\{([^}]*)\}/g);
+for (const paper of new Set([...Object.keys(paperLight), ...Object.keys(paperDarkMedia), ...Object.keys(paperDarkPinned)])) {
+  const [own, media, pinned] = [paperLight[paper], paperDarkMedia[paper], paperDarkPinned[paper]];
+  if (!own || !media || !pinned) {
+    fail(`paper ${paper} wants a light block, a dark block under the media query and a dark block pinned by data-theme`);
+    continue;
+  }
+  for (const key of new Set([...Object.keys(media), ...Object.keys(pinned)])) {
+    if (media[key] !== pinned[key]) fail(`paper ${paper} dark --${key}: ${media[key] ?? "unset"} under the media query, ${pinned[key] ?? "unset"} pinned by data-theme`);
+  }
+  // A token the paper sets for light alone would carry its light value into dark.
+  for (const key of Object.keys(own)) if (!(key in media) && key in darkMedia) fail(`paper ${paper} sets --${key} for light but not for dark`);
+  check(`${paper} light`, { ...light, ...own }, true);
+  check(`${paper} dark`, { ...light, ...darkMedia, ...own, ...media }, false);
 }
 
 console.log(failed ? `\n${failed} pair(s) under the floors` : "\nevery text role passes AA and APCA on every ground it sits on, in light and dark");
