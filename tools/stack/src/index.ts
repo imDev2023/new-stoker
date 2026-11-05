@@ -314,7 +314,9 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
         failures.push(e);
       }
     }
-    if (failures.length) throw new AggregateError(failures, "stopping the stack failed");
+    // Each failure is named in the message: the runner prints an AggregateError's message and stack, not its errors.
+    const why = failures.map((e) => (e instanceof Error ? e.message : String(e))).join("; ");
+    if (failures.length) throw new AggregateError(failures, `stopping the stack failed: ${why}`);
   };
   try {
     const pg = await startPostgres();
