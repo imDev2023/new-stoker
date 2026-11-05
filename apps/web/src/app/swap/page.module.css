@@ -1,0 +1,4 @@
+/* The spec's swap page: the title centred over one column at the Plugin's own width (it draws 360px). */
+.head { justify-content: center; text-align: center; }
+.swap { max-width: calc(400px + 2 * var(--gutter)); margin: 0 auto 96px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.note { margin-top: 8px; text-align: center; font-size: var(--text-caption); color: var(--ink-2); }

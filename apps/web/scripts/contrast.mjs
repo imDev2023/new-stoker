@@ -87,6 +87,9 @@ const PAIRS = [
   ["on-heat", ["heat-from", "heat-to"], 3, 45],
   // An asset's monogram on its badge, the paper on an ink disc, is a glyph on a fill too.
   ["paper", ["ink"], 3, 45],
+  // The dark tile is the same in both schemes (Jupiter's swap sits on it).
+  ["on-tile", ["tile"], 4.5, 75],
+  ["on-tile-2", ["tile"], 4.5, 60],
 ];
 /** Hairlines want Lc 15 against the light grounds they sit on (production's floor; dark hairlines are not held to it). */
 const LINES = [["line", ["paper", "surface", "sunken"], 15]];

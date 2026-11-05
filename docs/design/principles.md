@@ -44,6 +44,7 @@ The spec's palette missed some of them, so these tokens were moved in lightness 
 | `--down` | dark | `#e2725f` | `#ff9d88` | Lc 44 |
 
 Every other colour is the spec's own.
+One set of tokens is not the spec's: `--tile`, `--on-tile`, `--on-tile-2` and `--tile-line`, the dark scheme's surface, ink, third ink and hairline fixed in both schemes, for what draws its own white text whatever the scheme (Jupiter's swap on `/swap`, #9).
 
 ## Type
 
@@ -68,8 +69,11 @@ A module takes its type from the roles in `globals.css`, never a literal size:
 | `--font-pair` | The home page's pair, in its pill under the headline |
 | `--font-control` | Buttons |
 | `--font-code` | Code |
+| `--font-group` | A group's heading inside a table (the assets directory's kinds) |
+| `--font-tile-xl` | An asset's letter on the asset page's 88px tile |
 | `--text-micro` to `--text-lede` | The sans steps: 12, 13, 14, 15, 16, 17 and 18px |
 | `--text-tiny` | 10px, an asset's monogram on its 16px badge alone |
+| `--text-tile-lg` | 34px, the letter on a 64px tile |
 
 ## Shape and motion
 
