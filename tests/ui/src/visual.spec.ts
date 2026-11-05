@@ -156,6 +156,41 @@ test("coin not found", async ({ page }) => {
   await snap(page, "coin-not-found.png");
 });
 
+// The records on the seeded stack (#11): the seed's Fee Collector run is on the Ledger, the Flywheel has a graduated coin
+// to pick, and the fee changes are in each of their states. The Burn itself runs in the flows, so no coin's page moves here.
+test.describe("the records", () => {
+  /** The daily bars split at UTC midnight, and a sweep's amount wavers by a few lamports between runs (CLAUDE.md, Traps). */
+  const recordsMask = (page: Page) => [...dynamic(page), page.locator("[data-bars]"), page.locator("[data-wavers]").filter({ visible: true })];
+
+  test("stats", async ({ page }) => {
+    await page.goto("/revenue");
+    await expect(page.getByRole("region", { name: "Figures" }).getByRole("term")).toHaveText(["Revenue, all time", "Sent to Creators", "Of revenue to the Burn"]);
+    await expect(page.getByRole("heading", { name: "Daily revenue" })).toBeVisible();
+    const ledger = page.getByRole("table", { name: "Ledger" });
+    await expect(ledger.locator("tbody tr").first()).toBeVisible();
+    await expect(ledger.locator('tbody tr[data-kind="sweep"]').first()).toBeVisible();
+    await snap(page, "revenue-seeded.png", recordsMask);
+  });
+
+  test("burns", async ({ page }) => {
+    await page.goto("/burns");
+    await expect(page.getByRole("region", { name: "Figures" }).getByRole("term")).toHaveText(["Revenue so far"]);
+    await expect(page.getByRole("region", { name: "The Flywheel's next picks" }).getByRole("link")).toHaveText(["GOWN"]);
+    await snap(page, "burns-seeded.png");
+  });
+
+  test("fee changes", async ({ page }) => {
+    await page.goto("/announcements");
+    const changes = page.getByRole("list", { name: "Fee changes" }).getByRole("listitem");
+    await expect(changes).toHaveCount(3);
+    // Newest effective date first: announced a month ahead, due and waiting for the admin, applied.
+    await expect(changes.nth(0)).toContainText("Announced");
+    await expect(changes.nth(1)).toContainText("Due");
+    await expect(changes.nth(2).getByRole("link", { name: "Applied" })).toBeVisible();
+    await snap(page, "announcements-seeded.png");
+  });
+});
+
 // The launch form filled in by a connected Creator: the picture, the name and ticker with Copy Protection's verdicts, a
 // Reward Launch, a link and a First Buy, with the summary following every field.
 test("launch filled", async ({ page, wallet }) => {

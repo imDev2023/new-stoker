@@ -1,0 +1,9 @@
+/* Burn and Flywheel (the spec's .lead and .chips). */
+.lead { max-width: 40em; font: var(--font-lead); letter-spacing: -.005em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+/* On a phone the run's date goes under its name, and its own column leaves, so the table fits 390px. */
+.narrow { display: none; }
+@media (max-width: 640px) {
+  .wide { display: none; }
+  .narrow { display: table; margin-top: 2px; color: var(--ink-3); font-size: var(--text-caption); }
+}

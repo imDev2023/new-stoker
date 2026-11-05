@@ -1,0 +1,6 @@
+/* Fee changes (the spec's .timeline and the empty .statement.band). */
+.flush { padding-top: 0; }
+.timeline { display: grid; gap: 12px; }
+.timeline h2 { margin-top: 4px; font: var(--font-heading); }
+.timeline p + p, .timeline h2 + p { margin-top: 8px; }
+.statement { max-width: 15em; margin-inline: auto; padding-block: clamp(80px, 13vw, 160px); font: var(--font-statement); letter-spacing: -.02em; text-align: center; text-wrap: balance; }

@@ -3,8 +3,8 @@
 import { test as setup } from "@playwright/test";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import {
-  coinBalance, fund, fundedKeypair, fundQuote, graduate, launchViaApi, payAirdropViaApi, runFeeCollector, runRewardRounds, SEED_CREATOR,
-  SEED_HOLDER, tradeViaApi,
+  announceFeeChange, applyFeeChange, coinBalance, fund, fundedKeypair, fundQuote, graduate, launchViaApi, payAirdropViaApi, runFeeCollector, runRewardRounds, SEED_CREATOR,
+  platformInfo, SEED_HOLDER, tradeViaApi,
   type LaunchFields,
 } from "./fixtures";
 import { AIRDROP_CREATOR, AIRDROP_PAID, AIRDROP_SENDING, REWARD_CREATOR, REWARD_QUOTE } from "./seedData";
@@ -87,4 +87,14 @@ setup("seed the board", async () => {
   // Gown's pool fee and Fee Key LP fees, so the revenue page shows every stream. The Creator Forward then sends each
   // Creator their share, so the Creator Fee page has payments from the platform in SOL and USDC.
   await runFeeCollector();
+
+  // Fee changes in each of their states (#11): one applied (at the rates the chain already has, so nothing any other
+  // page shows moves), one due and waiting for the admin, and one announced for a month ahead. Dates are masked.
+  const { platformFeeBps, creatorFeeBps } = await platformInfo();
+  const lead = 5;
+  const applied = await announceFeeChange(Math.round(platformFeeBps), Math.round(creatorFeeBps), lead);
+  await announceFeeChange(80, 20, lead + 1);
+  await announceFeeChange(90, 10, 30 * 86_400, "Announced a month ahead, so every Creator and every trader sees it coming.");
+  await new Promise((r) => setTimeout(r, (lead + 2) * 1000));
+  await applyFeeChange(applied.id);
 });
