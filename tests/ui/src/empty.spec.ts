@@ -194,3 +194,21 @@ test("fee changes before any", async ({ page }) => {
   await expect(page.getByRole("list", { name: "Fee changes" })).toHaveCount(0);
   await snap(page, "announcements.png");
 });
+
+test("the launch form before the first coin", async ({ page }) => {
+  await page.goto("/launch");
+  await expect(page.getByRole("heading", { level: 1, name: "Stoke a coin" })).toBeVisible();
+  // Every control is there before anything has launched: the coin, the recommended three and the picker, the four
+  // launch types (Holder rewards not yet), the links, the First Buy, and the summary's own Connect wallet.
+  const form = page.getByRole("form", { name: "Stoke a coin" });
+  for (const group of ["Your coin", "Paired with", "Launch type", "Links", "First buy"]) await expect(form.getByRole("group", { name: group })).toBeVisible();
+  await expect(form.getByRole("radiogroup", { name: "Paired with" }).getByRole("radio")).toHaveCount(3);
+  await expect(form.getByRole("radiogroup", { name: "Launch type" }).getByRole("radio")).toHaveCount(4);
+  await expect(form.getByRole("combobox", { name: "Any other asset" })).toBeVisible();
+  const summary = page.getByRole("complementary", { name: "Launch summary" });
+  await expect(summary.getByRole("button", { name: "Connect wallet" })).toBeVisible();
+  // No fee figure: what a Creator earns is a link to the Fees page (production's rule, the map's open question 1).
+  await expect(summary.getByRole("link", { name: "Half of what we collect" })).toHaveAttribute("href", "/fees");
+  await expect(summary.getByText("Per $1,000 traded")).toHaveCount(0);
+  await snap(page, "launch.png");
+});
