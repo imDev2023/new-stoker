@@ -172,9 +172,12 @@ export async function getRevenue() {
   return read(await apiFetch(`${API_URL}/v1/revenue`, { cache: "no-store" }), Revenue);
 }
 
+/** How many Ledger entries a page shows at a time (the spec's 20). */
+export const LEDGER_PAGE = 20;
+
 /** A page of the Ledger, newest first; pass the previous page's `next` to go further back. */
 export async function listLedger(before?: string | null) {
-  const query = new URLSearchParams({ limit: "25", ...(before ? { before } : {}) });
+  const query = new URLSearchParams({ limit: String(LEDGER_PAGE), ...(before ? { before } : {}) });
   return read(await apiFetch(`${API_URL}/v1/ledger?${query}`, { cache: "no-store" }), LedgerPage);
 }
 

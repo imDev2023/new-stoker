@@ -1,7 +1,7 @@
 // The shell and the static pages before anything has launched, at desktop and phone width, light and dark: every control
 // is there, and the pulse strip waits for a real figure.
-import { QuoteAssetList } from "@launchpad/contract";
-import { expect, test } from "./fixtures";
+import { BurnsPage, FeeAnnouncementList, QuoteAssetList, Revenue } from "@launchpad/contract";
+import { expect, platformInfo, stackEnv, test } from "./fixtures";
 import { snap } from "./shots";
 
 test("home", async ({ page, stack }) => {
@@ -115,4 +115,82 @@ test("swap", async ({ page }) => {
   // No referral account on the stack: no fee of ours, so no fee line.
   await expect(page.getByText("Routed by Jupiter.", { exact: true })).toBeVisible();
   await snap(page, "swap.png");
+});
+
+/** A rate as the Fees page writes it (apps/web/src/lib/fees.ts). */
+const pct = (bps: number) => `${Number((bps / 100).toFixed(3))}%`;
+const api = async <T>(path: string, schema: { parse: (v: unknown) => T }) => schema.parse(await (await fetch(`${stackEnv().apiUrl}${path}`)).json());
+
+test("fees", async ({ page }) => {
+  const platform = await platformInfo();
+  const burns = await api("/v1/burns", BurnsPage);
+  await page.goto("/fees");
+  await expect(page.getByRole("heading", { level: 1, name: "Fees" })).toBeVisible();
+  const fees = page.getByRole("list", { name: "Every fee" });
+  // Every fee in the spec's order; the stack has a SOL route and a Graduation Fee, and no referral account, so no swap fee.
+  await expect(fees.getByRole("heading", { level: 3 })).toHaveText([
+    "Creating a coin", "Graduation Fee", "Platform Fee on the curve", "Creator Fee on the curve", "Raydium's curve fee", "Referral share",
+    "Pool creator fee", "Pool trade fee", "Reward Tax", "Buying with SOL a coin paired with another asset", "Network fees and rent",
+  ]);
+  // Every rate is the chain's, as the API reads it now, never a constant.
+  const figure = (id: string) => page.locator(`[data-fee="${id}"] > span`);
+  await expect(figure("graduation")).toHaveText(`${Number(platform.graduationFeeLamports) / 1e9} SOL's worth, once`);
+  await expect(figure("platform")).toHaveText(`${pct(platform.platformFeeBps)} of every trade`);
+  await expect(figure("creator")).toHaveText(platform.creatorFeeBps === 0 ? "None" : `${pct(platform.creatorFeeBps)} of every trade`);
+  await expect(figure("raydiumCurve")).toHaveText(`${pct(platform.raydiumFee.curveBps)} of every trade`);
+  await expect(figure("referral")).toHaveText(`${pct(platform.referralShareBps)} of a referred trade`);
+  await expect(figure("poolCreator")).toHaveText(`${pct(platform.poolCreatorFeeBps)} of every trade`);
+  await expect(figure("pool")).toHaveText(`${pct(platform.raydiumFee.poolBps)} of every trade`);
+  await expect(figure("rewardTax")).toHaveText("1%, 3% or 5% of every transfer");
+  await expect(page.locator('[data-fee="route"] p')).toContainText(`up to ${pct(platform.solRouteToleranceBps)} under the current price`);
+  // What the platform does with its share, the Burn's two shares from GET /v1/burns.
+  const share = page.getByRole("region", { name: "What the platform does with its share" });
+  await expect(share.getByRole("definition")).toHaveText([
+    "Half, within an hour", `${pct(burns.shares.burnBps)} buys and burns STOKER`,
+    `${pct(burns.shares.flywheelBps)} buys and burns the top ${burns.shares.flywheelTopN}`, "The rest, hourly",
+  ]);
+  // The rail beside the entries, which a phone leaves out (the spec's .doc nav under 860px).
+  const rail = page.getByRole("navigation", { name: "On this page", includeHidden: true }).getByRole("link", { includeHidden: true });
+  await expect(rail).toHaveText(["Every fee", "What the platform does with its share"]);
+  await snap(page, "fees.png");
+});
+
+test("stats before the first coin", async ({ page }) => {
+  const revenue = await api("/v1/revenue", Revenue);
+  expect(revenue.totals).toEqual([]);
+  await page.goto("/revenue");
+  await expect(page.getByRole("heading", { level: 1, name: "Stats" })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("link", { name: "Burn and Flywheel" })).toHaveAttribute("href", "/burns");
+  // Nothing collected yet: the Burn's share is the one real figure, and it links to where the share is set out.
+  const figures = page.getByRole("region", { name: "Figures" });
+  await expect(figures.getByRole("term")).toHaveText(["Of revenue to the Burn"]);
+  await expect(figures.getByRole("link")).toHaveAttribute("href", "/fees#share");
+  for (const name of ["Daily revenue", "By asset", "Ledger"]) await expect(page.getByRole("heading", { name })).toHaveCount(0);
+  await expect(page.getByRole("table")).toHaveCount(0);
+  // The wallets the revenue moves between are real from the start.
+  const where = page.getByRole("region", { name: "Where it goes" });
+  await expect(where.getByRole("term")).toHaveText(["To Creators", "Operations wallet", "Treasury", "Swept above"]);
+  await snap(page, "revenue.png");
+});
+
+test("burns before the first coin", async ({ page }) => {
+  const burns = await api("/v1/burns", BurnsPage);
+  await page.goto("/burns");
+  await expect(page.getByRole("heading", { level: 1, name: "Burn and Flywheel" })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("link", { name: "Stats" })).toHaveAttribute("href", "/revenue");
+  // No revenue, no run and no graduated coin: only the published rule.
+  await expect(page.getByRole("region", { name: "Figures" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "The rule" }).locator("p")).toHaveText(burns.rule);
+  for (const name of ["The Flywheel's next picks", "Every buy and burn"]) await expect(page.getByRole("heading", { name })).toHaveCount(0);
+  await snap(page, "burns.png");
+});
+
+test("fee changes before any", async ({ page }) => {
+  expect((await api("/v1/announcements", FeeAnnouncementList)).announcements).toEqual([]);
+  await page.goto("/announcements");
+  await expect(page.getByRole("heading", { level: 1, name: "Fee changes" })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("link", { name: "Fees now" })).toHaveAttribute("href", "/fees");
+  await expect(page.getByText("No fee change has ever been announced.")).toBeVisible();
+  await expect(page.getByRole("list", { name: "Fee changes" })).toHaveCount(0);
+  await snap(page, "announcements.png");
 });

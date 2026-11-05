@@ -111,8 +111,12 @@ export function explorerUrl(kind: "tx" | "address", value: string, platform: { c
   return `https://explorer.solana.com/${kind}/${value}${suffix}`;
 }
 
-/** A figure as a strip or a row of figures writes it: compact from 10,000 (12.3K), whole from 10, two decimals below. */
+/**
+ * A figure as a strip or a row of figures writes it: compact from 10,000 (12.3K), whole from 10, two decimals below, and
+ * two significant digits under 0.01, so a real amount never reads as 0 (0.0012).
+ */
 export function formatFigure(n: number) {
+  if (n > 0 && n < 0.01) return n.toLocaleString("en-US", { maximumSignificantDigits: 2 });
   return n.toLocaleString("en-US", n >= 10_000 ? { notation: "compact", maximumSignificantDigits: 3 } : { maximumFractionDigits: n < 10 ? 2 : 0 });
 }
 

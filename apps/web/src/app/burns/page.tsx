@@ -69,16 +69,21 @@ export default async function BurnsPage() {
                   <th scope="col">Run</th>
                   <th scope="col" className="r">Burned</th>
                   <th scope="col" className="r">SOL spent</th>
-                  <th scope="col" className="r">Date</th>
+                  <th scope="col" className={`r ${styles.wide}`}>Date</th>
                 </tr>
               </thead>
               <tbody>
                 {burns.events.map((e) => (
                   <tr key={e.signature} data-kind={e.kind}>
-                    <td>{e.kind === "burn" ? "The Burn" : "The Flywheel"} · {quoteTicker(e.coin)}</td>
+                    <td>
+                      {e.kind === "burn" ? "The Burn" : "The Flywheel"} · {quoteTicker(e.coin)}
+                      <a className={`link ${styles.narrow}`} href={explorerUrl("tx", e.signature, platform)} target="_blank" rel="noreferrer">
+                        <time dateTime={e.time}>{formatDate(e.time)}</time>
+                      </a>
+                    </td>
                     <td className="r num">{formatEntryAmount(e.amount, e.coin.decimals)}</td>
                     <td className="r num">{formatEntryAmount(e.lamports, SOL_DECIMALS)}</td>
-                    <td className="r">
+                    <td className={`r ${styles.wide}`}>
                       <a className="link" href={explorerUrl("tx", e.signature, platform)} target="_blank" rel="noreferrer">
                         <time dateTime={e.time}>{formatDate(e.time)}</time>
                       </a>

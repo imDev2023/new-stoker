@@ -65,7 +65,8 @@ export default async function StatsPage() {
   const value = valuer(quotes);
   const renderedAt = Date.now();
 
-  const revenueSol = burns ? units(burns.budgets.revenueLamports, SOL_DECIMALS) : 0;
+  // Every stream the platform collected, the Creators' half included, as the spec sums it (the Burn's own basis is net of that half).
+  const revenueSol = (revenue?.totals ?? []).reduce((s, t) => s + value(t.asset, t.total), 0);
   const creatorsSol = (revenue?.totals ?? []).reduce((s, t) => s + value(t.asset, t.creatorForwarded), 0);
   const stoker = burns?.platformToken ? burns.burned.find((b) => b.coin.mint === burns.platformToken) : undefined;
   const burned = stoker ? units(stoker.amount, stoker.coin.decimals) : 0;

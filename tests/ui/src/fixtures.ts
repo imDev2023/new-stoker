@@ -7,8 +7,8 @@ import {
   Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, VersionedTransaction, sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction, getAssociatedTokenAddressSync } from "@solana/spl-token";
-import { LaunchList, PreparedAirdrop, PreparedLaunch, PreparedTrade, type TradeSide } from "@launchpad/contract";
-import { LOCAL_QUOTES, migrateCurve, mintLocalQuote } from "@launchpad/localnet";
+import { FeeAnnouncement, LaunchList, PlatformInfo, PreparedAirdrop, PreparedFeeChange, PreparedLaunch, PreparedTrade, type TradeSide } from "@launchpad/contract";
+import { LOCAL_QUOTES, localnetKeys, migrateCurve, mintLocalQuote } from "@launchpad/localnet";
 import { swapThroughSolRoute } from "@launchpad/localnet/routes";
 import { FEE_COLLECTOR_CRON, type StackEnv } from "@launchpad/stack";
 import { installTestWallet, type TestWallet } from "./wallet";
@@ -220,6 +220,45 @@ export async function runFeeCollector() {
     };
     if (!res.ok || runs.runs[0]?.status !== "succeeded") throw new Error(`the ${job} job failed: ${res.status} ${JSON.stringify(runs.runs[0])}`);
   }
+}
+
+/** Announces a Platform Fee and Creator Fee change as the operator does, taking effect `inSeconds` from now. */
+export async function announceFeeChange(platformFeeBps: number, creatorFeeBps: number, inSeconds: number, note?: string) {
+  const { apiUrl, operatorToken } = stackEnv();
+  const res = await fetch(`${apiUrl}/v1/operator/fees/announce`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${operatorToken}`, "content-type": "application/json" },
+    body: JSON.stringify({ platformFeeBps, creatorFeeBps, effectiveAt: new Date(Date.now() + inSeconds * 1000).toISOString(), ...(note ? { note } : {}) }),
+  });
+  if (res.status !== 201) throw new Error(`announcing a fee change failed: ${res.status} ${await res.text()}`);
+  return FeeAnnouncement.parse(await res.json());
+}
+
+/**
+ * Applies an announced change once it is due, as the cold admin key does (here the local chain's admin): the operator
+ * prepares it, the admin signs and sends it, and the Indexer records it on the announcement.
+ */
+export async function applyFeeChange(id: string) {
+  const { apiUrl, operatorToken } = stackEnv();
+  const res = await fetch(`${apiUrl}/v1/operator/fees/prepare`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${operatorToken}`, "content-type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) throw new Error(`preparing a fee change failed: ${res.status} ${await res.text()}`);
+  const prepared = PreparedFeeChange.parse(await res.json());
+  const tx = Transaction.from(Buffer.from(prepared.transaction, "base64"));
+  tx.sign(localnetKeys().admin);
+  const signature = await connection().sendRawTransaction(tx.serialize());
+  await connection().confirmTransaction({ signature, blockhash: tx.recentBlockhash!, lastValidBlockHeight: prepared.lastValidBlockHeight }, "confirmed");
+  const reported = await fetch(`${apiUrl}/v1/transactions/${signature}`, { method: "POST" });
+  if (!reported.ok) throw new Error(`reporting the fee change failed: ${reported.status} ${await reported.text()}`);
+  return signature;
+}
+
+/** The platform's facts as the API reads them from the chain. */
+export async function platformInfo() {
+  return PlatformInfo.parse(await (await fetch(`${stackEnv().apiUrl}/v1/platform`)).json());
 }
 
 /** Runs the Reward Engine once, as its Cron Trigger would: harvests, sells (for a Quote Asset payout), opens and pays rounds. */
