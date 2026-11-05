@@ -25,3 +25,9 @@ body {
 [data-tab-bar] {
   position: absolute !important;
 }
+
+/* The launch form's Copy Protection verdicts end on the day a window closes ("Nov 5", "Nov 12"). */
+[data-copy] time {
+  width: 6ch;
+  vertical-align: bottom;
+}
