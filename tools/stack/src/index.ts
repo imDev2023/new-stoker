@@ -314,7 +314,9 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
         failures.push(e);
       }
     }
-    if (failures.length) throw new AggregateError(failures, "stopping the stack failed");
+    // The causes in the message itself: Playwright's teardown report prints the message, not an AggregateError's members.
+    const causes = failures.map((e) => (e instanceof Error ? e.message : String(e))).join("; ");
+    if (failures.length) throw new AggregateError(failures, `stopping the stack failed: ${causes}`);
   };
   try {
     const pg = await startPostgres();
@@ -445,7 +447,10 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
         // A separate build directory, so tests never fight a developer's running `next dev` for its lock.
         { NEXT_PUBLIC_API_URL: apiUrl, API_KEY: webApiKey, NEXT_DIST_DIR: `.next-test-${webPort}`, NEXT_TELEMETRY_DISABLED: "1" },
       );
-      cleanups.push(web.stop, () => rmSync(join(REPO, "apps", "web", `.next-test-${webPort}`), { recursive: true, force: true }));
+      // Cleanups run in reverse: the build folder goes only once `next dev` has stopped, and with retries, since the
+      // process `pnpm exec` started can still be writing Turbopack's cache for a moment after: removed under it, the
+      // removal failed with ENOTEMPTY and a green run ended in a failed teardown (#7).
+      cleanups.push(() => rmSync(join(REPO, "apps", "web", `.next-test-${webPort}`), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }), web.stop);
       // The home page answers, which means the web compiled and read the API.
       await waitFor("web", async () => (await fetch(webUrl)).ok, 180_000, web.log);
     }

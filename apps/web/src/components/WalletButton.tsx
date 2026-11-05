@@ -30,7 +30,10 @@ export function Avatar({ address, size = 22 }: { address: string; size?: number 
  * short address once connected, each opening a menu that also holds the light-or-dark toggle (production's place for
  * it since imDev2023/Stoker-Markets#131). Wallets are found through the Wallet Standard, so none is bundled.
  */
-export function WalletButton() {
+export function WalletButton({ block = false }: {
+  /** The trade panel's own "Connect wallet": the panel's width and height, its menu opening under it, with no scheme toggle. */
+  block?: boolean;
+} = {}) {
   const { wallets, wallet, publicKey, connecting, select, connect, disconnect } = useWallet();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
@@ -82,6 +85,7 @@ export function WalletButton() {
     </div>
   );
 
+  if (publicKey && block) return null;
   if (publicKey) {
     const name = wallet ? `Connected with ${wallet.adapter.name}` : "Wallet";
     return (
@@ -108,8 +112,8 @@ export function WalletButton() {
   }
 
   return (
-    <div className={styles.wrap} ref={menu}>
-      <button type="button" className="button button-ghost" onClick={() => setOpen((o) => !o)} aria-expanded={open} disabled={connecting}>
+    <div className={block ? `${styles.wrap} ${styles.block}` : styles.wrap} ref={menu}>
+      <button type="button" className={block ? "button button-lg button-block" : "button button-ghost"} onClick={() => setOpen((o) => !o)} aria-expanded={open} disabled={connecting}>
         {connecting ? "Connecting…" : "Connect wallet"}
       </button>
       {open && (
@@ -134,7 +138,7 @@ export function WalletButton() {
               </button>
             ))
           )}
-          {toggle}
+          {!block && toggle}
         </div>
       )}
     </div>

@@ -1,0 +1,98 @@
+/* The trade panel, after the spec's .trade, .presets and .slip. */
+.trade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.trade :global(.seg) {
+  display: flex;
+}
+
+.trade :global(.seg) label {
+  flex: 1;
+  justify-content: center;
+}
+
+.token {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.invalid {
+  border-color: var(--down);
+}
+
+.presets {
+  display: flex;
+  gap: 8px;
+}
+
+.presets button {
+  flex: 1;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--ink-2);
+  font: 500 var(--text-caption) / 1 var(--sans);
+  cursor: pointer;
+}
+
+.presets button:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.presets button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+/* A choice beside its name: what to pay with, and the slippage. */
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+
+.trade .option :global(.seg) {
+  display: inline-flex;
+}
+
+.trade .option :global(.seg) label {
+  flex: none;
+  height: 28px;
+  padding: 0 10px;
+  font-size: var(--text-caption);
+}
+
+.note,
+.closed {
+  font-size: var(--text-small);
+  color: var(--ink-2);
+}
+
+.problem,
+.error {
+  font-size: var(--text-small);
+  color: var(--down);
+}
+
+.done {
+  font-size: var(--text-small);
+  font-weight: 500;
+}

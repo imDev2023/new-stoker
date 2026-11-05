@@ -1,0 +1,230 @@
+/* A coin's page, after the spec's coin.html and its section of style.css. */
+
+/* The title row: the pair's tile, its name and marks, the price on the right. */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-block: clamp(36px, 6vw, 64px) 28px;
+}
+
+.words {
+  min-width: 0;
+}
+
+.pair {
+  font: var(--font-coin);
+  letter-spacing: -.02em;
+  overflow-wrap: anywhere;
+}
+
+.price {
+  margin-left: auto;
+  text-align: right;
+}
+
+.price b {
+  display: block;
+  font: var(--font-price);
+  letter-spacing: -.02em;
+}
+
+/* Before you buy: a dot and a few words each. */
+.marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.marks li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-caption);
+  font-weight: 500;
+}
+
+.marks li::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-3);
+}
+
+.marks .ok::before {
+  background: var(--up);
+}
+
+.marks .caution::before {
+  background: var(--gold);
+}
+
+.marks .down::before {
+  background: var(--down);
+}
+
+/* The market beside the trade panel. */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 24px;
+  align-items: start;
+  padding-bottom: 64px;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+
+.aside {
+  position: sticky;
+  top: calc(var(--bar-h) + 24px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+}
+
+.stats dt {
+  font-size: var(--text-caption);
+  color: var(--ink-3);
+}
+
+.stats dd {
+  font: var(--font-stat);
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: 300px;
+  color: var(--ink);
+}
+
+.line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.fill {
+  fill: url(#chart-fill);
+}
+
+.curveHead {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: var(--text-ui);
+}
+
+.curveHead h2 {
+  font: var(--font-label);
+}
+
+.note {
+  margin-top: 10px;
+  font-size: var(--text-small);
+  color: var(--ink-2);
+}
+
+.tabs {
+  padding-bottom: 12px;
+}
+
+.holder {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The asset the coin is paired with. */
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.cardName {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardName b {
+  display: block;
+  font-weight: 600;
+}
+
+.cardName span {
+  color: var(--ink-3);
+  font-size: var(--text-caption);
+}
+
+.assetTile {
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.desc {
+  margin-bottom: 12px;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+/* One column under 960px: the chart, the trade panel, then the rest. */
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .main,
+  .aside {
+    display: contents;
+  }
+
+  .main > :first-child {
+    order: -2;
+  }
+
+  .aside > :first-child {
+    order: -1;
+  }
+
+  .aside > :not(:first-child) {
+    order: 1;
+  }
+
+  .price {
+    margin-left: 0;
+    text-align: left;
+    width: 100%;
+  }
+}
+
+/* What a phone leaves out of the trades: the trader, whose trade still links to the explorer from its time. */
+@media (max-width: 640px) {
+  .wide {
+    display: none;
+  }
+}
+
+/* A trade's age changes width as it ages (41s ago, 1m ago, 23h ago) and the trades refresh every few seconds: a fixed
+   column keeps the others from moving under the reader. */
+.when {
+  width: 6.5rem;
+}

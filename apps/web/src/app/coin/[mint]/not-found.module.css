@@ -1,0 +1,15 @@
+/* The spec's band: one sentence, then the way on. */
+.band {
+  display: grid;
+  justify-items: center;
+  gap: 28px;
+  padding-block: clamp(80px, 13vw, 160px);
+  text-align: center;
+}
+
+.statement {
+  max-width: 15em;
+  font: var(--font-statement);
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}

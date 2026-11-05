@@ -1,8 +1,8 @@
 // What the seeded stack shows in the shell, at desktop and phone width, light and dark: the pulse strip with the seed's
-// real figures, the welcome on a first visit and the account menu, and Explore's board seeded, filtered by an asset,
-// searched and watchlisted, against committed baselines.
+// real figures, the welcome on a first visit and the account menu, Explore's board seeded, filtered by an asset,
+// searched and watchlisted, and a coin's page in each of its states, against committed baselines.
 import type { Page } from "@playwright/test";
-import { expect, test } from "./fixtures";
+import { expect, listLaunches, test } from "./fixtures";
 import { DIALOG_STYLES, dynamic, snap } from "./shots";
 import { connectTestWallet, TEST_WALLET_NAME } from "./wallet";
 
@@ -109,4 +109,36 @@ test.describe("the board", () => {
     await expect(coinRows(page)).toHaveCount(2);
     await snap(page, "coins-watchlist.png", boardMask);
   });
+});
+
+/** A seeded coin's address, by its ticker. */
+async function seeded(symbol: string) {
+  const launch = (await listLaunches()).find((l) => l.symbol === symbol);
+  if (!launch) throw new Error(`the seed has no ${symbol}`);
+  return launch.mint;
+}
+
+/** What varies on a coin page besides the suite's own: the chart, whose candles fall either side of an interval by the seed's timing. */
+const coinMask = (page: Page) => [...dynamic(page), page.locator("[data-chart]")];
+
+// A coin's page in each state the seed leaves one in: fresh off the form, traded, paired with USDC (with Pay with),
+// sold out and graduating, graduated into its pool, and the longest name and ticker.
+for (const [name, symbol] of [
+  ["coin-fresh", "FRST"], ["coin-traded", "HRBR"], ["coin-usdc", "USDP"], ["coin-graduating", "$FIRE"], ["coin-graduated", "GOWN"],
+  ["coin-longest", "WWWWWWWWWW"],
+] as const) {
+  test(name, async ({ page }) => {
+    await page.goto(`/coin/${await seeded(symbol)}`);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(symbol);
+    // The marks read the chain's holders and the trust figures: wait for the Creator's and the snipers'.
+    await expect(page.getByRole("list", { name: "Before you buy" }).getByRole("listitem")).not.toHaveCount(0);
+    await snap(page, `${name}.png`, coinMask);
+  });
+}
+
+test("coin not found", async ({ page }) => {
+  // A valid address no coin has.
+  await page.goto("/coin/11111111111111111111111111111112");
+  await expect(page.getByRole("heading", { name: "This coin isn't here." })).toBeVisible();
+  await snap(page, "coin-not-found.png");
 });
