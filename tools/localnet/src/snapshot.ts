@@ -26,8 +26,16 @@ export type SnapshotQuote = {
 
 export type QuotesSnapshot = { takenAt: string; slot: number; quotes: SnapshotQuote[] };
 
-/** Jupiter's Price API v3 entry for a mint, as it answers: `usdPrice`, and for a ScaledUiAmount mint the price per unscaled unit. */
-export type SnapshotPrice = { usdPrice: number; scaledUiConfig?: { usdPricePrescaled?: number } };
+/**
+ * Jupiter's Price API v3 entry for a mint, as it answers: `usdPrice`, for a ScaledUiAmount mint the price per unscaled
+ * unit, and for a tokenized stock the price of the stock it tracks (`stockData`, kept since #3; the 2026-10-10 snapshot
+ * predates it, so the development site shows no stock prices until a retake).
+ */
+export type SnapshotPrice = {
+  usdPrice: number;
+  scaledUiConfig?: { usdPricePrescaled?: number };
+  stockData?: { id?: string; price?: number; updatedAt?: string };
+};
 
 /** Jupiter's Tokens API v2 entry for a mint, the fields the API reads and the ones that help a reader of the file. */
 export type SnapshotToken = {
@@ -109,11 +117,15 @@ async function main() {
   quotes.sort((a, b) => a.mint.localeCompare(b.mint));
 
   const ids = quotes.map((q) => q.mint);
-  type PriceBody = Record<string, { usdPrice?: number; scaledUiConfig?: { usdPricePrescaled?: number } } | null>;
+  type PriceBody = Record<string, (Omit<SnapshotPrice, "usdPrice"> & { usdPrice?: number }) | null>;
   const prices: Record<string, SnapshotPrice> = {};
   for (const [mint, p] of await jupiter(host, apiKey, (b) => `/price/v3?ids=${b.join(",")}`, ids, JUPITER_PRICE_IDS_MAX, (body) => Object.entries((body ?? {}) as PriceBody))) {
     if (typeof p?.usdPrice !== "number") continue;
-    prices[mint] = p.scaledUiConfig?.usdPricePrescaled !== undefined ? { usdPrice: p.usdPrice, scaledUiConfig: { usdPricePrescaled: p.scaledUiConfig.usdPricePrescaled } } : { usdPrice: p.usdPrice };
+    prices[mint] = {
+      usdPrice: p.usdPrice,
+      ...(p.scaledUiConfig?.usdPricePrescaled !== undefined ? { scaledUiConfig: { usdPricePrescaled: p.scaledUiConfig.usdPricePrescaled } } : {}),
+      ...(p.stockData ? { stockData: { id: p.stockData.id, price: p.stockData.price, updatedAt: p.stockData.updatedAt } } : {}),
+    };
   }
   type TokenBody = { id: string; name?: string; symbol?: string; icon?: string; isVerified?: boolean; liquidity?: number | null; tags?: string[] | null; launchpad?: string | null };
   const tokens: Record<string, SnapshotToken> = {};

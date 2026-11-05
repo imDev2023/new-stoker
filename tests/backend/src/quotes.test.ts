@@ -76,7 +76,8 @@ describe("the Quote Registry", () => {
   it("names the market behind each Quote Asset as TradingView does, from the issuer's ticker or the mint, never a name", async () => {
     const bySymbol = Object.fromEntries((await listQuotes()).map((q) => [q.symbol, q]));
     // The stock NVDAx tracks, known from xStocks' authorities on the mint and the ticker xStocks gave it.
-    expect(bySymbol.NVDAx!.market).toEqual({ symbol: "NASDAQ:NVDA", venue: "NASDAQ", ticker: "NVDA" });
+    // With the stock's last price, as the price source reported it (quote-market.test.ts).
+    expect(bySymbol.NVDAx!.market).toEqual({ symbol: "NASDAQ:NVDA", venue: "NASDAQ", ticker: "NVDA", last: { price: 181.5, at: expect.any(String) } });
     // A coin's own market, by mint: TradingView's index across exchanges.
     expect(bySymbol.SOL!.market).toEqual({ symbol: "CRYPTO:SOLUSD", venue: "CRYPTO", ticker: "SOLUSD" });
     expect(bySymbol.USDC!.market).toEqual({ symbol: "CRYPTO:USDCUSD", venue: "CRYPTO", ticker: "USDCUSD" });

@@ -35,6 +35,11 @@ export type Bindings = {
    * "liquidityUsd": number } }`; a mint left out is unverified with unknown liquidity. Mainnet reads Jupiter's list.
    */
   QUOTE_TOKEN_LIST?: string;
+  /**
+   * JSON object of the tracked stock's USD price by tokenized stock mint, for the static price source: what `market.last`
+   * shows (#3), reported as of each refresh. Mainnet reads Jupiter's `stockData`.
+   */
+  QUOTE_STOCK_PRICES_USD?: string;
   /** Optional; without it the free Jupiter host is used, for prices and for SOL routes. */
   JUPITER_API_KEY?: string;
   /**
@@ -411,7 +416,7 @@ export function solRoutes(env: Bindings, cfg: Config, connection: Connection): S
 
 export function quoteMarket(env: Bindings): QuoteMarket {
   if (env.PRICE_SOURCE === "jupiter") return jupiterMarket(env.JUPITER_API_KEY || undefined, env.JUPITER_API_URL || undefined);
-  if (env.PRICE_SOURCE === "static") return staticMarket(env.QUOTE_PRICES_USD ?? "", env.QUOTE_TOKEN_LIST, env.QUOTE_LOGOS);
+  if (env.PRICE_SOURCE === "static") return staticMarket(env.QUOTE_PRICES_USD ?? "", env.QUOTE_TOKEN_LIST, env.QUOTE_LOGOS, env.QUOTE_STOCK_PRICES_USD);
   throw new Error(`unknown PRICE_SOURCE: ${env.PRICE_SOURCE}`);
 }
 

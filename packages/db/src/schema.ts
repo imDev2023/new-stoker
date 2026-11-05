@@ -190,8 +190,52 @@ export const quoteAssets = pgTable("quote_assets", {
   labels: jsonb("labels").$type<QuoteLabel[]>(),
   labelsSlot: bigint("labels_slot", { mode: "number" }),
   labelsCheckedAt: timestamp("labels_checked_at", { withTimezone: true }),
+  /**
+   * For a tokenized stock, the last price of the stock it tracks, in USD per share, and when the price source reported it
+   * (#3): Jupiter's `stockData`, which relays each issuer's own reference price. Null when the source gave none at the
+   * last refresh; the API shows it only for an asset whose market `apps/api/src/quotes/markets.ts` maps to a stock.
+   */
+  stockPriceUsd: numeric("stock_price_usd"),
+  stockPriceAt: timestamp("stock_price_at", { withTimezone: true }),
   refreshedAt: timestamp("refreshed_at", { withTimezone: true }).notNull(),
 });
+
+/**
+ * Every USD price the Quote Registry refresh records, one row per priced Quote Asset per run, kept for a little over a
+ * day (`QUOTE_PRICE_KEEP_HOURS`): what `change24h` on a Quote Asset measures against.
+ */
+export const quotePrices = pgTable(
+  "quote_prices",
+  {
+    mint: text("mint").notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull(),
+    priceUsd: numeric("price_usd").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.mint, t.recordedAt] }),
+    // Each refresh deletes what has aged out.
+    index("quote_prices_recorded_at_idx").on(t.recordedAt),
+  ],
+);
+
+/**
+ * Hourly candles of each Quote Asset's USD price, from the same records: one row per asset and hour, opened at the last
+ * price before the hour (so candles join up) and moved by every refresh inside it; kept for a month
+ * (`QUOTE_CANDLE_KEEP_DAYS`), more than the 500 the candles endpoint answers.
+ */
+export const quoteCandles = pgTable(
+  "quote_candles",
+  {
+    mint: text("mint").notNull(),
+    /** Start of the hour. */
+    time: timestamp("time", { withTimezone: true }).notNull(),
+    open: doublePrecision("open").notNull(),
+    high: doublePrecision("high").notNull(),
+    low: doublePrecision("low").notNull(),
+    close: doublePrecision("close").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.mint, t.time] }), index("quote_candles_time_idx").on(t.time)],
+);
 
 /** One row per graduated Launch: Raydium's migration of its curve into a CPMM pool, and the pool's latest price. */
 export const graduations = pgTable("graduations", {

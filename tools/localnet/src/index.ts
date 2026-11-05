@@ -17,6 +17,7 @@ import { createInitializeInstruction as createInitializeMetadataInstruction, pac
 import { createHash } from "node:crypto";
 import BN from "bn.js";
 import bs58 from "bs58";
+import type { SnapshotPrice } from "./snapshot";
 import {
   createPlatformConfigIx, launchlabCoder, launchlabPdas, metadataPda, platformLookupAddresses, prepareMigration, programsFor,
   sharedMigrationAccounts, updatePlatformConfigIx, WSOL_MINT,
@@ -117,6 +118,14 @@ export const LOCAL_QUOTE_PRICES_USD: Record<string, string> = {
 };
 
 /**
+ * The price of the stock each local tokenized stock tracks, for the static price source's `market.last` (#3): NVIDIA's,
+ * a little above NVDAx's 180, as a token trades near its stock.
+ */
+export const LOCAL_QUOTE_STOCK_PRICES_USD: Record<string, string> = {
+  [LOCAL_QUOTES.NVDAx.toBase58()]: "181.5",
+};
+
+/**
  * Which Quote Assets the chain quotes: the six cases the tests pin (`fixtures/quotes`, each one case the Quote Registry
  * must handle, plus the taxed one), or mainnet's whole set from the snapshot in `fixtures/mainnet` (`pnpm snapshot`),
  * which is what development runs on so the site shows what it will show on mainnet. The cases are in the mainnet set
@@ -134,7 +143,7 @@ type Snapshot = { takenAt: string; quotes: SnapshotQuote[]; liquidityUsd: Map<st
  */
 export type MarketSnapshot = {
   takenAt: string;
-  prices: Record<string, { usdPrice: number; scaledUiConfig?: { usdPricePrescaled?: number } }>;
+  prices: Record<string, SnapshotPrice>;
   tokens: Record<string, { name: string | null; symbol: string | null; icon: string | null; isVerified: boolean; liquidity: number | null; tags: string[]; launchpad: string | null }>;
 };
 
