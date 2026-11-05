@@ -1,0 +1,5 @@
+/* A coin's last day as a line (the spec's .spark): grey while flat, green or red by where it ends. */
+.spark { display: block; width: 88px; height: 28px; fill: none; stroke: var(--ink-3); stroke-width: 1.5; }
+.spark polyline { vector-effect: non-scaling-stroke; }
+.up { stroke: var(--up); }
+.down { stroke: var(--down); }
