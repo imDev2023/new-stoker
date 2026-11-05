@@ -91,11 +91,19 @@ const PAIRS = [
   ["on-tile", ["tile"], 4.5, 75],
   ["on-tile-2", ["tile"], 4.5, 60],
 ];
+/** Review-only (#26, the second round): a band's own roles, the same floors as the page's. */
+const BAND_PAIRS = [
+  ["on-band", ["band", "band-raised"], 4.5, 75],
+  ["on-band-2", ["band", "band-raised"], 4.5, 60],
+  ["band-gold-from", ["band"], 3, 45],
+  ["band-gold-to", ["band", "band-raised"], 4.5, 60],
+  ["on-band-button", ["band-button"], 4.5, 60],
+];
 /** Hairlines want Lc 15 against the light grounds they sit on (production's floor; dark hairlines are not held to it). */
 const LINES = [["line", ["paper", "surface", "sunken"], 15]];
 
 /** Every text role and hairline of one palette, as the page would draw it, against the floors. */
-function check(mode, vars, hairlines) {
+function check(mode, vars, hairlines, pairs = PAIRS) {
   const colour = (name) => {
     const mix = name.match(/^mix:([\w-]+):(\d+)$/);
     if (mix) {
@@ -107,7 +115,7 @@ function check(mode, vars, hairlines) {
     return c ? over(c, rgba(vars.paper)) : null;
   };
   const rows = [];
-  for (const [fg, grounds, aa, lc] of PAIRS) {
+  for (const [fg, grounds, aa, lc] of pairs) {
     for (const ground of grounds) {
       const t = colour(fg);
       const b = colour(ground);
@@ -158,6 +166,13 @@ for (const paper of new Set([...Object.keys(paperLight), ...Object.keys(paperDar
   for (const key of Object.keys(own)) if (!(key in media) && key in darkMedia) fail(`paper ${paper} sets --${key} for light but not for dark`);
   check(`${paper} light`, { ...light, ...own }, true);
   check(`${paper} dark`, { ...light, ...darkMedia, ...own, ...media }, false);
+  // The second round's band (a dark or green stretch of the page, the forms put its colours in place of the page's
+  // tokens inside it): its text, its gold (the slogan's "You do." at a headline's size takes the large-text floor) and
+  // its button.
+  if (own.band) {
+    check(`${paper} band light`, { ...light, ...own }, false, BAND_PAIRS);
+    check(`${paper} band dark`, { ...light, ...darkMedia, ...own, ...media }, false, BAND_PAIRS);
+  }
 }
 
 console.log(failed ? `\n${failed} pair(s) under the floors` : "\nevery text role passes AA and APCA on every ground it sits on, in light and dark");

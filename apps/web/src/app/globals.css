@@ -380,6 +380,342 @@
   --mono: var(--font-atkinson-mono), ui-monospace, monospace;
 }
 
+/* Review-only, the second round (#26; the owner, 2026-11-05: "I select B, we still look like our competitors, make it
+   different properly") ------------------------------------------------------------------------------------------
+   B's paper and type pair stay under all three. What Peak shares with B goes: the editorial serif on every headline,
+   title, figure, price and the wordmark; the row of figures split by hairlines; the list of ticks; the serif lockup.
+   Each candidate is a paper (data-paper: its colours), a type (data-type: its display face) and a form (data-form: the
+   pieces that change shape), kept in cookies and written onto <html> by the root layout like the first round's.
+   A paper with a band sets --band and its own text, line, gold and button colours, which the forms that draw on a band
+   put in place of the page's tokens inside it, so every piece keeps its role; scripts/contrast.mjs checks them. */
+:root[data-paper="bottle"] {
+  --paper: #eef1ea;
+  --surface: #fafbf8;
+  --sunken: #e2e8de;
+  --line: rgb(16 42 31 / 16%);
+  --line-strong: rgb(16 42 31 / 25%);
+  --ink: #0f2a1e;
+  --ink-2: #384c41;
+  --ink-3: #4f6256;
+  --gold: #7a520e;
+  --button: #1a4733;
+  --on-button: #eef1ea;
+  --up: #1d7346;
+  --down: #ac3a2a;
+  --heat-from: #7a500d;
+  --heat-to: #a8771f;
+  --on-heat: #fffaf0;
+  --scrim: rgb(16 42 31 / 40%);
+  --shadow: 0 1px 0 rgb(16 42 31 / 6%);
+  --shadow-control: 0 1px 2px rgb(16 42 31 / 8%);
+  --shadow-overlay: 0 1px 0 rgb(16 42 31 / 4%), 0 24px 64px -24px rgb(16 42 31 / 40%);
+  --band: #1a4733;
+  --band-raised: #215440;
+  --on-band: #eef1ea;
+  --on-band-2: #c2cfc4;
+  --band-line: rgb(238 241 234 / 16%);
+  --band-line-strong: rgb(238 241 234 / 26%);
+  --band-gold-from: #d4a64f;
+  --band-gold-to: #ecc77d;
+  --band-button: #eef1ea;
+  --on-band-button: #1a4733;
+}
+:root[data-paper="furnace"] {
+  --paper: #eef1ea;
+  --surface: #fafbf8;
+  --sunken: #e3e7dd;
+  --line: rgb(17 20 15 / 15%);
+  --line-strong: rgb(17 20 15 / 23%);
+  --ink: #11140f;
+  --ink-2: #464c41;
+  --ink-3: #5c6357;
+  --gold: #825810;
+  --button: #11140f;
+  --on-button: #eef1ea;
+  --up: #1d7346;
+  --down: #ac3a2a;
+  --heat-from: #7a500d;
+  --heat-to: #a8771f;
+  --on-heat: #fffaf0;
+  --scrim: rgb(17 20 15 / 40%);
+  --shadow: 0 1px 0 rgb(17 20 15 / 4%), 0 12px 32px -18px rgb(17 20 15 / 22%);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 8%);
+  --shadow-overlay: 0 1px 0 rgb(17 20 15 / 4%), 0 24px 64px -24px rgb(17 20 15 / 40%);
+  --band: #0f130e;
+  --band-raised: #1a1f18;
+  --on-band: #eef1ea;
+  --on-band-2: #b3bcac;
+  --band-line: rgb(238 241 234 / 13%);
+  --band-line-strong: rgb(238 241 234 / 24%);
+  --band-gold-from: #c9973f;
+  --band-gold-to: #e9c47c;
+  --band-button: #eef1ea;
+  --on-band-button: #0f130e;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-paper="bottle"]:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #09110d;
+    --surface: #101a15;
+    --sunken: #060c09;
+    --line: rgb(230 237 226 / 10%);
+    --line-strong: rgb(230 237 226 / 19%);
+    --ink: #e6ede2;
+    --ink-2: #c8d3c3;
+    --ink-3: #adbaa8;
+    --gold: #deb164;
+    --button: #2c6a4b;
+    --on-button: #f2f6ef;
+    --up: #60c68f;
+    --down: #ff9d88;
+    --heat-from: #c9973f;
+    --heat-to: #e9c47c;
+    --on-heat: #1a1206;
+    --scrim: rgb(0 0 0 / 60%);
+    --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
+    --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
+    --band: #12291e;
+    --band-raised: #183428;
+    --on-band: #e6ede2;
+    --on-band-2: #b9c7b5;
+    --band-line: rgb(230 237 226 / 12%);
+    --band-line-strong: rgb(230 237 226 / 22%);
+    --band-gold-from: #c9973f;
+    --band-gold-to: #e9c47c;
+    --band-button: #e6ede2;
+    --on-band-button: #12291e;
+  }
+  :root[data-paper="furnace"]:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0b0d0a;
+    --surface: #141712;
+    --sunken: #080a07;
+    --line: rgb(236 241 232 / 9%);
+    --line-strong: rgb(236 241 232 / 18%);
+    --ink: #eef1ea;
+    --ink-2: #ced4c7;
+    --ink-3: #b2b9aa;
+    --gold: #deb164;
+    --button: #eef1ea;
+    --on-button: #0b0d0a;
+    --up: #60c68f;
+    --down: #ff9d88;
+    --heat-from: #c9973f;
+    --heat-to: #e9c47c;
+    --on-heat: #1a1206;
+    --scrim: rgb(0 0 0 / 60%);
+    --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
+    --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
+    --band: #171e15;
+    --band-raised: #1f271c;
+    --on-band: #eef1ea;
+    --on-band-2: #b8c1b0;
+    --band-line: rgb(238 241 234 / 12%);
+    --band-line-strong: rgb(238 241 234 / 22%);
+    --band-gold-from: #c9973f;
+    --band-gold-to: #e9c47c;
+    --band-button: #eef1ea;
+    --on-band-button: #0f130e;
+  }
+}
+:root[data-paper="bottle"][data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #09110d;
+  --surface: #101a15;
+  --sunken: #060c09;
+  --line: rgb(230 237 226 / 10%);
+  --line-strong: rgb(230 237 226 / 19%);
+  --ink: #e6ede2;
+  --ink-2: #c8d3c3;
+  --ink-3: #adbaa8;
+  --gold: #deb164;
+  --button: #2c6a4b;
+  --on-button: #f2f6ef;
+  --up: #60c68f;
+  --down: #ff9d88;
+  --heat-from: #c9973f;
+  --heat-to: #e9c47c;
+  --on-heat: #1a1206;
+  --scrim: rgb(0 0 0 / 60%);
+  --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
+  --band: #12291e;
+  --band-raised: #183428;
+  --on-band: #e6ede2;
+  --on-band-2: #b9c7b5;
+  --band-line: rgb(230 237 226 / 12%);
+  --band-line-strong: rgb(230 237 226 / 22%);
+  --band-gold-from: #c9973f;
+  --band-gold-to: #e9c47c;
+  --band-button: #e6ede2;
+  --on-band-button: #12291e;
+}
+:root[data-paper="furnace"][data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0b0d0a;
+  --surface: #141712;
+  --sunken: #080a07;
+  --line: rgb(236 241 232 / 9%);
+  --line-strong: rgb(236 241 232 / 18%);
+  --ink: #eef1ea;
+  --ink-2: #ced4c7;
+  --ink-3: #b2b9aa;
+  --gold: #deb164;
+  --button: #eef1ea;
+  --on-button: #0b0d0a;
+  --up: #60c68f;
+  --down: #ff9d88;
+  --heat-from: #c9973f;
+  --heat-to: #e9c47c;
+  --on-heat: #1a1206;
+  --scrim: rgb(0 0 0 / 60%);
+  --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
+  --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
+  --band: #171e15;
+  --band-raised: #1f271c;
+  --on-band: #eef1ea;
+  --on-band-2: #b8c1b0;
+  --band-line: rgb(238 241 234 / 12%);
+  --band-line-strong: rgb(238 241 234 / 22%);
+  --band-gold-from: #c9973f;
+  --band-gold-to: #e9c47c;
+  --band-button: #eef1ea;
+  --on-band-button: #0f130e;
+}
+
+/* The display faces: every role the serif drew is re-set in a heavy sans, sized for its width (a heavy grotesk runs half
+   again as wide as the condensed serif at one size), with Albert Sans and DM Mono for everything else, as in B. */
+:root[data-type="albert-display"],
+:root[data-type="archivo"] {
+  --sans: var(--font-albert-sans), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--font-dm-mono), ui-monospace, monospace;
+  --serif: var(--display);
+}
+:root[data-type="albert-display"] {
+  --display: var(--font-albert-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: 800 clamp(44px, 7.2vw, 94px) / .98 var(--display);
+  --font-h1: 760 clamp(34px, 4.4vw, 52px) / 1.04 var(--display);
+  --font-title: 760 clamp(28px, 3.3vw, 40px) / 1.08 var(--display);
+  --font-statement: 720 clamp(27px, 3.6vw, 44px) / 1.12 var(--display);
+  --font-figure: 760 clamp(30px, 3.4vw, 42px) / 1 var(--display);
+  --font-lead: 400 clamp(19px, 2vw, 22px) / 1.45 var(--display);
+  --font-doc-heading: 720 25px / 1.2 var(--display);
+  --font-section: 720 22px / 1.15 var(--display);
+  --font-heading: 660 20px / 1.2 var(--display);
+  --font-subheading: 660 19px / 1.25 var(--display);
+  --font-brand: 820 18px / 1 var(--display);
+  --font-coin: 820 clamp(30px, 4vw, 46px) / 1 var(--display);
+  --font-price: 760 clamp(26px, 3.2vw, 36px) / 1 var(--display);
+  --font-group: 720 18px / 1 var(--display);
+  --font-tile-xl: 760 40px / 1 var(--display);
+}
+:root[data-type="archivo"] {
+  --display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: 820 semi-expanded clamp(40px, 6.4vw, 82px) / 1 var(--display);
+  --font-h1: 780 semi-expanded clamp(32px, 4.1vw, 48px) / 1.04 var(--display);
+  --font-title: 780 semi-expanded clamp(26px, 3vw, 36px) / 1.08 var(--display);
+  --font-statement: 740 semi-expanded clamp(26px, 3.3vw, 40px) / 1.12 var(--display);
+  --font-figure: 780 semi-expanded clamp(28px, 3.1vw, 38px) / 1 var(--display);
+  --font-lead: 400 clamp(19px, 2vw, 22px) / 1.45 var(--sans);
+  --font-doc-heading: 740 semi-expanded 23px / 1.2 var(--display);
+  --font-section: 740 semi-expanded 20px / 1.15 var(--display);
+  --font-heading: 700 19px / 1.2 var(--display);
+  --font-subheading: 700 18px / 1.25 var(--display);
+  --font-brand: 860 expanded 17px / 1 var(--display);
+  --font-coin: 820 semi-expanded clamp(28px, 3.7vw, 42px) / 1 var(--display);
+  --font-price: 780 semi-expanded clamp(24px, 3vw, 32px) / 1 var(--display);
+  --font-group: 740 semi-expanded 17px / 1 var(--display);
+  --font-tile-xl: 780 38px / 1 var(--display);
+}
+:root:is([data-type="albert-display"], [data-type="archivo"]) .display { letter-spacing: -.04em; }
+:root:is([data-type="albert-display"], [data-type="archivo"]) :is(.display, h1, h2.title) em { font-style: normal; }
+:root:is([data-type="albert-display"], [data-type="archivo"]) .tile { font-weight: 760; }
+:root[data-type="archivo"] .display { letter-spacing: -.03em; }
+
+/* Every form: the caps wordmark with the ring as its O (the mark's verdict, 2026-10-09) in place of the ring and the name. */
+[data-brand-caps],
+[data-hero-ring] { display: none; }
+:root[data-form] [data-brand] > svg,
+:root[data-form] [data-brand-name] { display: none; }
+:root[data-form] [data-brand-caps] { display: inline-flex; align-items: center; letter-spacing: .045em; }
+:root[data-form] [data-brand-caps] svg { width: 1.1em; height: 1.1em; margin-inline: -.11em -.07em; }
+
+/* D, Bottle: the green of a banknote's ink for the type, the buttons and the footer, the gold beside it; flat panels;
+   the figures each over its name on the sunken ground, never split by rules; the checks counted, never ticked. */
+:root[data-form="d"] .panel { border-color: var(--line-strong); }
+:root[data-form="d"] [data-pair] { border-color: transparent; border-radius: var(--radius-sm); background: var(--sunken); }
+:root[data-form="d"] .figures { gap: 8px; border-block: 0; }
+:root[data-form="d"] .figures > div,
+:root[data-form="d"] .figures > div:first-child { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 10px; padding: 24px 26px; border: 0; border-radius: var(--radius); background: var(--sunken); }
+:root[data-form="d"] .figures dd { margin-top: 0; }
+:root:is([data-form="d"], [data-form="f"]) [data-checks] { counter-reset: check; }
+:root:is([data-form="d"], [data-form="f"]) [data-checks] li { counter-increment: check; }
+:root:is([data-form="d"], [data-form="f"]) [data-checks] li::before {
+  content: counter(check, decimal-leading-zero); width: 1.6em; height: auto; background: none; mask: none;
+  font: 500 var(--text-small) / 1 var(--mono); color: var(--gold);
+}
+:root[data-form="d"] [data-site-footer] {
+  --paper: var(--band); --surface: var(--band-raised); --sunken: var(--band); --ink: var(--on-band); --ink-2: var(--on-band-2);
+  --ink-3: var(--on-band-2); --line: var(--band-line); --line-strong: var(--band-line-strong); --gold: var(--band-gold-to);
+  border-top: 0; background: var(--band); color: var(--ink);
+}
+
+/* E, Furnace: the header, the hero with its figures, the invitation, the footer and the phone bar drawn on the band, the
+   dark of the mark's tile, where the ring glows; Archivo semi-expanded for the type; pill buttons; the checks are rings. */
+:root[data-form="e"] :is([data-site-header], [data-pulse], [data-hero], [data-figures], [data-band="invite"], [data-site-footer], [data-tab-bar]) {
+  --paper: var(--band); --surface: var(--band-raised); --sunken: var(--band-raised); --ink: var(--on-band); --ink-2: var(--on-band-2);
+  --ink-3: var(--on-band-2); --line: var(--band-line); --line-strong: var(--band-line-strong); --button: var(--band-button);
+  --on-button: var(--on-band-button); --heat-from: var(--band-gold-from); --heat-to: var(--band-gold-to); --gold: var(--band-gold-to);
+  color: var(--ink);
+}
+:root[data-form="e"] :is([data-hero], [data-figures], [data-band="invite"]) {
+  background-color: var(--band); box-shadow: 0 0 0 100vmax var(--band); clip-path: inset(-1px -100vmax);
+}
+:root[data-form="e"] [data-site-header] { background: var(--band); }
+:root[data-form="e"] [data-hero] {
+  padding-block: clamp(56px, 8vw, 104px) clamp(40px, 6vw, 72px);
+  background-image: radial-gradient(closest-side, rgb(255 110 40 / 17%), transparent);
+  background-size: clamp(300px, 40vw, 560px) clamp(300px, 40vw, 560px); background-position: center 0; background-repeat: no-repeat;
+}
+:root[data-form="e"] [data-hero-ring] { display: block; width: fit-content; margin: 0 auto clamp(28px, 4vw, 44px); filter: drop-shadow(0 0 26px rgb(255 120 40 / 42%)); }
+:root[data-form="e"] [data-hero-ring] svg { width: clamp(88px, 10vw, 128px); height: auto; }
+:root[data-form="e"] [data-figures] { padding-bottom: clamp(56px, 8vw, 104px); }
+:root[data-form="e"] .figures { gap: 28px; border-block: 0; text-align: center; }
+:root[data-form="e"] .figures > div,
+:root[data-form="e"] .figures > div:first-child { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 10px; padding: 0; border: 0; }
+:root[data-form="e"] .figures dd { margin-top: 0; }
+:root[data-form="e"] [data-band="invite"] { padding-block: clamp(72px, 11vw, 136px); }
+:root[data-form="e"] [data-band="invite"] svg { filter: drop-shadow(0 0 22px rgb(255 120 40 / 40%)); }
+:root[data-form="e"] [data-site-footer] { border-top: 0; background: var(--band); }
+:root[data-form="e"] .button,
+:root[data-form="e"] [data-pair] { border-radius: var(--radius-pill); }
+:root[data-form="e"] [data-checks] li::before {
+  width: 15px; height: 15px; background: linear-gradient(60deg, #ff5a1f, #ffb020);
+  mask: radial-gradient(circle closest-side, transparent 50%, #000 54% 92%, transparent 96%);
+}
+
+/* F, Plate: B's ink on B's sage, and the pair itself as the hero, the size of a poster, the asset rolling after the
+   slash in the gold; the headline above it at a title's size; the figures one line under it; square corners. */
+:root[data-form="f"] { --radius-xs: 2px; --radius-sm: 2px; --radius-md: 3px; --radius: 4px; --radius-lg: 5px; --radius-xl: 6px; }
+:root[data-form="f"] [data-hero] { padding-block: clamp(56px, 8vw, 104px) clamp(28px, 4vw, 44px); text-align: left; }
+:root[data-form="f"] [data-hero] .display { max-width: 13em; font: var(--font-h1); letter-spacing: -.03em; }
+:root[data-form="f"] [data-pair] {
+  display: flex; align-items: center; gap: 0; margin-top: clamp(28px, 4vw, 44px); padding: 0; border: 0; border-radius: 0;
+  background: none; font: 820 clamp(46px, 10.4vw, 150px) / .92 var(--display); letter-spacing: -.05em;
+}
+:root[data-form="f"] [data-slash] { margin-inline: .02em .04em; color: var(--gold); font-weight: 300; }
+:root[data-form="f"] [data-hero-actions] { justify-content: flex-start; margin-top: clamp(28px, 4vw, 44px); }
+:root[data-form="f"] .figures { display: flex; flex-wrap: wrap; gap: 12px 44px; padding-top: 22px; border-block: 0; border-top: 1px solid var(--line-strong); }
+:root[data-form="f"] .figures > div,
+:root[data-form="f"] .figures > div:first-child { display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: baseline; gap: .4em; padding: 0; border: 0; }
+:root[data-form="f"] .figures dd { margin-top: 0; font: 760 var(--text-lede) / 1.2 var(--display); letter-spacing: -.01em; }
+:root[data-form="f"] .figures dt { font-size: var(--text-ui); }
+:root[data-form="f"] [data-checks] li::before { color: var(--ink-3); }
+
 /* Base -------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--bar-h) + 16px); }

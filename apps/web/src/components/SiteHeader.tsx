@@ -8,7 +8,7 @@ import styles from "./SiteHeader.module.css";
 /** The header of every page (docs/design/playground/src/layout.html). */
 export function SiteHeader() {
   return (
-    <header className={styles.bar}>
+    <header className={styles.bar} data-site-header>
       <div className={`shell ${styles.row}`}>
         <Brand />
         <nav className={styles.nav} aria-label="Sections">
