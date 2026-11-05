@@ -1,0 +1,3 @@
+/* Burn and Flywheel (the spec's .lead and .chips). */
+.lead { max-width: 40em; font: var(--font-lead); letter-spacing: -.005em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }

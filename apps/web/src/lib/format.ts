@@ -137,3 +137,9 @@ export function formatDate(iso: string) {
 export function units(raw: string, decimals: number) {
   return Number(raw) / 10 ** decimals;
 }
+
+/** An amount on a record (the Ledger, revenue by asset): two decimals from 1 up, four significant digits below, so a small fee never reads as 0. */
+export function formatEntryAmount(raw: string, decimals: number) {
+  if (BigInt(raw) >= 10n ** BigInt(decimals)) return formatUnits(raw, decimals, 2);
+  return Number(formatUnits(raw, decimals, decimals).replace(/,/g, "")).toLocaleString("en-US", { maximumSignificantDigits: 4 });
+}
