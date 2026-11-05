@@ -447,9 +447,10 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
         // A separate build directory, so tests never fight a developer's running `next dev` for its lock.
         { NEXT_PUBLIC_API_URL: apiUrl, API_KEY: webApiKey, NEXT_DIST_DIR: `.next-test-${webPort}`, NEXT_TELEMETRY_DISABLED: "1" },
       );
-      // Cleanups run in reverse: the build folder goes only once `next dev` has stopped, or Turbopack, still writing its
-      // cache, fails on the missing files and the stop reports an error after a green run (#7).
-      cleanups.push(() => rmSync(join(REPO, "apps", "web", `.next-test-${webPort}`), { recursive: true, force: true }), web.stop);
+      // Cleanups run in reverse: the build folder goes only once `next dev` has stopped, and with retries, since the
+      // process `pnpm exec` started can still be writing Turbopack's cache for a moment after: removed under it, the
+      // removal failed with ENOTEMPTY and a green run ended in a failed teardown (#7).
+      cleanups.push(() => rmSync(join(REPO, "apps", "web", `.next-test-${webPort}`), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }), web.stop);
       // The home page answers, which means the web compiled and read the API.
       await waitFor("web", async () => (await fetch(webUrl)).ok, 180_000, web.log);
     }

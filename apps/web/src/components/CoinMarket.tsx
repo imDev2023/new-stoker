@@ -275,7 +275,7 @@ function Trades({ trades, launch, platform, now }: { trades: Trade[]; launch: La
           <th scope="col" className="r">{launch.symbol}</th>
           <th scope="col" className="r">{quoteTicker(launch.quote)}</th>
           <th scope="col" className={styles.wide}>Trader</th>
-          <th scope="col" className="r">Time</th>
+          <th scope="col" className={`r ${styles.when}`}>Time</th>
         </tr>
       </thead>
       <tbody>
@@ -287,7 +287,7 @@ function Trades({ trades, launch, platform, now }: { trades: Trade[]; launch: La
             <td className={styles.wide}>
               <a className="link mono" href={explorerUrl("address", t.trader, platform)} target="_blank" rel="noreferrer">{shortAddress(t.trader)}</a>
             </td>
-            <td className="r">
+            <td className={`r ${styles.when}`}>
               <a className="link" href={explorerUrl("tx", t.signature, platform)} target="_blank" rel="noreferrer">
                 <time dateTime={t.time}>{timeAgo(t.time, now)}</time>
               </a>
