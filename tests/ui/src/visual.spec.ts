@@ -159,7 +159,7 @@ test("launch filled", async ({ page, wallet }) => {
   await form.getByLabel("First buy").fill("0.25");
   // The copy check's verdicts and the First Buy's quote arrive from the API: wait for every one before the shot.
   for (const field of ["name", "symbol", "image"]) await expect(page.locator(`[data-copy="${field}"]`)).toBeVisible();
-  await expect(summary.getByText(/^0\.25 SOL for [\d,]+ TRCR, [\d.]+%$/)).toBeVisible();
+  await expect(summary.getByText(/^[\d,]+ TRCR \([\d.]+%\)$/)).toBeVisible();
   await expect(summary.getByRole("button", { name: "Stoke TRCR" })).toBeEnabled();
   await form.getByLabel("First buy").blur();
   expect(wallet.requests).toHaveLength(0);

@@ -148,6 +148,11 @@
   justify-self: start;
 }
 
+/* A .seg scrolls sideways, so its hidden inputs need it as their containing block (CLAUDE.md's trap). */
+.tax {
+  position: relative;
+}
+
 .invalid {
   border-color: var(--down);
 }
@@ -251,6 +256,10 @@
 .note {
   font-size: var(--text-caption);
   color: var(--ink-2);
+}
+
+.preview :global(.kv) dt {
+  white-space: nowrap;
 }
 
 .preview :global(.kv) dd {

@@ -53,7 +53,8 @@ test("a Creator launches a coin paired with SOL with a First Buy, and lands on i
   await expect(summary(page).getByText("TRCR/SOL")).toBeVisible();
   await expect(summary(page).getByText("Tracer Bullet")).toBeVisible();
   await form(page).getByLabel("First buy").fill("0.1");
-  await expect(summary(page).getByText(/^0\.1 SOL for [\d,]+ TRCR, \d+(\.\d+)?%$/)).toBeVisible();
+  await expect(summary(page).locator("dd").filter({ hasText: /^0\.1 SOL$/ })).toBeVisible();
+  await expect(summary(page).getByText(/^[\d,]+ TRCR \(\d+(\.\d+)?%\)$/)).toBeVisible();
   await expect(summary(page).getByRole("link", { name: "Half of what we collect" })).toHaveAttribute("href", "/fees");
   // The only percentage is the Creator's own: the First Buy's share of the supply.
   await expect(summary(page).locator("dd").filter({ hasText: "%" })).toHaveCount(1);

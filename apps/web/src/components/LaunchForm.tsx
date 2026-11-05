@@ -391,13 +391,13 @@ export function LaunchForm({
                 <dd>{kind === "standard" ? "Standard" : `Reward Launch, ${tax / 100}%`}</dd>
               </div>
               {firstBuyQuote && quote && (
-                <div>
-                  <dt>First buy</dt>
-                  <dd>
-                    {formatUnits(firstBuyQuote.amountIn, quote.decimals, quote.decimals)} {ticker} for {formatUnits(firstBuyQuote.amountOut, COIN_DECIMALS, 0)}{" "}
-                    {coin || "coins"}, {supplyShare(BigInt(firstBuyQuote.amountOut))}
-                  </dd>
-                </div>
+                <>
+                  <div><dt>First buy</dt><dd>{formatUnits(firstBuyQuote.amountIn, quote.decimals, quote.decimals)} {ticker}</dd></div>
+                  <div>
+                    <dt>You get</dt>
+                    <dd>{formatUnits(firstBuyQuote.amountOut, COIN_DECIMALS, 0)} {coin || "coins"} ({supplyShare(BigInt(firstBuyQuote.amountOut))})</dd>
+                  </div>
+                </>
               )}
               {!flow && <div><dt>You earn</dt><dd><Link className="link" href="/fees">Half of what we collect</Link></dd></div>}
               {graduationFee && <div><dt>Graduation Fee</dt><dd>{graduationFee} SOL from earnings</dd></div>}
