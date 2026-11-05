@@ -71,3 +71,48 @@ test("the board before the first coin", async ({ page }) => {
   await page.getByRole("searchbox", { name: "Search" }).fill("anything");
   await expect(page.getByText("Nothing matches.")).toBeVisible();
 });
+
+const KIND_CHIPS = ["All", "Solana", "Currencies", "Stocks", "Wrapped", "DeFi", "Real-world assets", "Leverage", "Collectibles", "Memes", "Community"];
+
+test("assets before the first coin", async ({ page, stack }) => {
+  const quotes = QuoteAssetList.parse(await (await fetch(`${stack.apiUrl}/v1/quotes`)).json()).quotes;
+  expect(quotes.length).toBeGreaterThan(0);
+  await page.goto("/assets");
+  await expect(page.getByRole("heading", { level: 1, name: "Assets" })).toBeVisible();
+  await expect(page.getByRole("searchbox", { name: "Search" })).toBeVisible();
+  // Every kind is a chip, whatever the registry quotes today, as on Explore.
+  await expect(page.getByRole("radiogroup", { name: "Kind" }).locator("label")).toHaveText(KIND_CHIPS);
+  // The registry quotes assets before any coin launches: every one of them is a row, under its kind.
+  const table = page.getByRole("table", { name: "Assets" });
+  await expect(table.locator("tbody tr[data-mint]")).toHaveCount(quotes.length);
+  await expect(table.locator("th[scope=colgroup]").first()).toHaveText("Solana");
+  await snap(page, "assets.png");
+});
+
+test("an asset before the first coin", async ({ page }) => {
+  await page.goto("/asset/So11111111111111111111111111111111111111112");
+  await expect(page.getByRole("heading", { level: 1, name: "SOL" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Stoke a coin paired with SOL" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Risk labels" })).toBeVisible();
+  // Nothing is paired with it yet, so the section waits.
+  await expect(page.getByRole("heading", { name: "Coins paired with it" })).toHaveCount(0);
+  await snap(page, "asset-sol.png");
+});
+
+test("an asset that isn't quoted", async ({ page }) => {
+  const res = await page.goto("/asset/11111111111111111111111111111111");
+  expect(res?.status()).toBe(404);
+  await expect(page.getByRole("heading", { level: 1, name: "This asset isn't quoted." })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("link", { name: "All assets" })).toHaveAttribute("href", "/assets");
+  await snap(page, "asset-404.png");
+});
+
+test("swap", async ({ page }) => {
+  await page.goto("/swap");
+  await expect(page.getByRole("heading", { level: 1, name: "Swap" })).toBeVisible();
+  // The suite serves Jupiter's script empty, so the frame says where the swap is instead; no shot carries a live one.
+  await expect(page.getByRole("status")).toHaveText("Jupiter's swap did not load here. Open jup.ag instead.");
+  // No referral account on the stack: no fee of ours, so no fee line.
+  await expect(page.getByText("Routed by Jupiter.", { exact: true })).toBeVisible();
+  await snap(page, "swap.png");
+});

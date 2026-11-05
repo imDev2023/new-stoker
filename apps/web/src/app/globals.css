@@ -28,6 +28,12 @@
   --heat: linear-gradient(60deg, var(--heat-from), var(--heat-to));
   --on-heat: #241005;
   --scrim: rgb(20 18 14 / 40%);
+  /* A dark tile in both schemes, for what draws its own light text whatever the page's scheme (Jupiter's swap): the dark
+     scheme's surface, ink, third ink and hairline, never redefined under dark. */
+  --tile: #141415;
+  --on-tile: #f2efe8;
+  --on-tile-2: #b7b2a9;
+  --tile-line: rgb(242 239 232 / 12%);
   --shadow: 0 1px 0 rgb(20 18 14 / 4%), 0 12px 32px -18px rgb(20 18 14 / 22%);
   --shadow-control: 0 1px 2px rgb(0 0 0 / 8%);
   --shadow-overlay: 0 1px 0 rgb(20 18 14 / 4%), 0 24px 64px -24px rgb(20 18 14 / 40%);
@@ -54,6 +60,10 @@
   --font-pair: 500 clamp(17px, 2vw, 20px) / 1 var(--sans);
   --font-control: 500 14px / 1 var(--sans);
   --font-code: 400 13.5px / 1.6 var(--mono);
+  /* A group's heading inside a table (the assets directory's kinds, the spec's tr.group). */
+  --font-group: 400 22px / 1 var(--serif);
+  /* An asset's letter on the asset page's 88px tile, where it has no logo (the spec's .tile-xl). */
+  --font-tile-xl: 400 46px / 1 var(--serif);
   /* A monogram on a 16px badge: an asset's first letter where it has no logo. */
   --text-tiny: 10px;
   --text-micro: 12px;
@@ -63,6 +73,8 @@
   --text-body: 16px;
   --text-prose: 17px;
   --text-lede: 18px;
+  /* The letter on a 64px tile. */
+  --text-tile-lg: 34px;
 
   /* Shape and motion. */
   --shell: 1120px;
@@ -212,7 +224,7 @@ a.chip:hover { border-color: var(--line-strong); }
 .badge-warn { color: var(--down); background: color-mix(in srgb, var(--down) 10%, transparent); }
 
 .tile { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--heat); color: var(--on-heat); font: 400 20px / 1 var(--serif); object-fit: cover; }
-.tile-lg { width: 64px; height: 64px; border-radius: var(--radius-lg); font-size: 34px; }
+.tile-lg { width: 64px; height: 64px; border-radius: var(--radius-lg); font-size: var(--text-tile-lg); }
 
 .progress { height: 6px; border-radius: var(--radius-pill); background: var(--sunken); overflow: hidden; }
 .progress > span { display: block; height: 100%; width: var(--value, 0%); border-radius: inherit; background: var(--heat); }
