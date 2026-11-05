@@ -34,6 +34,8 @@ export function PairName({ symbol, quote }: { symbol: string; quote: QuoteRef })
   return (
     <>
       {symbol}
+      {/* Where a narrow cell may break the pair: before the slash, never inside a ticker. */}
+      <wbr />
       <span className={styles.quote}>/{quoteTicker(quote)}</span>
     </>
   );
