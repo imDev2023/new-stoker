@@ -13,7 +13,8 @@
 .table tbody:first-of-type .group th { padding-top: 16px; }
 
 .asset { display: flex; align-items: center; gap: 12px; }
-.names { display: grid; min-width: 0; }
+/* A name may be one long word ("neetNotInEmploymentEducationTraining" on mainnet), which would set the column's width. */
+.names { display: grid; min-width: 0; overflow-wrap: anywhere; }
 .ticker { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 .ticker b { font-weight: 600; }
 .names > span:last-child:not(.ticker) { color: var(--ink-3); font-size: var(--text-caption); }

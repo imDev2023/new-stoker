@@ -1,6 +1,7 @@
 /* One asset's page: the spec's .coin-head, .coin-grid, .asset-actions and .labels. */
 .head { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding-block: clamp(36px, 6vw, 64px) 28px; }
 .ticker { font: var(--font-title); letter-spacing: -.02em; overflow-wrap: anywhere; }
+.head > div { min-width: 0; overflow-wrap: anywhere; }
 .actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px 24px; flex-wrap: wrap; margin-left: auto; }
 
 .grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; padding-bottom: 64px; }
