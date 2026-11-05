@@ -2,7 +2,7 @@
 // real figures, the welcome on a first visit and the account menu, Explore's board seeded, filtered by an asset,
 // searched and watchlisted, and a coin's page in each of its states, against committed baselines.
 import type { Page } from "@playwright/test";
-import { expect, listLaunches, test } from "./fixtures";
+import { coinImage, expect, listLaunches, test } from "./fixtures";
 import { DIALOG_STYLES, dynamic, snap } from "./shots";
 import { connectTestWallet, TEST_WALLET_NAME } from "./wallet";
 
@@ -141,4 +141,27 @@ test("coin not found", async ({ page }) => {
   await page.goto("/coin/11111111111111111111111111111112");
   await expect(page.getByRole("heading", { name: "This coin isn't here." })).toBeVisible();
   await snap(page, "coin-not-found.png");
+});
+
+// The launch form filled in by a connected Creator: the picture, the name and ticker with Copy Protection's verdicts, a
+// Reward Launch, a link and a First Buy, with the summary following every field.
+test("launch filled", async ({ page, wallet }) => {
+  await page.goto("/launch");
+  const summary = page.getByRole("complementary", { name: "Launch summary" });
+  await connectTestWallet(page, summary.getByRole("button", { name: "Connect wallet" }));
+  const form = page.getByRole("form", { name: "Stoke a coin" });
+  await form.getByLabel("Add image").setInputFiles({ name: "TRCR.png", mimeType: "image/png", buffer: coinImage("TRCR") });
+  await form.getByRole("textbox", { name: "Name" }).fill("Tracer Bullet");
+  await form.getByRole("textbox", { name: "Ticker" }).fill("TRCR");
+  await form.getByRole("textbox", { name: "Description" }).fill("A coin for the first shot that shows where the rest will land.");
+  await form.getByRole("radiogroup", { name: "Launch type" }).locator("label").filter({ hasText: "paid in the coin" }).click();
+  await form.getByRole("textbox", { name: "Telegram" }).fill("https://t.me/tracerbullet");
+  await form.getByLabel("First buy").fill("0.25");
+  // The copy check's verdicts and the First Buy's quote arrive from the API: wait for every one before the shot.
+  for (const field of ["name", "symbol", "image"]) await expect(page.locator(`[data-copy="${field}"]`)).toBeVisible();
+  await expect(summary.getByText(/^0\.25 SOL for [\d,]+ TRCR, [\d.]+%$/)).toBeVisible();
+  await expect(summary.getByRole("button", { name: "Stoke TRCR" })).toBeEnabled();
+  await form.getByLabel("First buy").blur();
+  expect(wallet.requests).toHaveLength(0);
+  await snap(page, "launch-filled.png");
 });
