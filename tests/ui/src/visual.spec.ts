@@ -2,7 +2,7 @@
 // real figures, the welcome on a first visit and the account menu, Explore's board seeded, filtered by an asset,
 // searched and watchlisted, and a coin's page in each of its states, against committed baselines.
 import type { Page } from "@playwright/test";
-import { expect, listLaunches, test } from "./fixtures";
+import { expect, listLaunches, QUOTES, test } from "./fixtures";
 import { DIALOG_STYLES, dynamic, snap } from "./shots";
 import { connectTestWallet, TEST_WALLET_NAME } from "./wallet";
 
@@ -109,6 +109,19 @@ test.describe("the board", () => {
     await expect(coinRows(page)).toHaveCount(2);
     await snap(page, "coins-watchlist.png", boardMask);
   });
+});
+
+test.describe("an asset's page", () => {
+  for (const [name, quote, coin] of [["asset-stock.png", "NVDAx", "CHPX/NVDAx"], ["asset-usdc.png", "USDC", "USDP/USDC"]] as const) {
+    test(`${quote}, with the coin paired with it`, async ({ page }) => {
+      await page.goto(`/asset/${QUOTES[quote].toBase58()}`);
+      await expect(page.getByRole("heading", { level: 1, name: quote })).toBeVisible();
+      const paired = page.getByRole("table", { name: `Coins paired with ${quote}` });
+      await expect(paired.locator("tbody tr")).toHaveCount(1);
+      await expect(paired.locator("tbody tr").first()).toContainText(coin);
+      await snap(page, name, boardMask);
+    });
+  }
 });
 
 /** A seeded coin's address, by its ticker. */
