@@ -437,7 +437,7 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
       const webDir = join(REPO, "apps", "web");
       for (const dir of readdirSync(webDir).filter((d) => d.startsWith(".next-test-"))) {
         const port = Number(dir.slice(".next-test-".length));
-        if (port && !(await listening(port))) rmSync(join(webDir, dir), { recursive: true, force: true });
+        if (port && !(await listening(port))) rmSync(join(webDir, dir), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
       }
       const web = run(
         `web-${webPort}`,
@@ -447,7 +447,9 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
         // A separate build directory, so tests never fight a developer's running `next dev` for its lock.
         { NEXT_PUBLIC_API_URL: apiUrl, API_KEY: webApiKey, NEXT_DIST_DIR: `.next-test-${webPort}`, NEXT_TELEMETRY_DISABLED: "1" },
       );
-      cleanups.push(web.stop, () => rmSync(join(REPO, "apps", "web", `.next-test-${webPort}`), { recursive: true, force: true }));
+      // `next dev`'s workers can still be writing its build folder as it stops, so a plain remove meets ENOTEMPTY and fails
+      // an otherwise green run's teardown (#9, 2026-11-05): Node retries that error when asked.
+      cleanups.push(web.stop, () => rmSync(join(REPO, "apps", "web", `.next-test-${webPort}`), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }));
       // The home page answers, which means the web compiled and read the API.
       await waitFor("web", async () => (await fetch(webUrl)).ok, 180_000, web.log);
     }
