@@ -89,3 +89,10 @@
   padding-top: 6px;
   border-top: 1px solid var(--line);
 }
+
+/* The trade panel's button: the panel's width, and its menu as wide under it. */
+.block .menu {
+  left: 0;
+  min-width: 0;
+  max-width: none;
+}

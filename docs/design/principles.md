@@ -64,6 +64,8 @@ A module takes its type from the roles in `globals.css`, never a literal size:
 | `--font-heading`, `--font-subheading` | A card's or a step's name |
 | `--font-brand` | The lockup |
 | `--font-label` | A bold label in the sans (`h3`) |
+| `--font-coin`, `--font-price` | A coin page's pair, its title, and its price beside it |
+| `--font-stat` | A figure in a row of small ones (a chart's market cap and volume) |
 | `--font-pair` | The home page's pair, in its pill under the headline |
 | `--font-control` | Buttons |
 | `--font-code` | Code |

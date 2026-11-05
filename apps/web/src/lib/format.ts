@@ -127,3 +127,13 @@ export function formatChange(change: number | null): { text: string; direction: 
   const text = `${(change * 100).toLocaleString("en-US", { maximumFractionDigits: 1, signDisplay: "exceptZero" })}%`;
   return { text, direction: change > 0 ? "up" : change < 0 ? "down" : null };
 }
+
+/** A date as the spec writes one: 4 November 2026, in UTC so the server and every browser agree. */
+export function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+/** A raw amount as a plain number of whole units, for figures that are read at a glance rather than to the last unit. */
+export function units(raw: string, decimals: number) {
+  return Number(raw) / 10 ** decimals;
+}

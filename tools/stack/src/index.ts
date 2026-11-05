@@ -314,9 +314,9 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
         failures.push(e);
       }
     }
-    // Each failure is named in the message: the runner prints an AggregateError's message and stack, not its errors.
-    const why = failures.map((e) => (e instanceof Error ? e.message : String(e))).join("; ");
-    if (failures.length) throw new AggregateError(failures, `stopping the stack failed: ${why}`);
+    // The causes in the message itself: Playwright's teardown report prints the message, not an AggregateError's members.
+    const causes = failures.map((e) => (e instanceof Error ? e.message : String(e))).join("; ");
+    if (failures.length) throw new AggregateError(failures, `stopping the stack failed: ${causes}`);
   };
   try {
     const pg = await startPostgres();
@@ -437,7 +437,7 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
       const webDir = join(REPO, "apps", "web");
       for (const dir of readdirSync(webDir).filter((d) => d.startsWith(".next-test-"))) {
         const port = Number(dir.slice(".next-test-".length));
-        if (port && !(await listening(port))) rmSync(join(webDir, dir), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+        if (port && !(await listening(port))) rmSync(join(webDir, dir), { recursive: true, force: true });
       }
       const web = run(
         `web-${webPort}`,
@@ -447,9 +447,10 @@ export async function startStack(opts: StackOptions = {}): Promise<{ env: StackE
         // A separate build directory, so tests never fight a developer's running `next dev` for its lock.
         { NEXT_PUBLIC_API_URL: apiUrl, API_KEY: webApiKey, NEXT_DIST_DIR: `.next-test-${webPort}`, NEXT_TELEMETRY_DISABLED: "1" },
       );
-      // `next dev`'s workers can still be writing its build folder as it stops, so a plain remove meets ENOTEMPTY and fails
-      // an otherwise green run's teardown (#9, 2026-11-05): Node retries that error when asked.
-      cleanups.push(web.stop, () => rmSync(join(REPO, "apps", "web", `.next-test-${webPort}`), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }));
+      // Cleanups run in reverse: the build folder goes only once `next dev` has stopped, and with retries, since the
+      // process `pnpm exec` started can still be writing Turbopack's cache for a moment after: removed under it, the
+      // removal failed with ENOTEMPTY and a green run ended in a failed teardown (#7).
+      cleanups.push(() => rmSync(join(REPO, "apps", "web", `.next-test-${webPort}`), { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }), web.stop);
       // The home page answers, which means the web compiled and read the API.
       await waitFor("web", async () => (await fetch(webUrl)).ok, 180_000, web.log);
     }
