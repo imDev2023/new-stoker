@@ -215,3 +215,10 @@
     width: 100%;
   }
 }
+
+/* What a phone leaves out of the trades: the trader, whose trade still links to the explorer from its time. */
+@media (max-width: 640px) {
+  .wide {
+    display: none;
+  }
+}

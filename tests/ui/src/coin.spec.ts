@@ -85,7 +85,7 @@ test("a trader buys, then sells half, on the curve, and sees both in the trades"
 
   // Another interval redraws the chart from the same trades.
   await page.getByRole("radiogroup", { name: "Interval" }).getByText("5m", { exact: true }).click();
-  await expect(page.getByRole("radio", { name: "5m" })).toBeChecked();
+  await expect(page.getByRole("radio", { name: "5m", exact: true })).toBeChecked();
   await expect(page.locator("[data-chart] polyline")).toHaveCount(1);
 });
 
@@ -151,9 +151,10 @@ test("declining in the wallet trades nothing and says so", async ({ page, wallet
   expect(await coinBalance(wallet.keypair, mint)).toBe(0n);
 });
 
-test("an amount over the wallet's balance is refused before anything is prepared", async ({ page }) => {
+test("an amount over the wallet's balance is refused before anything is prepared", async ({ page, wallet }) => {
   const mint = await freshCoin("MUCH");
   await openConnected(page, mint, "MUCH");
+  expect(await coinBalance(wallet.keypair, mint)).toBe(0n);
   // A buy past the Graduation Target costs only what is left, so the check is a sell of coins the wallet doesn't hold.
   await panel(page).getByRole("radiogroup", { name: "Side" }).getByText("Sell", { exact: true }).click();
   await panel(page).getByLabel("Amount").fill("500");

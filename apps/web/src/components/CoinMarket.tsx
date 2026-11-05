@@ -199,7 +199,8 @@ function beforeYouBuy(holders: HolderList | null, trust: LaunchTrust | null): [T
   }
   if (holders) {
     const top = holders.holders.filter((h) => h.kind !== "curve" && h.kind !== "pool").slice(0, 10).reduce((s, h) => s + h.share, 0);
-    marks.push([top > 0.5 ? "caution" : "ok", `Top 10 ${(top * 100).toFixed(1)}%`]);
+    // Before the first buy nobody but the curve holds any: no mark, rather than a zero (the spec's rule).
+    if (top > 0) marks.push([top > 0.5 ? "caution" : "ok", `Top 10 ${(top * 100).toFixed(1)}%`]);
   }
   return marks;
 }
@@ -273,7 +274,7 @@ function Trades({ trades, launch, platform, now }: { trades: Trade[]; launch: La
           <th scope="col">Side</th>
           <th scope="col" className="r">{launch.symbol}</th>
           <th scope="col" className="r">{quoteTicker(launch.quote)}</th>
-          <th scope="col">Trader</th>
+          <th scope="col" className={styles.wide}>Trader</th>
           <th scope="col" className="r">Time</th>
         </tr>
       </thead>
@@ -283,7 +284,7 @@ function Trades({ trades, launch, platform, now }: { trades: Trade[]; launch: La
             <td className={t.side === "buy" ? "up" : "down"}>{t.side === "buy" ? "Buy" : "Sell"}</td>
             <td className="r">{formatFigure(units(t.baseAmount, COIN_DECIMALS))}</td>
             <td className="r">{formatPriceCompact(units(t.quoteAmount, launch.quote.decimals))}</td>
-            <td>
+            <td className={styles.wide}>
               <a className="link mono" href={explorerUrl("address", t.trader, platform)} target="_blank" rel="noreferrer">{shortAddress(t.trader)}</a>
             </td>
             <td className="r">
