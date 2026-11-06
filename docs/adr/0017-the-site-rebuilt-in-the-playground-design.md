@@ -25,6 +25,9 @@ The same day the owner asked for the whole website to be rebuilt from scratch in
 - What it retires: Teal and its hue fix, the Cobalt and Violet alternates, T3 Bricolage, the floating pill header, the green launch button, and the layouts the rework phases built.
 - Its one departure from production, the launch summary showing where $1,000 of curve trading goes, waits on the owner.
   Until the owner decides, production's rule holds and every fee figure stays on `/fees`.
+- Amended 2026-11-06 (owner, #26, built by #28): the Playground's colours and type gave way to E Furnace, because the rebuild read like Peak's site (launchonpeak.fun), which shares its cream page, its sans and mono and a serif headline.
+  E keeps the Playground's structure, words, rules and gold accent, and replaces the ivory page with sage, Instrument Serif, Instrument Sans and JetBrains Mono with Archivo, Albert Sans and DM Mono, the ring and the name with the caps STOKER whose O is the ring, the figures' hairline cells and the ticked trust list with figures in open columns and rings; the header, the pulse strip, the home page's hero and figures, the invitation, the footer and the phone bar sit on the mark's dark tile, and buttons are pills.
+  `docs/design/principles.md` holds the palette and the type.
 
 ## Consequences
 

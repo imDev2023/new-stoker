@@ -23,7 +23,7 @@
   border-radius: 50%;
   background: var(--ink);
   color: var(--paper);
-  font: 400 var(--text-tiny) / 1 var(--serif);
+  font: 400 var(--text-tiny) / 1 var(--display);
   object-fit: cover;
 }
 
@@ -41,5 +41,5 @@
 .large .asset {
   width: 26px;
   height: 26px;
-  font: 400 var(--text-ui) / 1 var(--serif);
+  font: 400 var(--text-ui) / 1 var(--display);
 }

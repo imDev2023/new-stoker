@@ -8,7 +8,7 @@
 /* A visually-hidden span inside a box that scrolls sideways is placed against the page unless the box is (CLAUDE.md). */
 .wrap { position: relative; }
 
-/* Each kind's heading, in the serif, with no hairline above it: the rows below carry theirs. */
+/* Each kind's heading, in the display face, with no hairline above it: the rows below carry theirs. */
 .table .group th { padding-top: 24px; font: var(--font-group); color: var(--ink); border-top: 0; }
 .table tbody:first-of-type .group th { padding-top: 16px; }
 
@@ -19,7 +19,7 @@
 .ticker b { font-weight: 600; }
 .names > span:last-child:not(.ticker) { color: var(--ink-3); font-size: var(--text-caption); }
 
-/* Nothing matches: the spec's band, one sentence in the serif, as the board's. */
+/* Nothing matches: the spec's band, one sentence in the display face, as the board's. */
 .empty { padding-block: clamp(80px, 13vw, 160px); text-align: center; background: linear-gradient(var(--line), var(--line)) top / 100% 1px no-repeat; }
 .statement { max-width: 15em; margin-inline: auto; font: var(--font-statement); letter-spacing: -.02em; text-wrap: balance; }
 

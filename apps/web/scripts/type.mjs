@@ -18,7 +18,7 @@ function* cssFiles(dir) {
 }
 
 const TOKEN = (prefix) => `var\\(--${prefix}[\\w-]*\\)`;
-const FAMILY = "var\\(--(sans|serif|mono)\\)";
+const FAMILY = "var\\(--(sans|display|mono)\\)";
 
 /** Each property a module may set only through a token, and what a value may look like. */
 const RULES = [

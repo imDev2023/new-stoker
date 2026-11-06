@@ -45,7 +45,10 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className={`shell ${styles.hero}`} aria-labelledby="hero-title">
+      <section className={`shell on-band bleed ${styles.hero}`} aria-labelledby="hero-title">
+        <span className={styles.mark} aria-hidden="true">
+          <Ring size={128} />
+        </span>
         <h1 id="hero-title" className="display">
           No one picks your pair. <em className="heat">You do.</em>
         </h1>
@@ -72,7 +75,7 @@ export default async function HomePage() {
       </section>
 
       {figures.length > 0 && (
-        <section className="shell" aria-label="Figures" data-figures>
+        <section className={`shell on-band bleed ${styles.figures}`} aria-label="Figures" data-figures>
           <dl className="figures">
             {figures.map(([key, term, value, unit]) => (
               <div key={key}>
@@ -134,11 +137,11 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section className={`shell ${styles.band}`} aria-label="What we hold ourselves to">
+      <section className={`shell ${styles.band} ${styles.ruled}`} aria-label="What we hold ourselves to">
         <p className={styles.statement}>We listen. We experiment. We make rugs rare, and small.</p>
       </section>
 
-      <section className={`shell ${styles.band} ${styles.invite}`} aria-labelledby="invite-title">
+      <section className={`shell on-band bleed ${styles.band} ${styles.invite}`} aria-labelledby="invite-title">
         <Ring size={112} />
         <h2 id="invite-title" className="title">Your coin, your pair.</h2>
         <Link className="button button-lg" href="/launch">

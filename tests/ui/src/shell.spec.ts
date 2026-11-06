@@ -26,16 +26,25 @@ test("the header names the eight sections and marks the one a page belongs to", 
 
 test("just above the phone bar the header keeps to the window, the last two sections waiting for the room", async ({ page }) => {
   const sections = page.getByRole("banner").getByRole("navigation", { name: "Sections" }).getByRole("link");
-  for (const width of [901, 960, 1040]) {
+  // The row can run into the shell's gutter without widening the page, so the actions' edge is held to the shell's column.
+  const insideColumn = () =>
+    page.evaluate(() => {
+      const row = document.querySelector("header .shell")!;
+      const edge = row.getBoundingClientRect().right - parseFloat(getComputedStyle(row).paddingRight);
+      return row.lastElementChild!.getBoundingClientRect().right <= edge + 0.5;
+    });
+  for (const width of [901, 960, 1080]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto("/terms");
     await expect(sections, `${width}px`).toHaveText(SECTIONS.slice(0, 6));
     await expectNoHorizontalOverflow(page);
+    expect(await insideColumn(), `${width}px`).toBe(true);
   }
-  await page.setViewportSize({ width: 1041, height: 800 });
+  await page.setViewportSize({ width: 1081, height: 800 });
   await page.goto("/terms");
   await expect(sections).toHaveText(SECTIONS);
   await expectNoHorizontalOverflow(page);
+  expect(await insideColumn(), "1081px").toBe(true);
 });
 
 test.describe("on a phone", () => {
@@ -81,7 +90,7 @@ test("light or dark: the account menu's toggle holds across a reload", async ({ 
   }).toPass({ timeout: 30_000 });
   await toggle.click();
   await expect(html).toHaveAttribute("data-theme", "dark");
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(12, 12, 13)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(11, 13, 10)");
   expect((await context.cookies()).find((c) => c.name === "scheme")?.value).toBe("dark");
 
   // The server writes the choice, so the page never paints the other scheme first.
@@ -92,7 +101,7 @@ test("light or dark: the account menu's toggle holds across a reload", async ({ 
   await menu.click();
   await page.getByRole("menuitem", { name: "Light mode" }).click();
   await expect(html).toHaveAttribute("data-theme", "light");
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(246, 244, 239)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(238, 241, 234)");
 });
 
 test("the wallet connects from the header and disconnects from its menu", async ({ page, wallet }) => {

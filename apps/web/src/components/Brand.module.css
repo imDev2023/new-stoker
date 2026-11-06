@@ -1,7 +1,18 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
   font: var(--font-brand);
-  letter-spacing: -.01em;
+}
+
+/* The ring stands in for the O at the letters' cap height, pulled in to the letters' own spacing. */
+.word {
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: .045em;
+}
+
+.word svg {
+  width: 1.1em;
+  height: 1.1em;
+  margin-inline: -.11em -.07em;
 }
