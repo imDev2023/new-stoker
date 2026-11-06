@@ -1,0 +1,80 @@
+/* Developers (the spec's .endpoints, .method and pre.code): each section's endpoints in a panel, a row each, every
+   endpoint on its own line with its method in the gold, then what it answers; code on the dark tile in both schemes. */
+.flush {
+  padding-top: 0;
+}
+
+/* The hairline between sections spans the column beside the rail: the shell's --rule is inset by the gutter. */
+.endpoints > :global(.section) + :global(.section) {
+  background: linear-gradient(var(--line), var(--line)) top / 100% 1px no-repeat;
+}
+
+.lead {
+  margin-bottom: 16px;
+  font-size: var(--text-ui);
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.lead code,
+.row dd code {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.rows {
+  display: grid;
+}
+
+.row {
+  padding: 16px 20px;
+  border-top: 1px solid var(--line);
+}
+
+.row:first-child {
+  border-top: 0;
+}
+
+.row dt {
+  display: grid;
+  gap: 6px;
+}
+
+.endpoint {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.method {
+  flex: none;
+  width: 52px;
+  font: 500 var(--text-micro) / 1 var(--mono);
+  color: var(--gold);
+}
+
+.endpoint code {
+  min-width: 0;
+  font-size: var(--text-small);
+  overflow-wrap: anywhere;
+}
+
+.row dd {
+  margin-top: 8px;
+  font-size: var(--text-ui);
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.code {
+  margin: 0;
+  padding: 20px 24px;
+  overflow-x: auto;
+  border-radius: var(--radius);
+  background: var(--tile);
+  color: var(--on-tile);
+}
+
+.code + .code {
+  margin-top: 16px;
+}
