@@ -135,6 +135,11 @@ function ReferenceSection({ section, children }: { section: Section; children?: 
   );
 }
 
+/** A path that may wrap after each slash and before its query, never inside a segment: `/launches/:mint/airdrop/prepare` on a phone. */
+function breakable(path: string) {
+  return path.split(/(?<=.\/)|(?=\?)/).flatMap((part, i) => (i === 0 ? [part] : [<wbr key={i} />, part]));
+}
+
 /** One row: each endpoint on a line, its method in the gold, then what it answers. */
 function ReferenceRow({ row }: { row: Row }) {
   return (
@@ -146,7 +151,7 @@ function ReferenceRow({ row }: { row: Row }) {
           return (
             <span key={endpoint} className={styles.endpoint}>
               {verb && <span className={styles.method}>{verb}</span>}
-              <code>{verb ? rest.join(" ") : endpoint}</code>
+              <code>{breakable(verb ? rest.join(" ") : endpoint)}</code>
             </span>
           );
         })}

@@ -4,6 +4,11 @@
   padding-top: 0;
 }
 
+/* The hairline between sections spans the column beside the rail: the shell's --rule is inset by the gutter. */
+.endpoints > :global(.section) + :global(.section) {
+  background: linear-gradient(var(--line), var(--line)) top / 100% 1px no-repeat;
+}
+
 .lead {
   margin-bottom: 16px;
   font-size: var(--text-ui);

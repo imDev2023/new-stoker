@@ -30,6 +30,7 @@
 
 .steps p {
   color: var(--ink-2);
+  text-wrap: pretty;
 }
 
 .steps p a {

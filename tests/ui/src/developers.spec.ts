@@ -28,14 +28,18 @@ test("every read the reference names answers on the stack", async ({ page }) => 
       .replace(/\/quote$/, "/quote?side=buy&amount=100000000");
 
   await page.goto("/api");
-  const lines = page.locator("#reading dt > span");
-  const reads = await lines.evaluateAll((spans) =>
-    spans.map((s) => [s.children[0]?.textContent ?? "", s.querySelector("code")?.textContent ?? ""] as [string, string]),
+  // Each endpoint line of the Reading section, with whether its row says it is served outside /v1.
+  const reads = await page.locator("#reading dt > span").evaluateAll((spans) =>
+    spans.map((s) => ({
+      method: s.children[0]?.textContent ?? "",
+      path: s.querySelector("code")?.textContent ?? "",
+      outside: s.closest("div")?.querySelector("dd")?.textContent?.startsWith("Outside /v1") ?? false,
+    })),
   );
   expect(reads.length).toBeGreaterThan(20);
-  for (const [method, path] of reads) {
+  for (const { method, path, outside } of reads) {
     expect(method, path).toBe("GET");
-    const url = path === "/health" ? `${apiUrl}/health` : `${apiUrl}/v1${filled(path)}`;
+    const url = `${apiUrl}${outside ? "" : "/v1"}${filled(path)}`;
     const res = await fetch(url);
     expect(res.status, `${path}: ${url}`).toBe(200);
   }

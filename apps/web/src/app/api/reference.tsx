@@ -87,10 +87,6 @@ export const READING: Section = {
       ),
     },
     {
-      endpoints: ["GET /stats"],
-      text: <>The platform&apos;s figures: <code>since</code> (when the first coin launched), <code>launches</code>, <code>graduated</code>, and <code>volume24h</code> across every coin in SOL and USD at the Quote Registry&apos;s latest prices.</>,
-    },
-    {
       endpoints: ["GET /launches/:mint/trades", "GET /launches/:mint/candles?interval=", "GET /launches/:mint/holders"],
       text: <>Indexed trades (with any referral fee paid), price candles (<code>1m</code>, <code>5m</code>, <code>15m</code>, <code>1h</code>, <code>4h</code> or <code>1d</code>), and the top holders read from the chain.</>,
     },
@@ -132,6 +128,10 @@ export const READING: Section = {
       text: <>What the launch form offers this wallet: <code>airdrop</code> is true only for wallets the operator has allowed.</>,
     },
     {
+      endpoints: ["GET /stats"],
+      text: <>The platform&apos;s figures: <code>since</code> (when the first coin launched), <code>launches</code>, <code>graduated</code>, and <code>volume24h</code> across every coin in SOL and USD at the Quote Registry&apos;s latest prices.</>,
+    },
+    {
       endpoints: ["GET /revenue", "GET /ledger"],
       text: (
         <>
@@ -145,7 +145,7 @@ export const READING: Section = {
       endpoints: ["GET /metadata/:mint.json", "GET /metadata/:mint/image"],
       text: (
         <>
-          A coin&apos;s metadata JSON and image as the platform&apos;s own cache serves them. The address on the chain is the Arweave one, where both are posted once the launch is indexed; this copy answers under the platform&apos;s domain meanwhile and after.
+          Outside <code>/v1</code>. A coin&apos;s metadata JSON and image as the platform&apos;s own cache serves them. The address on the chain is the Arweave one, where both are posted once the launch is indexed; this copy answers under the platform&apos;s domain meanwhile and after.
         </>
       ),
     },
