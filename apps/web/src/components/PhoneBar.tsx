@@ -9,7 +9,7 @@ import styles from "./PhoneBar.module.css";
  */
 export function PhoneBar() {
   return (
-    <nav className={styles.tabs} aria-label="Sections" data-tab-bar>
+    <nav className={`on-band ${styles.tabs}`} aria-label="Sections" data-tab-bar>
       <NavLinks links={NAV_LINKS.slice(0, PHONE_SECTIONS)} />
     </nav>
   );

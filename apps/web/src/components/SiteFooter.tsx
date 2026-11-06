@@ -7,7 +7,7 @@ import styles from "./SiteFooter.module.css";
 /** The footer of every page: the lockup, the four groups, and the risk sentence every page ends with. */
 export function SiteFooter() {
   return (
-    <footer className={styles.foot} data-site-footer>
+    <footer className={`on-band ${styles.foot}`}>
       <div className="shell">
         <div className={styles.grid}>
           <Brand className={styles.brand} />

@@ -45,18 +45,17 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className={`shell ${styles.hero}`} aria-labelledby="hero-title" data-hero>
-        {/* Review-only (#26, the second round): the ring over the headline, shown by candidate E alone. */}
-        <span className="review-hero-ring" aria-hidden="true" data-hero-ring>
+      <section className={`shell on-band bleed ${styles.hero}`} aria-labelledby="hero-title">
+        <span className={styles.mark} aria-hidden="true">
           <Ring size={128} />
         </span>
         <h1 id="hero-title" className="display">
           No one picks your pair. <em className="heat">You do.</em>
         </h1>
-        <p className={styles.pair} data-pair>
+        <p className={styles.pair}>
           <span className="visually-hidden">Your coin, priced in {ROLL.slice(0, -1).join(", ")} or {ROLL.at(-1)}</span>
           <span aria-hidden="true">STOKER</span>
-          <span className={styles.slash} aria-hidden="true" data-slash>/</span>
+          <span className={styles.slash} aria-hidden="true">/</span>
           <span className={styles.roll} aria-hidden="true" data-roll>
             <span className={styles.track}>
               {[...ROLL, ROLL[0]].map((asset, i) => (
@@ -65,7 +64,7 @@ export default async function HomePage() {
             </span>
           </span>
         </p>
-        <div className={styles.actions} data-hero-actions>
+        <div className={styles.actions}>
           <Link className="button button-lg" href="/launch">
             Stoke a coin
           </Link>
@@ -76,7 +75,7 @@ export default async function HomePage() {
       </section>
 
       {figures.length > 0 && (
-        <section className="shell" aria-label="Figures" data-figures>
+        <section className={`shell on-band bleed ${styles.figures}`} aria-label="Figures" data-figures>
           <dl className="figures">
             {figures.map(([key, term, value, unit]) => (
               <div key={key}>
@@ -91,7 +90,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section className={`shell ${styles.idea}`} aria-labelledby="idea-pair" data-idea>
+      <section className={`shell ${styles.idea}`} aria-labelledby="idea-pair">
         <div>
           <h2 id="idea-pair" className="title">Any asset Raydium quotes.</h2>
           <Link className="arrow" href="/assets">All assets</Link>
@@ -103,23 +102,23 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className={`shell ${styles.idea}`} aria-labelledby="idea-cut" data-idea>
+      <section className={`shell ${styles.idea}`} aria-labelledby="idea-cut">
         <div>
           <h2 id="idea-cut" className="title">Half of what we collect is yours.</h2>
           <Link className="arrow" href="/fees">Every fee</Link>
         </div>
-        <div className={`panel ${styles.split}`} data-split>
+        <div className={`panel ${styles.split}`}>
           <span className={styles.you}>You</span>
           <span className={styles.us}>Stoker</span>
         </div>
       </section>
 
-      <section className={`shell ${styles.idea}`} aria-labelledby="idea-trust" data-idea>
+      <section className={`shell ${styles.idea}`} aria-labelledby="idea-trust">
         <div>
           <h2 id="idea-trust" className="title">Nothing on faith.</h2>
           <Link className="arrow" href="/revenue">The public ledger</Link>
         </div>
-        <ul className={`panel pad ${styles.checks}`} data-checks>
+        <ul className={`panel pad ${styles.checks}`}>
           {CHECKS.map((check) => (
             <li key={check}>{check}</li>
           ))}
@@ -138,11 +137,11 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section className={`shell ${styles.band}`} aria-label="What we hold ourselves to" data-band="statement">
+      <section className={`shell ${styles.band} ${styles.ruled}`} aria-label="What we hold ourselves to">
         <p className={styles.statement}>We listen. We experiment. We make rugs rare, and small.</p>
       </section>
 
-      <section className={`shell ${styles.band} ${styles.invite}`} aria-labelledby="invite-title" data-band="invite">
+      <section className={`shell on-band bleed ${styles.band} ${styles.invite}`} aria-labelledby="invite-title">
         <Ring size={112} />
         <h2 id="invite-title" className="title">Your coin, your pair.</h2>
         <Link className="button button-lg" href="/launch">

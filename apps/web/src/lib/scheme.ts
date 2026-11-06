@@ -10,5 +10,8 @@ export type Scheme = "light" | "dark";
 
 export const isScheme = (value: string | undefined): value is Scheme => value === "light" || value === "dark";
 
-/** The paper of each scheme (globals.css), for the browser's own chrome. */
-export const PAPER: Record<Scheme, string> = { light: "#f6f4ef", dark: "#0c0c0d" };
+/**
+ * The band of each scheme (globals.css, `--band`), for the browser's own chrome: the header sits on it, so the browser's
+ * bar runs on into the site's.
+ */
+export const CHROME: Record<Scheme, string> = { light: "#0f130e", dark: "#171e15" };

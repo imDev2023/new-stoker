@@ -91,13 +91,19 @@ const PAIRS = [
   ["on-tile", ["tile"], 4.5, 75],
   ["on-tile-2", ["tile"], 4.5, 60],
 ];
-/** Review-only (#26, the second round): a band's own roles, the same floors as the page's. */
+/**
+ * The band's own roles (globals.css, `.on-band`), the same floors as the page's: inside a band the page's tokens are
+ * re-set to these, so the header, the pulse strip, the home page's hero, figures and invitation, the footer and the phone
+ * bar are held to them. "You do." in the band's gold at a headline's size takes the large-text floor; a monogram on the
+ * gold ramp is a glyph on a fill.
+ */
 const BAND_PAIRS = [
   ["on-band", ["band", "band-raised"], 4.5, 75],
   ["on-band-2", ["band", "band-raised"], 4.5, 60],
   ["band-gold-from", ["band"], 3, 45],
   ["band-gold-to", ["band", "band-raised"], 4.5, 60],
   ["on-band-button", ["band-button"], 4.5, 60],
+  ["on-band-button", ["band-gold-from", "band-gold-to"], 3, 45],
 ];
 /** Hairlines want Lc 15 against the light grounds they sit on (production's floor; dark hairlines are not held to it). */
 const LINES = [["line", ["paper", "surface", "sunken"], 15]];
@@ -145,35 +151,8 @@ function check(mode, vars, hairlines, pairs = PAIRS) {
 
 check("light", { ...light }, true);
 check("dark", { ...light, ...darkMedia }, false);
-
-// Review-only (#26): each candidate paper sets every colour token for light and for dark, its dark written twice like
-// the base's, and lies over the base in the cascade (the base, its dark, the paper's light, the paper's dark), so each
-// is checked as the page draws it. Removed with the candidates once the owner picks.
-const papers = (re) => Object.fromEntries([...css.matchAll(re)].map((m) => [m[1], tokens(m[2])]));
-const paperLight = papers(/^:root\[data-paper="([\w-]+)"\]\s*\{([^}]*)\}/gm);
-const paperDarkMedia = papers(/:root\[data-paper="([\w-]+)"\]:not\(\[data-theme="light"\]\)\s*\{([^}]*)\}/g);
-const paperDarkPinned = papers(/:root\[data-paper="([\w-]+)"\]\[data-theme="dark"\]\s*\{([^}]*)\}/g);
-for (const paper of new Set([...Object.keys(paperLight), ...Object.keys(paperDarkMedia), ...Object.keys(paperDarkPinned)])) {
-  const [own, media, pinned] = [paperLight[paper], paperDarkMedia[paper], paperDarkPinned[paper]];
-  if (!own || !media || !pinned) {
-    fail(`paper ${paper} wants a light block, a dark block under the media query and a dark block pinned by data-theme`);
-    continue;
-  }
-  for (const key of new Set([...Object.keys(media), ...Object.keys(pinned)])) {
-    if (media[key] !== pinned[key]) fail(`paper ${paper} dark --${key}: ${media[key] ?? "unset"} under the media query, ${pinned[key] ?? "unset"} pinned by data-theme`);
-  }
-  // A token the paper sets for light alone would carry its light value into dark.
-  for (const key of Object.keys(own)) if (!(key in media) && key in darkMedia) fail(`paper ${paper} sets --${key} for light but not for dark`);
-  check(`${paper} light`, { ...light, ...own }, true);
-  check(`${paper} dark`, { ...light, ...darkMedia, ...own, ...media }, false);
-  // The second round's band (a dark or green stretch of the page, the forms put its colours in place of the page's
-  // tokens inside it): its text, its gold (the slogan's "You do." at a headline's size takes the large-text floor) and
-  // its button.
-  if (own.band) {
-    check(`${paper} band light`, { ...light, ...own }, false, BAND_PAIRS);
-    check(`${paper} band dark`, { ...light, ...darkMedia, ...own, ...media }, false, BAND_PAIRS);
-  }
-}
+check("band light", { ...light }, false, BAND_PAIRS);
+check("band dark", { ...light, ...darkMedia }, false, BAND_PAIRS);
 
 console.log(failed ? `\n${failed} pair(s) under the floors` : "\nevery text role passes AA and APCA on every ground it sits on, in light and dark");
 process.exit(failed ? 1 : 0);

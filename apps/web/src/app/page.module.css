@@ -1,7 +1,25 @@
-/* Home (the spec's `index.html` and its section of style.css): the hero, the three ideas, the statement and the invitation. */
+/* Home (the spec's `index.html` and its section of style.css, in E Furnace's form): the hero and its figures on the band,
+   the three ideas, the statement and the invitation, back on the band. */
 .hero {
-  padding-block: clamp(80px, 15vw, 176px) clamp(64px, 10vw, 120px);
+  padding-block: clamp(56px, 8vw, 104px) clamp(40px, 6vw, 72px);
   text-align: center;
+  background-image: var(--glow);
+  background-size: clamp(300px, 40vw, 560px) clamp(300px, 40vw, 560px);
+  background-position: center 0;
+  background-repeat: no-repeat;
+}
+
+/* The ring over the slogan, glowing on the band. */
+.mark {
+  display: block;
+  width: fit-content;
+  margin: 0 auto clamp(28px, 4vw, 44px);
+  filter: var(--glow-mark);
+}
+
+.mark svg {
+  width: clamp(88px, 10vw, 128px);
+  height: auto;
 }
 
 /* The pair: the coin and the asset it is priced in, the asset rolling through a few that Raydium quotes. */
@@ -68,6 +86,11 @@
   margin-top: clamp(32px, 5vw, 48px);
 }
 
+/* The platform's figures, on the band under the hero. */
+.figures {
+  padding-bottom: clamp(56px, 8vw, 104px);
+}
+
 /* An idea: its title and a link on one side, the thing itself on the other; one column on a phone. */
 .idea {
   display: grid;
@@ -78,7 +101,7 @@
 }
 
 .idea + .idea,
-.band {
+.ruled {
   background: var(--rule);
 }
 
@@ -138,13 +161,14 @@
   border-top: 1px solid var(--line);
 }
 
+/* Each check a small ring in the mark's heat, never a tick. */
 .checks li::before {
   content: "";
   flex: none;
-  width: 16px;
-  height: 16px;
-  background: var(--gold);
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='m3 9.5 4 4 8-9' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  width: 15px;
+  height: 15px;
+  background: var(--ring);
+  mask: radial-gradient(circle closest-side, transparent 50%, black 54% 92%, transparent 96%);
 }
 
 .band {
@@ -164,4 +188,9 @@
   display: grid;
   justify-items: center;
   gap: 28px;
+  padding-block: clamp(72px, 11vw, 136px);
+}
+
+.invite svg {
+  filter: var(--glow-mark-sm);
 }

@@ -1,10 +1,7 @@
 // The tokens and primitives come first, so a component's module can override a primitive's defaults on a tied selector.
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import {
-  Albert_Sans, Archivo, Atkinson_Hyperlegible_Mono, Atkinson_Hyperlegible_Next, DM_Mono, IBM_Plex_Mono, IBM_Plex_Sans, Instrument_Sans, Instrument_Serif,
-  JetBrains_Mono,
-} from "next/font/google";
+import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import { PhoneBar } from "@/components/PhoneBar";
@@ -18,24 +15,82 @@ import { Welcome } from "@/components/Welcome";
 import { getPlatform, getStats } from "@/lib/api";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE } from "@/lib/meta";
 import { siteOrigin } from "@/lib/origin";
-import { LookSwitch } from "@/components/LookSwitch";
-import { FORM_COOKIE, isForm, isPaper, isTypePair, PAPER_COOKIE, TYPE_COOKIE } from "@/lib/looks";
-import { isScheme, PAPER, SCHEME_COOKIE } from "@/lib/scheme";
+import { CHROME, isScheme, SCHEME_COOKIE } from "@/lib/scheme";
 
-// The spec's three families (docs/design/playground/src/layout.html), served by the app itself.
-const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-instrument-serif", display: "swap" });
-const sans = Instrument_Sans({ subsets: ["latin"], variable: "--font-instrument-sans", display: "swap" });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono", display: "swap" });
-// Review-only (#26; lib/looks.ts): the candidates' type pairs, never preloaded, so a page in the current look fetches none of them.
-const plexSans = IBM_Plex_Sans({ subsets: ["latin"], variable: "--font-plex-sans", display: "swap", preload: false });
-const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap", preload: false });
-const albertSans = Albert_Sans({ subsets: ["latin"], variable: "--font-albert-sans", display: "swap", preload: false });
-const dmMono = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-dm-mono", display: "swap", preload: false });
-const atkinsonNext = Atkinson_Hyperlegible_Next({ subsets: ["latin"], variable: "--font-atkinson-next", display: "swap", preload: false });
-const atkinsonMono = Atkinson_Hyperlegible_Mono({ subsets: ["latin"], variable: "--font-atkinson-mono", display: "swap", preload: false });
-// The second round's display face for E: Archivo with its width axis, drawn semi-expanded and expanded.
-const archivo = Archivo({ subsets: ["latin"], axes: ["wdth"], variable: "--font-archivo", display: "swap", preload: false });
-const candidateFonts = [plexSans, plexMono, albertSans, dmMono, atkinsonNext, atkinsonMono, archivo].map((font) => font.variable).join(" ");
+// The three families (E Furnace, the owner's pick on #26): Archivo with its width axis for the headlines and figures,
+// Albert Sans for everything read or acted on, DM Mono for code and addresses. Served by the app from src/fonts (each
+// face with its OFL licence), so no page and no run of the UI suite waits on Google's font servers. Each face comes in
+// two files, Google's latin and latin-ext subsets: the latin one is preloaded, and the latin-ext one, listed first in the
+// family (globals.css), is fetched only by a page that draws one of its letters. The latin face alone carries the
+// metric-matched fallback, so a letter neither covers falls through to it. next/font takes literal options only, so
+// each call is written out in full.
+const archivoExt = localFont({
+  src: "../fonts/archivo-latin-ext-wdth-normal.woff2",
+  weight: "100 900",
+  variable: "--font-archivo-ext",
+  display: "swap",
+  preload: false,
+  adjustFontFallback: false,
+  declarations: [
+    { prop: "font-stretch", value: "62% 125%" },
+    { prop: "unicode-range", value: "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF" },
+  ],
+});
+const archivo = localFont({
+  src: "../fonts/archivo-latin-wdth-normal.woff2",
+  weight: "100 900",
+  variable: "--font-archivo",
+  display: "swap",
+  declarations: [
+    { prop: "font-stretch", value: "62% 125%" },
+    { prop: "unicode-range", value: "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD" },
+  ],
+});
+const albertExt = localFont({
+  src: "../fonts/albert-sans-latin-ext-wght-normal.woff2",
+  weight: "100 900",
+  variable: "--font-albert-ext",
+  display: "swap",
+  preload: false,
+  adjustFontFallback: false,
+  declarations: [
+    { prop: "unicode-range", value: "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF" },
+  ],
+});
+const albert = localFont({
+  src: "../fonts/albert-sans-latin-wght-normal.woff2",
+  weight: "100 900",
+  variable: "--font-albert",
+  display: "swap",
+  declarations: [
+    { prop: "unicode-range", value: "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD" },
+  ],
+});
+const monoExt = localFont({
+  src: [
+    { path: "../fonts/dm-mono-latin-ext-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/dm-mono-latin-ext-500-normal.woff2", weight: "500", style: "normal" },
+  ],
+  variable: "--font-dm-mono-ext",
+  display: "swap",
+  preload: false,
+  adjustFontFallback: false,
+  declarations: [
+    { prop: "unicode-range", value: "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF" },
+  ],
+});
+const mono = localFont({
+  src: [
+    { path: "../fonts/dm-mono-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/dm-mono-latin-500-normal.woff2", weight: "500", style: "normal" },
+  ],
+  variable: "--font-dm-mono",
+  display: "swap",
+  declarations: [
+    { prop: "unicode-range", value: "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD" },
+  ],
+});
+const fonts = [archivoExt, archivo, albertExt, albert, monoExt, mono].map((font) => font.variable).join(" ");
 
 export async function generateMetadata(): Promise<Metadata> {
   // Only mainnet is indexable: the devnet rehearsal and a local stack carry test coins that would otherwise be indexed
@@ -60,15 +115,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** The browser's own chrome follows the page: the visitor's choice when there is one, the system setting otherwise. */
+/** The browser's own chrome follows the header's band: the visitor's choice when there is one, the system setting otherwise. */
 export async function generateViewport(): Promise<Viewport> {
   const scheme = (await cookies()).get(SCHEME_COOKIE)?.value;
   return {
     themeColor: isScheme(scheme)
-      ? PAPER[scheme]
+      ? CHROME[scheme]
       : [
-          { media: "(prefers-color-scheme: light)", color: PAPER.light },
-          { media: "(prefers-color-scheme: dark)", color: PAPER.dark },
+          { media: "(prefers-color-scheme: light)", color: CHROME.light },
+          { media: "(prefers-color-scheme: dark)", color: CHROME.dark },
         ],
   };
 }
@@ -79,18 +134,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   // The strip's figures are left out rather than the page failing if they can't be read.
   const [platform, stats, jar] = await Promise.all([getPlatform(), getStats().catch(() => null), cookies()]);
   const scheme = jar.get(SCHEME_COOKIE)?.value;
-  const paper = jar.get(PAPER_COOKIE)?.value;
-  const type = jar.get(TYPE_COOKIE)?.value;
-  const form = jar.get(FORM_COOKIE)?.value;
   return (
-    <html
-      lang="en"
-      data-theme={isScheme(scheme) ? scheme : undefined}
-      data-paper={isPaper(paper) ? paper : undefined}
-      data-type={isTypePair(type) ? type : undefined}
-      data-form={isForm(form) ? form : undefined}
-      className={`${serif.variable} ${sans.variable} ${mono.variable} ${candidateFonts}`}
-    >
+    <html lang="en" data-theme={isScheme(scheme) ? scheme : undefined} className={fonts}>
       <body>
         <a className="skip" href="#main">Skip to content</a>
         <Providers rpcUrl={platform.rpcUrl}>
@@ -101,7 +146,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <PhoneBar />
           <Welcome />
           <SearchShortcut />
-          <LookSwitch />
         </Providers>
         <RingDefs />
       </body>

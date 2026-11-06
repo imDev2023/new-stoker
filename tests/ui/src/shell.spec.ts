@@ -81,7 +81,7 @@ test("light or dark: the account menu's toggle holds across a reload", async ({ 
   }).toPass({ timeout: 30_000 });
   await toggle.click();
   await expect(html).toHaveAttribute("data-theme", "dark");
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(12, 12, 13)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(11, 13, 10)");
   expect((await context.cookies()).find((c) => c.name === "scheme")?.value).toBe("dark");
 
   // The server writes the choice, so the page never paints the other scheme first.
@@ -92,7 +92,7 @@ test("light or dark: the account menu's toggle holds across a reload", async ({ 
   await menu.click();
   await page.getByRole("menuitem", { name: "Light mode" }).click();
   await expect(html).toHaveAttribute("data-theme", "light");
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(246, 244, 239)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(238, 241, 234)");
 });
 
 test("the wallet connects from the header and disconnects from its menu", async ({ page, wallet }) => {

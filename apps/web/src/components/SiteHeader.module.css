@@ -1,11 +1,10 @@
-/* The bar, from the spec's layout: the lockup, the eight sections, then the wallet and the one filled action. */
+/* The bar, from the spec's layout: the lockup, the eight sections, then the wallet and the one filled action. It is
+   opaque on the band: the spec's translucent fill over a page of another colour turned the band grey, and with no
+   backdrop filter the bar is never the containing block of anything fixed inside it. */
 .bar {
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 20;
-  background: color-mix(in srgb, var(--paper) 82%, transparent);
-  backdrop-filter: saturate(1.4) blur(18px);
-  -webkit-backdrop-filter: saturate(1.4) blur(18px);
   border-bottom: 1px solid var(--line);
 }
 
@@ -58,15 +57,8 @@
   }
 }
 
-/* Under 900px the sections move to the phone bar at the window's foot (PhoneBar), and the bar turns opaque: a backdrop
-   filter makes an element the containing block of anything fixed inside it. */
+/* Under 900px the sections move to the phone bar at the window's foot (PhoneBar). */
 @media (max-width: 900px) {
-  .bar {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    background: var(--paper);
-  }
-
   .row {
     justify-content: space-between;
   }
