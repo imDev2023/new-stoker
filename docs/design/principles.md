@@ -100,7 +100,7 @@ Reduced motion stops every transition outright.
 - The header, on the band: the caps STOKER with the ring as its O, the eight sections (Explore, Stocks, Swap, Assets, Rewards, Stats, Curated, Developers), the wallet and "Stoke a coin", the one filled button.
   A detail page marks its list's section, and Burns marks Stats.
 - Under 900px the sections move to the phone bar at the window's foot, on the band too, the first five of them.
-  Between 901px and 1040px the header shows the first six: the spec's eight and the two actions need about 1017px and overflowed the window there.
+  Between 901px and 1080px the header shows the first six: the eight and the two actions need 1060px in Albert Sans with the caps lockup (1017px in the spec's faces).
 - The pulse strip under the header, on the band's raised ground, on every page but home: the day's volume, the coins and the graduated count from `GET /v1/stats`, each only once it is real, and the strip only when one is.
 - The footer, on the band: the lockup, four groups (Trade, Create, Records, Legal) and the risk sentence every page ends with.
 - The account menu holds the wallets, Disconnect, "Your earnings" for a wallet that has launched a coin, and the light-or-dark toggle.

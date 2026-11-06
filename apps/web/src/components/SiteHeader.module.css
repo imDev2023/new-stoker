@@ -49,9 +49,10 @@
   gap: 8px;
 }
 
-/* The eight sections and the two actions need about 1017px: the spec's header overflowed the window between 901px and
-   that, so there the last two sections (Curated, Developers, both in the footer) wait for the room. */
-@media (max-width: 1040px) {
+/* The eight sections and the two actions need 1060px in Albert Sans with the caps lockup (measured on #28; 1017px in the
+   spec's Instrument Sans), so under 1081px the last two sections (Curated, Developers, both in the footer) wait for the
+   room. */
+@media (max-width: 1080px) {
   .nav a:nth-child(n + 7) {
     display: none;
   }

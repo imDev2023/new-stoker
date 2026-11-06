@@ -352,14 +352,16 @@ a.chip:hover { border-color: var(--line-strong); }
 .kv dt { color: var(--ink-2); }
 .kv dd { text-align: right; font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
 
-/* Figures: a row of large numbers, each over its name, with room between and no rules (the markup keeps the name first). */
-.figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 28px; text-align: center; }
-.figures > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 10px; }
+/* Figures: a row of large numbers, each over its name, with room between and no rules (the markup keeps the name first).
+   Equal columns that wrap, two to a row on a phone, and a row that is not full is centred: a page with one figure shows
+   it in the middle, never in the left half of a grid. */
+.figures { display: flex; flex-wrap: wrap; justify-content: center; gap: 28px; text-align: center; }
+.figures > div { display: flex; flex: 1 1 160px; flex-direction: column-reverse; justify-content: flex-end; gap: 10px; }
 .figures dt { font-size: var(--text-small); color: var(--ink-2); }
 .figures dd { font: var(--font-figure); letter-spacing: -.02em; }
 .figures dd small { margin-left: .25em; font: 500 var(--text-small) / 1 var(--sans); color: var(--ink-3); letter-spacing: 0; }
 @media (max-width: 760px) {
-  .figures { grid-template-columns: 1fr 1fr; }
+  .figures > div { flex-basis: calc(50% - 14px); }
 }
 
 /* Every inner page opens the same way: its one title, then the thing itself. */

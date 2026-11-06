@@ -26,16 +26,25 @@ test("the header names the eight sections and marks the one a page belongs to", 
 
 test("just above the phone bar the header keeps to the window, the last two sections waiting for the room", async ({ page }) => {
   const sections = page.getByRole("banner").getByRole("navigation", { name: "Sections" }).getByRole("link");
-  for (const width of [901, 960, 1040]) {
+  // The row can run into the shell's gutter without widening the page, so the actions' edge is held to the shell's column.
+  const insideColumn = () =>
+    page.evaluate(() => {
+      const row = document.querySelector("header .shell")!;
+      const edge = row.getBoundingClientRect().right - parseFloat(getComputedStyle(row).paddingRight);
+      return row.lastElementChild!.getBoundingClientRect().right <= edge + 0.5;
+    });
+  for (const width of [901, 960, 1080]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto("/terms");
     await expect(sections, `${width}px`).toHaveText(SECTIONS.slice(0, 6));
     await expectNoHorizontalOverflow(page);
+    expect(await insideColumn(), `${width}px`).toBe(true);
   }
-  await page.setViewportSize({ width: 1041, height: 800 });
+  await page.setViewportSize({ width: 1081, height: 800 });
   await page.goto("/terms");
   await expect(sections).toHaveText(SECTIONS);
   await expectNoHorizontalOverflow(page);
+  expect(await insideColumn(), "1081px").toBe(true);
 });
 
 test.describe("on a phone", () => {
