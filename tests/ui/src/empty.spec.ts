@@ -2,7 +2,7 @@
 // is there, and the pulse strip waits for a real figure.
 import { BurnsPage, FeeAnnouncementList, QuoteAssetList, Revenue } from "@launchpad/contract";
 import { expect, platformInfo, stackEnv, test } from "./fixtures";
-import { snap } from "./shots";
+import { dynamic, snap } from "./shots";
 
 test("home", async ({ page, stack }) => {
   const quotes = QuoteAssetList.parse(await (await fetch(`${stack.apiUrl}/v1/quotes`)).json());
@@ -211,4 +211,57 @@ test("the launch form before the first coin", async ({ page }) => {
   await expect(summary.getByRole("link", { name: "Half of what we collect" })).toHaveAttribute("href", "/fees");
   await expect(summary.getByText("Per $1,000 traded")).toHaveCount(0);
   await snap(page, "launch.png");
+});
+
+test("holder rewards before the first coin", async ({ page }) => {
+  await page.goto("/rewards");
+  await expect(page.getByRole("heading", { level: 1, name: "Holder rewards" })).toBeVisible();
+  const steps = page.getByRole("region", { name: "How holders are paid" });
+  await expect(steps.getByRole("heading", { level: 3 })).toHaveText(["A tax on every transfer", "Collected into rounds", "Paid by holding"]);
+  // The Reward Tax's rates are fee figures, which only the Fees page shows (owner, 2026-10-30): the step links there.
+  await expect(steps.getByRole("link", { name: "Fees" })).toHaveAttribute("href", "/fees#rewardTax");
+  await expect(steps).not.toContainText("%");
+  // The lookup is a control, there before any reward; nothing is looked up yet, so no table and no note.
+  const lookup = page.getByRole("form", { name: "Look up a wallet's rewards" });
+  await expect(lookup.getByRole("textbox", { name: "Wallet address" })).toBeVisible();
+  await expect(lookup.getByRole("button", { name: "Show" })).toBeVisible();
+  await expect(page.getByRole("table")).toHaveCount(0);
+  // The first rules version is in force from the start (migration 0009), and the treasury counts as a holder.
+  const rules = page.getByRole("region", { name: "Rules in force" });
+  await expect(rules.getByRole("term")).toHaveText(["Version", "Minimum holding", "A round runs once", "Holders", "In force since"]);
+  await expect(rules.getByRole("definition").first()).toHaveText("1");
+  await expect(rules.getByRole("definition").nth(1)).toHaveText("10,000 coins");
+  await expect(rules.getByRole("definition").nth(2)).toHaveText("100,000 coins of tax have collected");
+  await expect(rules.getByRole("link", { name: "the treasury" })).toHaveAttribute("href", "/revenue#where");
+  await expect(page.getByRole("heading", { name: "Announced changes" })).toHaveCount(0);
+  await snap(page, "rewards.png");
+});
+
+test("curated", async ({ page }) => {
+  await page.goto("/curated");
+  await expect(page.getByRole("heading", { level: 1, name: "Curated" })).toBeVisible();
+  await expect(page.getByText("Soon", { exact: true })).toBeVisible();
+  const steps = page.getByRole("region", { name: "How an allocation is earned" });
+  await expect(steps.getByRole("heading", { level: 3 })).toHaveText(["Stake STOKER", "Your allocation follows your stake", "Every launch is approved first"]);
+  await expect(page.getByRole("heading", { level: 2, name: "The first Curated launch is announced here." })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("link", { name: "Explore coins" })).toHaveAttribute("href", "/coins");
+  await snap(page, "curated.png");
+});
+
+test("developers", async ({ page, stack }) => {
+  const platform = await (await fetch(`${stack.apiUrl}/v1/platform`)).json();
+  await page.goto("/api");
+  await expect(page.getByRole("heading", { level: 1, name: "The API" })).toBeVisible();
+  const rail = page.getByRole("navigation", { name: "On this page", includeHidden: true }).getByRole("link", { includeHidden: true });
+  await expect(rail).toHaveText([
+    "Quickstart", "Reading", "Preparing transactions", "Sign, send, report", "Referrals", "Keys and limits", "Errors", "The operator's endpoints",
+  ]);
+  // The quickstart asks the API this page reads, and its answer is that API's own, for this page view.
+  const start = page.getByRole("region", { name: "Quickstart" });
+  await expect(start.locator("pre").first()).toHaveText(`curl ${stack.apiUrl}/v1/platform`);
+  expect(JSON.parse(await start.locator("[data-answer]").innerText())).toEqual(platform);
+  // No rate outside the Fees page: the referral share is named by its field, never written out.
+  await expect(page.getByRole("region", { name: "Referrals" })).not.toContainText("%");
+  // The stack's address and the chain's own addresses are in the quickstart: masked.
+  await snap(page, "api.png", (p) => [...dynamic(p), p.locator("[data-live]")]);
 });

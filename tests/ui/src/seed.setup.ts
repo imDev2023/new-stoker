@@ -7,7 +7,7 @@ import {
   platformInfo, SEED_HOLDER, tradeViaApi,
   type LaunchFields,
 } from "./fixtures";
-import { AIRDROP_CREATOR, AIRDROP_PAID, AIRDROP_SENDING, REWARD_CREATOR, REWARD_QUOTE } from "./seedData";
+import { AIRDROP_CREATOR, AIRDROP_PAID, AIRDROP_SENDING, REWARD_CREATOR, REWARD_HOLDER, REWARD_QUOTE } from "./seedData";
 
 export const SEEDED: LaunchFields[] = [
   // The traded coin carries a website and both socials, so the coin page's shots show where a coin's links go.
@@ -59,7 +59,7 @@ setup("seed the board", async () => {
   // A Reward Launch paid in SOL (#43): one holder buys, the Reward Engine sells a slice of the tax and pays the round.
   await fund(REWARD_CREATOR.publicKey, 5);
   const rewardCoin = await launchViaApi(REWARD_CREATOR, REWARD_QUOTE);
-  await tradeViaApi(await fundedKeypair(5), rewardCoin, "buy", BigInt(0.3 * LAMPORTS_PER_SOL));
+  await tradeViaApi(await fundedKeypair(5, REWARD_HOLDER), rewardCoin, "buy", BigInt(0.3 * LAMPORTS_PER_SOL));
   await runRewardRounds();
 
   // One fixed Creator, so the visual tests can open the creator earnings page as that Creator.

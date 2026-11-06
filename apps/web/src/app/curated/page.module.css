@@ -1,0 +1,16 @@
+/* Curated (the spec's .band under the steps): one statement over the way to the board, ruled off like Home's statement. */
+.band {
+  display: grid;
+  justify-items: center;
+  gap: 28px;
+  padding-block: clamp(80px, 13vw, 160px);
+  background: var(--rule);
+  text-align: center;
+}
+
+.statement {
+  max-width: 15em;
+  font: var(--font-statement);
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}

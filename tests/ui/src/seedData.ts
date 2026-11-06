@@ -18,6 +18,8 @@ export const AIRDROP_PAID: LaunchFields = {
 
 /** A Reward Launch whose Payout Asset is SOL, by a Creator of its own; the seed buys it and runs a round, so its page shows a sale and a payout. */
 export const REWARD_CREATOR = fixedKeypair("reward creator");
+/** The Reward Launch's one holder, whose key is the same every run, so the rewards page can look its payout up in a shot. */
+export const REWARD_HOLDER = fixedKeypair("reward holder");
 export const REWARD_QUOTE: LaunchFields = {
   name: "Yield Desk", symbol: "YLD", description: "A Reward Launch whose 3% tax is sold for SOL and paid to holders in SOL.", rewardTax: "300", rewardPayout: "quote",
 };

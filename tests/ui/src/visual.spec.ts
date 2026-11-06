@@ -5,6 +5,7 @@ import type { Page } from "@playwright/test";
 import { coinImage, expect, listLaunches, QUOTES, test } from "./fixtures";
 import { DIALOG_STYLES, dynamic, snap } from "./shots";
 import { connectTestWallet, TEST_WALLET_NAME } from "./wallet";
+import { REWARD_HOLDER } from "./seedData";
 
 test("pulse", async ({ page }) => {
   await page.goto("/privacy");
@@ -189,6 +190,20 @@ test.describe("the records", () => {
     await expect(changes.nth(2).getByRole("link", { name: "Applied" })).toBeVisible();
     await snap(page, "announcements-seeded.png");
   });
+});
+
+// Holder rewards looked up for the seeded Reward Launch's one holder (#12): the round the seed's Reward Engine run paid,
+// in SOL, linked to its transaction.
+test("rewards of a wallet", async ({ page }) => {
+  const holder = REWARD_HOLDER.publicKey.toBase58();
+  await page.goto(`/rewards?wallet=${holder}`);
+  await expect(page.getByRole("textbox", { name: "Wallet address" })).toHaveValue(holder);
+  const rows = page.getByRole("table", { name: "Rewards" }).getByRole("row");
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText("YLD");
+  await expect(rows.first().getByRole("link", { name: /SOL$/ })).toHaveAttribute("href", /\/tx\//);
+  await page.getByRole("textbox", { name: "Wallet address" }).blur();
+  await snap(page, "rewards-wallet.png");
 });
 
 // The launch form filled in by a connected Creator: the picture, the name and ticker with Copy Protection's verdicts, a

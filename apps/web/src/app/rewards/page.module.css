@@ -1,0 +1,28 @@
+/* Holder rewards (the spec's .lookup and .note): the wallet's address and its button on one line, its rewards under it. */
+.lookup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.search {
+  max-width: 520px;
+}
+
+.search input {
+  height: 50px;
+}
+
+.note {
+  margin-top: 10px;
+  font-size: var(--text-small);
+  color: var(--ink-2);
+}
+
+.rewards {
+  margin-top: 16px;
+}
+
+.state {
+  margin-left: 8px;
+}
