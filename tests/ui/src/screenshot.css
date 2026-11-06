@@ -26,6 +26,12 @@ body {
   position: absolute !important;
 }
 
+/* The Ledger's times ("9m ago", "10m ago") set the width of its last column and so moved every column between runs: in a
+   table cell a time of 100% contributes its text's width to the column, so the Ledger's are given one (#28). */
+table[aria-labelledby="ledger-title"] time {
+  width: 8ch;
+}
+
 /* The launch form's Copy Protection verdicts end on the day a window closes ("Nov 5", "Nov 12"). */
 [data-copy] time {
   width: 6ch;
