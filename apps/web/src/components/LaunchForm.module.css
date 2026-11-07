@@ -59,6 +59,27 @@
   color: var(--ink-2);
 }
 
+/* The airdrop at launch (#13): a checkbox under the First Buy, then the list, one wallet a line. */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--text-small);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ink);
+}
+
+.field .list {
+  font: 400 var(--text-small) / 1.6 var(--mono);
+  overflow-wrap: anywhere;
+}
+
 .drop {
   display: flex;
   align-items: center;

@@ -1,0 +1,14 @@
+/* The Creator's page (#13): the Stats page's asset cards, the board's coin cell, the airdrops in a column. */
+.connect { max-width: 400px; }
+.none { display: grid; justify-items: start; gap: 20px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.cardHead { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.cardHead b { font-weight: 600; }
+.coin { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.names { display: grid; min-width: 0; }
+.names b { font-weight: 600; }
+.names .muted { font-size: var(--text-caption); overflow-wrap: anywhere; }
+.badges { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.airdrops { display: grid; gap: 16px; }
+/* A rule's value is a sentence: it wraps rather than being cut. */
+.rules dd { white-space: normal; text-overflow: clip; }

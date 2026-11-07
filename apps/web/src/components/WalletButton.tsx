@@ -44,8 +44,10 @@ export function WalletButton({ block = false }: {
   // coin here, which is asked once per connected wallet.
   const address = publicKey?.toBase58() ?? null;
   const [launched, setLaunched] = useState<{ address: string; yes: boolean } | null>(null);
+  // Asked again each time the menu opens until the answer is yes, so a wallet's first launch shows the entry at once.
+  const knownYes = launched?.address === address && launched.yes;
   useEffect(() => {
-    if (!address) return;
+    if (!address || knownYes) return;
     let gone = false;
     listLaunches({ creator: address, limit: 1 })
       .then((list) => {
@@ -55,8 +57,8 @@ export function WalletButton({ block = false }: {
     return () => {
       gone = true;
     };
-  }, [address]);
-  const hasLaunched = launched?.address === address && launched.yes;
+  }, [address, open, knownYes]);
+  const hasLaunched = knownYes;
 
   useEffect(() => {
     if (!open) return;
