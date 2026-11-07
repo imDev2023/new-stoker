@@ -2,10 +2,11 @@
 // real figures, the welcome on a first visit and the account menu, Explore's board seeded, filtered by an asset,
 // searched and watchlisted, and a coin's page in each of its states, against committed baselines.
 import type { Page } from "@playwright/test";
-import { coinImage, expect, listLaunches, QUOTES, test } from "./fixtures";
+import { coinImage, expect, listLaunches, QUOTES, SEED_CREATOR, stackEnv, test } from "./fixtures";
 import { DIALOG_STYLES, dynamic, snap } from "./shots";
-import { connectTestWallet, TEST_WALLET_NAME } from "./wallet";
-import { REWARD_HOLDER } from "./seedData";
+import { connectTestWallet, installTestWallet, TEST_WALLET_NAME } from "./wallet";
+import { AIRDROP_CREATOR, REWARD_HOLDER } from "./seedData";
+import { WalletRewards } from "@launchpad/contract";
 
 test("pulse", async ({ page }) => {
   await page.goto("/privacy");
@@ -239,4 +240,43 @@ test("launch filled", async ({ page, wallet }) => {
   await form.getByLabel("First buy").blur();
   expect(wallet.requests).toHaveLength(0);
   await snap(page, "launch-filled.png");
+});
+
+// The connected wallet's pages and the operator console on the seeded stack (#13).
+test.describe("the connected wallet's pages", () => {
+  /** A coin's trend line and a chart are not on these pages; the pictures and amounts are fixed by the seed. */
+  for (const [name, who, symbols] of [
+    ["creator-seeded.png", SEED_CREATOR, ["Earned in SOL", "Earned in USDC"]],
+    ["creator-airdrops.png", AIRDROP_CREATOR, ["Earned in SOL"]],
+  ] as const) {
+    test(name, async ({ page }) => {
+      await installTestWallet(page, who);
+      await page.goto("/creator");
+      await connectTestWallet(page, page.getByRole("main").getByRole("button", { name: "Connect wallet" }));
+      await expect(page.getByRole("region", { name: "Earned" }).getByRole("term")).toHaveText([...symbols]);
+      await expect(page.getByRole("table", { name: "Payments" })).toBeVisible();
+      await snap(page, name);
+    });
+  }
+
+  test("reward-round.png", async ({ page }) => {
+    const holder = REWARD_HOLDER.publicKey.toBase58();
+    const { rewards } = WalletRewards.parse(await (await fetch(`${stackEnv().apiUrl}/v1/wallets/${holder}/rewards`)).json());
+    await page.goto(`/rewards/rounds/${rewards[0]!.round}`);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("YLD round");
+    await expect(page.getByRole("table", { name: "Payouts" }).locator("tbody tr")).not.toHaveCount(0);
+    await snap(page, "reward-round.png");
+  });
+
+  test("operator-console.png", async ({ page }) => {
+    await page.goto("/operator");
+    const signIn = page.getByRole("form", { name: "Open the console" });
+    await signIn.getByLabel("Operator token").fill(stackEnv().operatorToken);
+    await signIn.getByRole("button", { name: "Open" }).click();
+    await expect(page.getByRole("heading", { name: "At a glance" })).toBeVisible();
+    await expect(page.getByRole("table", { name: "Announced fee changes" }).locator("tbody tr")).toHaveCount(3);
+    await expect(page.getByRole("table", { name: "Allowed Creators" }).locator("tbody tr")).toHaveCount(1);
+    // What the jobs did and the alerts they raised follow their timing, and the uploads land when Turbo answers: masked.
+    await snap(page, "operator-console.png", (p) => [...dynamic(p), p.locator("[data-varies]")]);
+  });
 });

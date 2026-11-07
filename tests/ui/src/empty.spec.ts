@@ -313,3 +313,23 @@ test("developers", async ({ page, stack }) => {
   // The stack's address and the chain's own addresses are in the quickstart: masked.
   await snap(page, "api.png", (p) => [...dynamic(p), p.locator("[data-live]")]);
 });
+
+// The connected wallet's page and the operator's console before anything (#13): the Creator page asks for the wallet
+// it is for, and the console for the operator token; neither is linked from the shell.
+test("the creator page without a wallet", async ({ page }) => {
+  await page.goto("/creator");
+  await expect(page.getByRole("heading", { level: 1, name: "Your earnings" })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("button", { name: "Connect wallet" })).toBeVisible();
+  await expect(page.locator("meta[name=robots]")).toHaveAttribute("content", /noindex/);
+  await snap(page, "creator-connect.png");
+});
+
+test("the operator console before the token", async ({ page }) => {
+  await page.goto("/operator");
+  await expect(page.getByRole("heading", { level: 1, name: "Operator" })).toBeVisible();
+  const form = page.getByRole("form", { name: "Open the console" });
+  await expect(form.getByLabel("Operator token")).toHaveAttribute("type", "password");
+  await expect(form.getByRole("button", { name: "Open" })).toBeVisible();
+  await expect(page.locator("meta[name=robots]")).toHaveAttribute("content", /noindex/);
+  await snap(page, "operator-token.png");
+});

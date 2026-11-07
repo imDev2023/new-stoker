@@ -38,15 +38,17 @@ table[aria-labelledby="ledger-title"] time {
   vertical-align: bottom;
 }
 
-/* Dates ("6 November 2026", "7 November 2026") in content-sized boxes: the rewards page's rules value, the wallet's
-   rounds and an announced change, and a coin's facts (launched, graduated, protected until). Each took its date's
-   width, so a baseline shot on one day failed on a day whose date set wider (rewards.png and every coin page,
-   2026-11-07): a box for the longest. */
-[aria-labelledby="about-title"] time,
-#rules time,
-#lookup td time,
-#announced time {
+/* Dates ("6 November 2026", "7 November 2026") in content-sized boxes (a key-value row, a table cell, a sentence) took
+   their text's width, so a baseline shot on one day failed on a day whose date set wider (rewards.png and every coin
+   page, 2026-11-07, met by #10 and #13 the same day): every date gets the box of its format's longest text, marked by the
+   format it is drawn with, `formatDate` ("30 September 2026") or `formatUtc` ("Sep 30, 2026, 11:59 PM UTC"). */
+time[data-date] {
   width: 17ch;
+  vertical-align: bottom;
+}
+
+time[data-utc] {
+  width: 27ch;
   vertical-align: bottom;
 }
 

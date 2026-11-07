@@ -88,7 +88,7 @@ export default async function RewardsPage({ searchParams }: Props) {
   );
 }
 
-/** A wallet's rewards, newest round first: the coin, the round's date, and what it paid, linked to its transaction. */
+/** A wallet's rewards, newest round first: the coin, the round's date (linked to the round's page, #13), and what it paid, linked to its transaction. */
 function WalletRewardsTable({ rewards, platform }: { rewards: WalletRewards; platform: PlatformInfo | null }) {
   if (rewards.rewards.length === 0) return <p className={styles.note}>No rewards for this wallet yet.</p>;
   return (
@@ -105,7 +105,9 @@ function WalletRewardsTable({ rewards, platform }: { rewards: WalletRewards; pla
                   </Link>
                 </td>
                 <td className="muted">
-                  <time dateTime={r.roundStartedAt}>{formatDate(r.roundStartedAt)}</time>
+                  <Link className="link" href={`/rewards/rounds/${r.round}`}>
+                    <time dateTime={r.roundStartedAt} data-date>{formatDate(r.roundStartedAt)}</time>
+                  </Link>
                 </td>
                 <td className="r">
                   {r.status === "paid" && r.signature && platform ? (
@@ -160,7 +162,7 @@ function RulesInForce({ rules }: { rules: RewardRuleVersion }) {
         <div>
           <dt>In force since</dt>
           <dd>
-            <time dateTime={rules.effectiveAt}>{formatDate(rules.effectiveAt)}</time>
+            <time dateTime={rules.effectiveAt} data-date>{formatDate(rules.effectiveAt)}</time>
           </dd>
         </div>
       </dl>
@@ -179,7 +181,7 @@ function AnnouncedRules({ upcoming }: { upcoming: RewardRuleVersion[] }) {
         {upcoming.map((r) => (
           <div key={r.version} data-version={r.version}>
             <dt>
-              Version {r.version} from <time dateTime={r.effectiveAt}>{formatDate(r.effectiveAt)}</time>
+              Version {r.version} from <time dateTime={r.effectiveAt} data-date>{formatDate(r.effectiveAt)}</time>
             </dt>
             <dd>
               {coins(r.minHolding)} to be paid, a round from {coins(r.roundThreshold)}

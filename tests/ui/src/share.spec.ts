@@ -5,11 +5,15 @@
 import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 import { Keypair } from "@solana/web3.js";
-import { expect, fundedKeypair, launchViaApi, listLaunches, QUOTES, test } from "./fixtures";
+import { RewardRoundDetail, WalletRewards } from "@launchpad/contract";
+import { expect, fundedKeypair, launchViaApi, listLaunches, QUOTES, stackEnv, test } from "./fixtures";
+import { REWARD_HOLDER } from "./seedData";
 
 const NVDAX = QUOTES.NVDAx.toBase58();
 const USDC = QUOTES.USDC.toBase58();
 const SITE_TITLE = "Stoker · Launch a coin on Solana priced in the asset you pick";
+
+const api = async <T>(path: string, schema: { parse: (v: unknown) => T }) => schema.parse(await (await fetch(`${stackEnv().apiUrl}${path}`)).json());
 
 /** A head tag, whether it is named with `name` or `property`. */
 const meta = (page: Page, key: string) => page.locator(`head meta[name="${key}"], head meta[property="${key}"]`);
@@ -194,6 +198,37 @@ test("an asset's and a stock's links unfurl with their own cards, each page unde
   const usdc = await shareCard(page, base);
   expect(usdc.png).toMatchSnapshot("share-asset-usdc.png");
   expect((await page.request.get(`${base}${usdc.path.replace("/asset/", "/stock/")}`)).status()).toBe(404);
+});
+
+// #13's pages: a Reward Round names itself and shares the site's card; the connected wallet's own page and the
+// operator's console name themselves too, and ask not to be indexed on every cluster (the robots file keeps crawlers out).
+test("a Reward Round names itself with the site's card, and the Creator's and the operator's pages ask not to be indexed", async ({ page, stack }) => {
+  const base = stack.webUrl!;
+  const { rewards } = await api(`/v1/wallets/${REWARD_HOLDER.publicKey.toBase58()}/rewards`, WalletRewards);
+  const reward = rewards.find((r) => r.status === "paid")!;
+  const round = await api(`/v1/rewards/rounds/${reward.round}`, RewardRoundDetail);
+  const day = new Date(round.startedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+  const path = `/rewards/rounds/${round.id}`;
+  await page.goto(path);
+  await namesItself(page, base, path, `${reward.symbol} round of ${day} · Stoker`);
+  await expect(meta(page, "description")).toHaveAttribute("content", new RegExp(`^One Reward Round of ${reward.symbol}, a Reward Launch on Stoker`));
+  await expect(meta(page, "og:image")).toHaveAttribute("content", `${base}/opengraph-image`);
+  await expect(meta(page, "twitter:image")).toHaveAttribute("content", `${base}/opengraph-image`);
+
+  for (const [own, title] of [["/creator", "Your earnings"], ["/operator", "Operator"]] as const) {
+    await page.goto(own);
+    await namesItself(page, base, own, `${title} · Stoker`);
+    await expect(meta(page, "robots"), own).toHaveAttribute("content", "noindex, nofollow");
+  }
+
+  // A round that doesn't exist is a 404 nobody indexes: Next adds a `noindex` of its own to a `notFound()` answer,
+  // beside the page's, so every robots tag there is read.
+  const missing = "/rewards/rounds/00000000-0000-4000-8000-000000000000";
+  expect((await page.goto(missing))?.status()).toBe(404);
+  await expect(page).toHaveTitle("Round not found · Stoker");
+  const robots = await meta(page, "robots").evaluateAll((tags) => tags.map((t) => t.getAttribute("content")));
+  expect(robots).toContain("noindex, nofollow");
+  for (const content of robots) expect(content).toMatch(/^noindex/);
 });
 
 test("the sitemap lists every page, coin, asset and stock, the robots file names it, and the icons answer", async ({ page, stack }) => {

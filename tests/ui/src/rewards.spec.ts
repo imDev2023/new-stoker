@@ -1,7 +1,7 @@
 // Holder rewards end to end (#12): any wallet's rewards looked up from the page's form, each payout linked to its
 // transaction, a wallet with none and an address that isn't one, and a rules change announced ahead of its day.
 import { Keypair } from "@solana/web3.js";
-import { RewardRulesPage, WalletRewards } from "@launchpad/contract";
+import { RewardRoundDetail, RewardRulesPage, WalletRewards } from "@launchpad/contract";
 import { expect, stackEnv, test } from "./fixtures";
 import { REWARD_HOLDER } from "./seedData";
 
@@ -67,4 +67,37 @@ test("a rules change shows once announced, ahead of its day", async ({ page }) =
   await expect(change.getByRole("definition")).toHaveText("20,000 coins to be paid, a round from 200,000 coins");
   // The rules in force stay as they were until the day.
   await expect(page.getByRole("region", { name: "Rules in force" }).getByRole("definition").nth(1)).toHaveText("10,000 coins");
+});
+
+// A single round (#13): production's address for a wallet's rewards forwards to the lookup, and each reward's date opens
+// its round, whose payouts link each wallet back to its own rewards and each paid amount to its transaction.
+test("production's wallet address forwards to the lookup, and a reward's date opens its round", async ({ page }) => {
+  const holder = REWARD_HOLDER.publicKey.toBase58();
+  const { rewards } = await api(`/v1/wallets/${holder}/rewards`, WalletRewards);
+  const reward = rewards.find((r) => r.status === "paid")!;
+  const round = await api(`/v1/rewards/rounds/${reward.round}`, RewardRoundDetail);
+
+  const res = await page.goto(`/rewards/${holder}`);
+  expect(res?.request().redirectedFrom()?.url()).toMatch(new RegExp(`/rewards/${holder}$`));
+  await expect(page).toHaveURL(new RegExp(`/rewards\\?wallet=${holder}$`));
+  const row = page.getByRole("table", { name: "Rewards" }).getByRole("row").filter({ hasText: reward.symbol }).first();
+  await row.getByRole("link", { name: /\d{4}$/ }).click();
+
+  await expect(page).toHaveURL(new RegExp(`/rewards/rounds/${reward.round}$`));
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(`${reward.symbol} round`);
+  await expect(page.getByRole("heading", { name: round.status === "paid" ? "Paid in full" : "Paying out" })).toBeVisible();
+  const figures = page.getByRole("region", { name: "Figures" });
+  await expect(figures.getByRole("term").first()).toHaveText("Pot");
+  const payouts = page.getByRole("table", { name: "Payouts" }).locator("tbody tr");
+  await expect(payouts).toHaveCount(round.payouts.length);
+  const mine = payouts.filter({ has: page.locator(`a[href="/rewards?wallet=${holder}"]`) });
+  await expect(mine).toHaveCount(1);
+  await expect(mine.getByRole("link", { name: new RegExp(`${round.payout.symbol}$`) })).toHaveAttribute("href", new RegExp(`/tx/${reward.signature}\\?`));
+  await expect(page.getByRole("link", { name: `Version ${round.rulesVersion}` })).toHaveAttribute("href", "/rewards#rules");
+});
+
+test("a round that doesn't exist is the site's 404", async ({ page }) => {
+  const res = await page.goto("/rewards/rounds/00000000-0000-4000-8000-000000000000");
+  expect(res?.status()).toBe(404);
+  await expect(page.getByRole("heading", { level: 1, name: "Nothing here." })).toBeVisible();
 });

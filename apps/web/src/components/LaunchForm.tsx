@@ -6,10 +6,11 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { SendTransactionError, TransactionExpiredBlockheightExceededError, VersionedTransaction } from "@solana/web3.js";
 import { useEffect, useId, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import {
-  LAUNCH_IMAGE_MAX_BYTES, LAUNCH_IMAGE_TYPES, REWARD_TAX_RATES,
+  AIRDROP_MAX_RECIPIENTS, LAUNCH_IMAGE_MAX_BYTES, LAUNCH_IMAGE_TYPES, REWARD_TAX_RATES,
   type CopyVerdict, type PlatformInfo, type PreparedLaunch, type QuoteAsset, type RewardTaxBps, type TradeQuote,
 } from "@launchpad/contract";
-import { ApiRequestError, getLaunchQuote, prepareLaunch, reportTransaction, retryLaunch } from "@/lib/api";
+import { ApiRequestError, getLaunchPermissions, getLaunchQuote, prepareLaunch, reportTransaction, retryLaunch } from "@/lib/api";
+import { parseAirdropList } from "@/lib/airdrop";
 import { protectedUntil, useCopyCheck, type CopyField } from "@/lib/copyCheck";
 import { COIN_DECIMALS, COIN_SUPPLY, explorerUrl, formatAmount, formatUnits, isSol, parseUnits, quoteTicker, SOL_DECIMALS } from "@/lib/format";
 import {
@@ -79,6 +80,11 @@ export function LaunchForm({
   const [step, setStep] = useState<Step>({ kind: "editing" });
   const [error, setError] = useState<string | null>(null);
   const [disclaimerOpen, setDisclaimerOpen] = useState(false);
+  // An airdrop at launch is only for Creator wallets the operator has allowed (production's rule): until the API has
+  // answered for this wallet, nobody is offered one.
+  const [airdropAllowedFor, setAirdropAllowedFor] = useState<string | null>(null);
+  const [airdropChosen, setAirdropChosen] = useState(false);
+  const [airdropText, setAirdropText] = useState("");
 
   const quote = quotes.find((q) => q.mint === quoteMint) ?? null;
   const ticker = quote ? quoteTicker(quote) : "";
@@ -89,6 +95,31 @@ export function LaunchForm({
   const copy = useCopyCheck({ name, symbol, image, creator });
   const busy = step.kind === "preparing" || step.kind === "signing" || step.kind === "confirming";
   const failed = step.kind === "failed" ? step : step.kind === "preparing" ? step.retrying : null;
+
+  useEffect(() => {
+    if (creator === null) return;
+    const abort = new AbortController();
+    getLaunchPermissions(creator, abort.signal)
+      .then((p) => setAirdropAllowedFor(p.airdrop ? creator : null))
+      .catch(() => undefined);
+    return () => abort.abort();
+  }, [creator]);
+  const airdropAllowed = creator !== null && airdropAllowedFor === creator;
+  const airdropOn = airdropAllowed && airdropChosen;
+  const airdrop = useMemo(() => parseAirdropList(airdropText, COIN_DECIMALS, creator), [airdropText, creator]);
+  const bought = firstBuyQuote ? BigInt(firstBuyQuote.amountOut) : null;
+  // Something in the list to fix, shown as soon as it is true; then what is still to do, only once the Creator goes ahead.
+  const airdropProblem = !airdropOn
+    ? null
+    : (airdrop.problem ?? (bought !== null && airdrop.total > bought ? "The airdrop gives away more coins than your first buy gets. Buy more or airdrop less." : null));
+  const airdropMissing = !airdropOn
+    ? null
+    : firstBuy === null
+      ? "An airdrop is paid from your first buy. Add a first buy."
+      : airdrop.recipients.length === 0
+        ? "Add the wallets to airdrop to, or turn the airdrop off."
+        : null;
+  const airdropping = airdropOn && airdrop.recipients.length > 0 && !airdrop.problem;
 
   const imageUrl = useMemo(() => (image ? URL.createObjectURL(image) : null), [image]);
   useEffect(() => () => { if (imageUrl) URL.revokeObjectURL(imageUrl); }, [imageUrl]);
@@ -130,7 +161,7 @@ export function LaunchForm({
   }
 
   /** Prepares (or prepares again), simulates, has the wallet sign, sends, confirms, reports, then opens the coin. */
-  async function launch(prepare: () => Promise<PreparedLaunch>, launchQuote: QuoteAsset, retrying: Failed | null) {
+  async function launch(prepare: () => Promise<PreparedLaunch>, launchQuote: QuoteAsset, retrying: Failed | null, withAirdrop: boolean) {
     if (!signTransaction) return setError("This wallet can't sign transactions. Try another wallet.");
     setError(null);
     setStep({ kind: "preparing", retrying });
@@ -178,7 +209,8 @@ export function LaunchForm({
     }
     // Indexed at once, so the coin's page has it; the webhook would add it a moment later anyway.
     await reportTransaction(signature).catch(() => undefined);
-    router.push(`/coin/${prepared.mint}`);
+    // A coin launched with an airdrop goes to its Creator's page, which sends it (#13).
+    router.push(withAirdrop ? "/creator#airdrops" : `/coin/${prepared.mint}`);
   }
 
   function start() {
@@ -195,15 +227,16 @@ export function LaunchForm({
       form.set("rewardPayout", kind);
     }
     if (firstBuy !== null) form.set("firstBuy", firstBuy.toString());
+    if (airdropping) form.set("airdrop", JSON.stringify(airdrop.recipients.map((r) => ({ wallet: r.wallet, amount: r.amount.toString() }))));
     form.set("image", image!);
-    void launch(() => prepareLaunch(form), quote, null);
+    void launch(() => prepareLaunch(form), quote, null, airdropping);
   }
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (busy) return;
     setError(null);
-    if (failed) return void launch(() => retryLaunch(failed.mint), failed.quote, failed);
+    if (failed) return void launch(() => retryLaunch(failed.mint), failed.quote, failed, airdropping);
     const missing = !image
       ? "Add an image for your coin."
       : !name.trim()
@@ -214,7 +247,7 @@ export function LaunchForm({
             ? "Choose an asset to pair your coin with."
             : firstBuyInvalid
               ? `Enter a first buy above zero with up to ${quote.decimals} decimal places.`
-              : (copy.refusal ?? firstBuyError);
+              : (copy.refusal ?? firstBuyError ?? airdropProblem ?? airdropMissing);
     if (missing) return setError(missing);
     if (!hasAcceptedDisclaimer()) return setDisclaimerOpen(true);
     start();
@@ -371,6 +404,30 @@ export function LaunchForm({
               />
               <span className={styles.token}>{ticker}</span>
             </label>
+            {airdropAllowed && (
+              <label className={styles.toggle}>
+                <input type="checkbox" checked={airdropChosen} onChange={(e) => edit(() => setAirdropChosen(e.target.checked))} />
+                <span>Airdrop part of it to other wallets</span>
+              </label>
+            )}
+            {airdropOn && (
+              <div className={styles.field}>
+                <label className="field">
+                  <span>Wallets and amounts</span>
+                  <textarea
+                    className={`mono ${styles.list}`}
+                    rows={4}
+                    spellCheck={false}
+                    autoComplete="off"
+                    placeholder={`Wallet address, coins\nUp to ${AIRDROP_MAX_RECIPIENTS} wallets, one a line`}
+                    value={airdropText}
+                    aria-invalid={Boolean(airdropProblem)}
+                    onChange={(e) => edit(() => setAirdropText(e.target.value))}
+                  />
+                </label>
+                {airdropProblem && <span className={styles.verdict} data-status="taken">{airdropProblem}</span>}
+              </div>
+            )}
           </fieldset>
         </form>
 
@@ -398,6 +455,15 @@ export function LaunchForm({
                     <dd>{formatUnits(firstBuyQuote.amountOut, COIN_DECIMALS, 0)} {coin || "coins"} ({supplyShare(BigInt(firstBuyQuote.amountOut))})</dd>
                   </div>
                 </>
+              )}
+              {airdropping && (
+                <div>
+                  <dt>Airdrop</dt>
+                  <dd>
+                    {formatUnits(airdrop.total.toString(), COIN_DECIMALS, COIN_DECIMALS)} {coin || "coins"} to {airdrop.recipients.length}{" "}
+                    {airdrop.recipients.length === 1 ? "wallet" : "wallets"}
+                  </dd>
+                </div>
               )}
               {!flow && <div><dt>You earn</dt><dd><Link className="link" href="/fees">Half of what we collect</Link></dd></div>}
               {graduationFee && <div><dt>Graduation Fee</dt><dd>{graduationFee} SOL from earnings</dd></div>}

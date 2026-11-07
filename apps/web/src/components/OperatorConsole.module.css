@@ -1,0 +1,37 @@
+/* The operator console (#13): forms as rows of fields that wrap, tables whose sentences wrap, and what is shown once. */
+.signIn { display: grid; gap: 16px; max-width: 440px; }
+.error { color: var(--down); font-size: var(--text-small); }
+.note { color: var(--ink-2); font-size: var(--text-small); }
+.stack { display: grid; gap: 16px; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
+.stack .actions, .gates .actions { margin-top: 0; }
+
+/* A form's fields side by side, wrapping on a narrow window, its button at the end of the row. */
+.form, .inline { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; }
+.form :global(.field) { flex: 1 1 180px; }
+.inline :global(.field) { flex: 1 1 260px; }
+.form .wide { flex-basis: 100%; }
+
+/* A long value (a message, a fact) wraps rather than being cut or widening the page. */
+.kv dd, .wrap td { white-space: normal; text-overflow: clip; overflow-wrap: anywhere; }
+.jobError { display: block; margin-top: 6px; color: var(--ink-2); font-size: var(--text-small); white-space: normal; }
+
+.shown { display: grid; gap: 12px; }
+.secret { display: grid; gap: 12px; justify-items: start; }
+.code { width: 100%; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--sunken); color: var(--ink); font-size: var(--text-small); line-height: 1.5; resize: vertical; word-break: break-all; }
+
+.gates { display: grid; gap: 16px; }
+.gate { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; }
+.gate :global(.field) { flex: 1 1 200px; }
+
+/* A row's button wraps its words on a phone rather than pushing the row past the window. */
+.wrap :global(.button) { height: auto; min-height: 38px; padding-block: 8px; white-space: normal; text-align: center; }
+
+/* On a phone a row of a console table stacks its cells: a message, a time and an action never fit 390px side by side. */
+@media (max-width: 640px) {
+  .wrap thead { display: none; }
+  .wrap tr { display: grid; padding-block: 8px; border-top: 1px solid var(--line); }
+  .wrap tbody tr:first-child { border-top: 0; }
+  .wrap td { border-top: 0; padding-block: 4px; }
+  .wrap td:global(.r) { text-align: left; }
+}

@@ -1,5 +1,5 @@
 import {
-  API_KEY_HEADER, AirdropStatus, ApiError, ApiKeyList, BurnsPage, CandleList, CoinRewards, CopyCheck, CreatorEarnings, CreatorForwardList, FeeAnnouncement, FeeAnnouncementList, FirstBuyQuote, LaunchPermissions,
+  API_KEY_HEADER, AirdropCreators, AirdropStatus, ApiError, ApiKeyList, BurnsPage, CandleList, CoinRewards, CopyCheck, CreatorEarnings, CreatorForwardList, FeeAnnouncement, FeeAnnouncementList, FirstBuyQuote, LaunchPermissions,
   HolderList, LaunchTrust, IssuedApiKey, LaunchList, LaunchQuoteList, LaunchSummary, LedgerPage, OperatorAlertList, OperatorOverview, PlatformInfo, PlatformStats, PreparedAirdrop,
   PreparedFeeChange, PreparedLaunch, PreparedTrade, QuoteAsset, QuoteAssetList, Revenue, RewardRoundDetail, RewardRulesPage, TradeList,
   Region, RegionGatesView, TradeQuote, WalletRewards,
@@ -277,7 +277,24 @@ export async function revokeApiKey(token: string, id: string) {
   if (!res.ok) throw new ApiRequestError(res.status === 401 ? "unauthorized" : `revoking the key failed (${res.status})`, res.status);
 }
 
-export async function runOperatorJob(token: string, job: "quote-registry" | "fee-collector" | "reward-rounds" | "burn" | "metadata-upload") {
+/** The Creator wallets the operator allows an airdrop at launch; nobody until the operator names one. */
+export async function listAirdropCreators(token: string) {
+  return read(await apiFetch(`${API_URL}/v1/operator/airdrop-creators`, operator(token)), AirdropCreators);
+}
+
+export async function allowAirdropCreator(token: string, wallet: string) {
+  return read(await apiFetch(`${API_URL}/v1/operator/airdrop-creators`, operator(token, { wallet })), AirdropCreators);
+}
+
+export async function disallowAirdropCreator(token: string, wallet: string) {
+  return read(await apiFetch(`${API_URL}/v1/operator/airdrop-creators/${encodeURIComponent(wallet)}`, operator(token, undefined, "DELETE")), AirdropCreators);
+}
+
+/** The jobs the operator can run by hand, as their Cron Triggers would (the graduation watch and the tax lock run on their own). */
+export const MANUAL_JOBS = ["quote-registry", "fee-collector", "creator-forward", "reward-rounds", "burn", "metadata-upload"] as const;
+export type ManualJob = (typeof MANUAL_JOBS)[number];
+
+export async function runOperatorJob(token: string, job: ManualJob) {
   const res = await apiFetch(`${API_URL}/v1/operator/jobs/${job}`, operator(token, {}));
   const body: unknown = await res.json().catch(() => null);
   if (!res.ok && res.status === 401) throw new ApiRequestError("unauthorized", 401);
