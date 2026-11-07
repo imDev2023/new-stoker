@@ -174,7 +174,7 @@ test("the marks read the trust figures and the holders", async ({ page }) => {
   await expect(about.getByRole("link", { name: "example.com/harbor" })).toHaveAttribute("href", "https://example.com/harbor");
   await expect(about.getByRole("link", { name: "t.me/harborlights" })).toBeVisible();
   // The asset it is paired with leads to its page.
-  await expect(page.getByRole("link", { name: /Paired with SOL/ })).toHaveAttribute("href", /^\/assets\/So1/);
+  await expect(page.getByRole("link", { name: /Paired with SOL/ })).toHaveAttribute("href", /^\/asset\/So1/);
 });
 
 test("a coin the API doesn't know is the coin page's not-found", async ({ page }) => {

@@ -41,9 +41,10 @@ const RULES = [
     prop: "box-shadow",
     why: "an elevation (--shadow-*), none, or a ring or inset hairline in a token colour",
     ok: (v) =>
+      // The variables first, so a mix of a token (`color-mix(in srgb, var(--up) 18%, transparent)`) reads as one mix.
       v
-        .replace(/color-mix\([^)]*\)/g, "MIX")
         .replace(/var\(--[\w-]+\)/g, "VAR")
+        .replace(/color-mix\([^)]*\)/g, "MIX")
         .split(",")
         .every((part) => /^(none|VAR|(inset )?0 0 0 [\d.]+px (VAR|MIX))$/.test(part.trim())),
   },

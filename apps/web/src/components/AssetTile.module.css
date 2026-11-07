@@ -1,6 +1,8 @@
-/* An asset's tile: round, in ink (the spec's .asset-tile), and the asset page's 88px head (its .tile-xl). */
+/* An asset's tile: round, in ink (the spec's .asset-tile), the asset page's 88px head (its .tile-xl) and a stock's 64px
+   one (its .tile-lg). */
 .asset { border-radius: 50%; background: var(--ink); color: var(--paper); }
 .xl { width: 88px; height: 88px; font: var(--font-tile-xl); }
+.lg { width: 64px; height: 64px; font: var(--font-tile-xl); font-size: var(--text-tile-lg); }
 @media (max-width: 640px) {
   .xl { width: 64px; height: 64px; font-size: var(--text-tile-lg); }
 }

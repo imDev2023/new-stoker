@@ -37,3 +37,23 @@ table[aria-labelledby="ledger-title"] time {
   width: 6ch;
   vertical-align: bottom;
 }
+
+/* Dates ("6 November 2026", "7 November 2026") in content-sized boxes: the rewards page's rules value, the wallet's
+   rounds and an announced change, and a coin's facts (launched, graduated, protected until). Each took its date's
+   width, so a baseline shot on one day failed on a day whose date set wider (rewards.png and every coin page,
+   2026-11-07): a box for the longest. */
+[aria-labelledby="about-title"] time,
+#rules time,
+#lookup td time,
+#announced time {
+  width: 17ch;
+  vertical-align: bottom;
+}
+
+/* The connected wallet's address is drawn afresh every run, and a first letter whose ink starts left of its box (DM
+   Mono's "J", "j") left a pixel outside the mask now and then (menu-connected.png, 2026-11-07): the box, and so the
+   mask, reaches 2px further either side without moving anything. */
+header button .mono {
+  padding-inline: 2px;
+  margin-inline: -2px;
+}

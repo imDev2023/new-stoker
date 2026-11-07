@@ -155,6 +155,11 @@ export async function getCandles(mint: string, interval: CandleInterval) {
   return read(await apiFetch(`${API_URL}/v1/launches/${encodeURIComponent(mint)}/candles?interval=${interval}`, { cache: "no-store" }), CandleList);
 }
 
+/** A Quote Asset's USD price in hourly candles, from the prices the Quote Registry records (#3): the Stocks pages' lines. */
+export async function getQuoteCandles(mint: string) {
+  return read(await apiFetch(`${API_URL}/v1/quotes/${encodeURIComponent(mint)}/candles?interval=1h`, { cache: "no-store" }), CandleList);
+}
+
 /** A Creator's earnings per Quote Asset and per Launch (ADR 0009); null if the address isn't a valid wallet address. */
 export async function getCreatorEarnings(creator: string): Promise<CreatorEarnings | null> {
   const res = await apiFetch(`${API_URL}/v1/creators/${encodeURIComponent(creator)}/earnings`, { cache: "no-store" });

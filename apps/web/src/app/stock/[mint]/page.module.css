@@ -1,0 +1,19 @@
+/* One stock's page: the spec's .coin-head with its .coin-price, and the .coin-grid. */
+.head { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding-block: clamp(36px, 6vw, 64px) 28px; }
+.words { min-width: 0; overflow-wrap: anywhere; }
+.ticker { font: var(--font-coin); letter-spacing: -.02em; }
+.price { margin-left: auto; text-align: right; }
+.price b { display: block; font: var(--font-price); letter-spacing: -.02em; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; padding-bottom: 64px; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.aside { position: sticky; top: 88px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+
+/* Under 960px one column: the head, the trade, then the rest, the facts last (the spec's phone order). */
+@media (max-width: 960px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .aside { display: contents; }
+  .aside > :first-child { order: -1; }
+  .aside > :not(:first-child) { order: 1; }
+  .price { margin-left: 0; text-align: left; width: 100%; }
+}
