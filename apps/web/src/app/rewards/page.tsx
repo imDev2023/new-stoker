@@ -5,12 +5,14 @@ import type { PlatformInfo, RewardRuleVersion, WalletRewards } from "@launchpad/
 import { Steps } from "@/components/Steps";
 import { getPlatform, getRewardRules, getWalletRewards } from "@/lib/api";
 import { COIN_DECIMALS, explorerUrl, formatDate, formatEntryAmount, formatUnits } from "@/lib/format";
+import { pageMeta } from "@/lib/meta";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/rewards",
   title: "Holder rewards",
   description: "How a Reward Launch pays its holders, the rules in force, and the rewards of any wallet.",
-};
+});
 
 /** A Solana address, as the API's contract reads one. */
 const ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;

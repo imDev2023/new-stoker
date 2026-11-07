@@ -4,12 +4,14 @@ import { API_KEY_RATE_LIMIT_DEFAULT } from "@launchpad/contract";
 import { API_URL, getPlatform } from "@/lib/api";
 import { SITE_LINKS } from "@/lib/site";
 import { ERRORS, OPERATOR, PREPARING, READING, REFERRALS, SIGN_SEND_REPORT, SIGNING, type Row, type Section } from "./reference";
+import { pageMeta } from "@/lib/meta";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/api",
   title: "Developers",
   description: "Stoker's public API: every read open, every launch and trade returned unsigned for your wallet to sign.",
-};
+});
 
 const METHODS = new Set(["GET", "POST", "PUT", "DELETE"]);
 

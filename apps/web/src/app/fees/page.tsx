@@ -4,12 +4,14 @@ import { getBurns, getPlatform } from "@/lib/api";
 import { orList, pct } from "@/lib/fees";
 import { formatUnits, SOL_DECIMALS } from "@/lib/format";
 import { JUPITER_REFERRAL, JUPITER_REFERRAL_FEE_BPS } from "@/lib/jupiterReferral";
+import { pageMeta } from "@/lib/meta";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/fees",
   title: "Fees",
   description: "Every fee you can pay on Stoker, who pays it, when, in what asset and who receives it, each figure read from the chain.",
-};
+});
 
 type Fee = {
   id: string;

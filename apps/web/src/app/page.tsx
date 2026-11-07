@@ -1,10 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { Candle } from "@launchpad/contract";
 import { CoinTable } from "@/components/CoinTable";
+import { JsonLd } from "@/components/JsonLd";
 import { Ring } from "@/components/Ring";
 import { getCandles, getStats, listLaunches, listQuotes } from "@/lib/api";
 import { formatCount, formatFigure } from "@/lib/format";
+import { pageMeta, SITE_DESCRIPTION, SITE_NAME } from "@/lib/meta";
+import { siteOrigin } from "@/lib/origin";
+import { SITE_LINKS } from "@/lib/site";
 import styles from "./page.module.css";
+
+export const metadata: Metadata = pageMeta({ path: "/" });
 
 /** The assets the hero's pair rolls through, and the first is the one it holds under reduced motion (the spec's words). */
 const ROLL = ["SOL", "USDC", "NVDAx", "SPYx", "TSLAx"];
@@ -20,10 +27,11 @@ const TRENDING = 5;
  * non-zero value, and a read that fails leaves its part out rather than failing the page.
  */
 export default async function HomePage() {
-  const [quotes, stats, trending] = await Promise.all([
+  const [quotes, stats, trending, origin] = await Promise.all([
     listQuotes().catch(() => null),
     getStats().catch(() => null),
     listLaunches({ sort: "trending", limit: TRENDING }).catch(() => null),
+    siteOrigin(),
   ]);
   // A coin that has never traded has no change yet, and is not trending.
   const traded = trending?.launches.filter((l) => l.market.change24h !== null) ?? [];
@@ -45,6 +53,30 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* What the site is, for search engines: the site with Explore's search as its own, and who is behind it. */}
+      <JsonLd
+        data={{
+          "@type": "WebSite",
+          name: SITE_NAME,
+          url: `${origin}/`,
+          description: SITE_DESCRIPTION,
+          potentialAction: {
+            "@type": "SearchAction",
+            target: { "@type": "EntryPoint", urlTemplate: `${origin}/coins?q={search_term_string}` },
+            "query-input": "required name=search_term_string",
+          },
+        }}
+      />
+      <JsonLd
+        data={{
+          "@type": "Organization",
+          name: SITE_NAME,
+          url: `${origin}/`,
+          logo: `${origin}/icon.png`,
+          email: SITE_LINKS.email,
+          sameAs: [SITE_LINKS.x.href, SITE_LINKS.telegram.href],
+        }}
+      />
       <section className={`shell on-band bleed ${styles.hero}`} aria-labelledby="hero-title">
         <span className={styles.mark} aria-hidden="true">
           <Ring size={128} />

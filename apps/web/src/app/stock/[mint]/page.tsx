@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { AssetTile } from "@/components/AssetTile";
+import { JsonLd } from "@/components/JsonLd";
 import { CoinPanel, CoinTable } from "@/components/CoinTable";
 import { MarketHours } from "@/components/MarketHours";
 import { RiskLabels } from "@/components/RiskLabels";
@@ -10,9 +11,11 @@ import { StockChart } from "@/components/StockChart";
 import { StockTrade } from "@/components/StockTrade";
 import { StockUnder } from "@/components/StockUnder";
 import { getPlatform, getQuoteAsset, listLaunches } from "@/lib/api";
-import { formatLiquidity, formatUsd, ISSUER_LABELS, marketTitle, tokenProgramName } from "@/lib/assets";
+import { formatLiquidity, formatUsd, ISSUER_LABELS, marketTitle, stockSubtitle, tokenProgramName } from "@/lib/assets";
 import { explorerUrl, formatPriceCompact, quoteTicker, shortAddress } from "@/lib/format";
 import { JUPITER_REFERRAL } from "@/lib/jupiterReferral";
+import { breadcrumbList, pageMeta } from "@/lib/meta";
+import { siteOrigin } from "@/lib/origin";
 import { formatStockChange, isStock, stockGap } from "@/lib/stocks";
 import styles from "./page.module.css";
 
@@ -25,10 +28,11 @@ const COINS_SHOWN = 8;
 const stock = (mint: string) => getQuoteAsset(mint).then((q) => (q && isStock(q) ? q : null), () => null);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const s = await stock((await params).mint);
-  if (!s) return { title: "Stock not found", robots: { index: false } };
+  const { mint } = await params;
+  const s = await stock(mint);
+  if (!s) return pageMeta({ path: `/stock/${mint}`, title: "Stock not found", index: false });
   const ticker = quoteTicker(s);
-  return { title: ticker, description: `${ticker}, a tokenized stock on Solana: its price beside the stock it tracks, its issuer and risk labels, and a trade.` };
+  return pageMeta({ path: `/stock/${s.mint}`, card: "own", title: ticker, description: `${ticker}, a tokenized stock on Solana: its price beside the stock it tracks, its issuer and risk labels, and a trade.` });
 }
 
 /**
@@ -42,12 +46,13 @@ export default async function StockPage({ params }: Props) {
   const { mint } = await params;
   const s = await stock(mint);
   if (!s) notFound();
-  const [platform, coins] = await Promise.all([
+  const [platform, coins, origin] = await Promise.all([
     getPlatform().catch(() => null),
     listLaunches({ quote: s.mint, sort: "market_cap", limit: COINS_SHOWN }).then(
       (l) => l.launches.filter((c) => c.quote.mint === s.mint),
       () => [],
     ),
+    siteOrigin(),
   ]);
   const ticker = quoteTicker(s);
   const day = formatStockChange(s.change24h);
@@ -70,11 +75,12 @@ export default async function StockPage({ params }: Props) {
 
   return (
     <div className="shell">
+      <JsonLd data={breadcrumbList(origin, [["Home", "/"], ["Stocks", "/stocks"], [ticker, `/stock/${s.mint}`]])} />
       <header className={styles.head}>
         <AssetTile quote={s} lg />
         <div className={styles.words}>
           <h1 className={styles.ticker}>{ticker}</h1>
-          <p className="muted">{[s.name, s.issuer ? ISSUER_LABELS[s.issuer] : null].filter(Boolean).join(" · ")}</p>
+          <p className="muted">{stockSubtitle(s)}</p>
         </div>
         {s.price?.usd && (
           <p className={styles.price}>

@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import type { QuoteAsset } from "@launchpad/contract";
 import { AssetTile } from "@/components/AssetTile";
+import { JsonLd } from "@/components/JsonLd";
 import { CoinPanel, CoinTable } from "@/components/CoinTable";
 import { MarketChart } from "@/components/MarketChart";
 import { RiskLabels } from "@/components/RiskLabels";
 import { getPlatform, getQuoteAsset, listLaunches } from "@/lib/api";
-import { formatLiquidity, formatUsd, graduationAmount, ISSUER_LABELS, KIND_LABELS, marketTitle, tokenProgramName } from "@/lib/assets";
+import { formatLiquidity, formatUsd, assetSubtitle, graduationAmount, ISSUER_LABELS, marketTitle, tokenProgramName } from "@/lib/assets";
 import { explorerUrl, formatPriceCompact, isSol, quoteTicker, shortAddress } from "@/lib/format";
+import { breadcrumbList, pageMeta } from "@/lib/meta";
+import { siteOrigin } from "@/lib/origin";
 import styles from "./page.module.css";
 
 type Props = { params: Promise<{ mint: string }> };
@@ -21,16 +23,11 @@ const COINS_SHOWN = 8;
 const quoteAsset = (mint: string) => getQuoteAsset(mint).catch(() => null);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const quote = await quoteAsset((await params).mint);
-  if (!quote) return { title: "Asset not found", robots: { index: false } };
+  const { mint } = await params;
+  const quote = await quoteAsset(mint);
+  if (!quote) return pageMeta({ path: `/asset/${mint}`, title: "Asset not found", index: false });
   const ticker = quoteTicker(quote);
-  return { title: ticker, description: `${ticker} as an asset a coin can be priced in: its price, its graduation target, its risk labels and the coins paired with it.` };
-}
-
-/** The name and the kind under the title, each once: SOL's name is its kind, so it isn't said twice. */
-function subtitle(q: QuoteAsset) {
-  const parts = [q.name && q.name.toLowerCase() !== q.symbol?.toLowerCase() ? q.name : null, KIND_LABELS[q.category]];
-  return parts.filter((s, i, all): s is string => !!s && all.indexOf(s) === i).join(" · ");
+  return pageMeta({ path: `/asset/${quote.mint}`, card: "own", title: ticker, description: `${ticker} as an asset a coin can be priced in: its price, its graduation target, its risk labels and the coins paired with it.` });
 }
 
 /**
@@ -42,12 +39,13 @@ export default async function AssetPage({ params }: Props) {
   const { mint } = await params;
   const quote = await quoteAsset(mint);
   if (!quote) notFound();
-  const [platform, coins] = await Promise.all([
+  const [platform, coins, origin] = await Promise.all([
     getPlatform().catch(() => null),
     listLaunches({ quote: quote.mint, sort: "market_cap", limit: COINS_SHOWN }).then(
       (l) => l.launches.filter((c) => c.quote.mint === quote.mint),
       () => [],
     ),
+    siteOrigin(),
   ]);
   const ticker = quoteTicker(quote);
   const target = graduationAmount(quote.graduationTarget?.raw ?? null, quote.decimals, ticker);
@@ -71,11 +69,12 @@ export default async function AssetPage({ params }: Props) {
 
   return (
     <div className="shell">
+      <JsonLd data={breadcrumbList(origin, [["Home", "/"], ["Assets", "/assets"], [ticker, `/asset/${quote.mint}`]])} />
       <header className={styles.head}>
         <AssetTile quote={quote} xl />
         <div>
           <h1 className={styles.ticker}>{ticker}</h1>
-          <p className="muted">{subtitle(quote)}</p>
+          <p className="muted">{assetSubtitle(quote)}</p>
         </div>
         <div className={styles.actions}>
           {quote.category === "tokenized_stock" && <Link className="arrow" href={`/stock/${quote.mint}`}>Trade {ticker}</Link>}

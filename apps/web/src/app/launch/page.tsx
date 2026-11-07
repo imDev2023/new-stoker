@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { LaunchForm } from "@/components/LaunchForm";
 import { getPlatform, listQuotes } from "@/lib/api";
 import { cleanSymbol, NAME_MAX } from "@/lib/launch";
+import { pageMeta } from "@/lib/meta";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/launch",
   title: "Stoke a coin",
   description: "Launch a coin on Solana priced in SOL, a stablecoin, a tokenized stock or any asset Raydium quotes.",
-};
+});
 
 type Params = Record<string, string | string[] | undefined>;
 type Props = { searchParams: Promise<Params> };

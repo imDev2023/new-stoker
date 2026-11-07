@@ -88,6 +88,17 @@ export function kindLabel(q: Pick<QuoteRef, "category" | "issuer">) {
   return q.category === "tokenized_stock" && q.issuer ? `${kind} · ${ISSUER_LABELS[q.issuer]}` : kind;
 }
 
+/** An asset page's line under its ticker: the name and the kind, each once (SOL's name is its kind, so it isn't said twice). */
+export function assetSubtitle(q: Pick<QuoteRef, "name" | "symbol" | "category">) {
+  const parts = [q.name && q.name.toLowerCase() !== q.symbol?.toLowerCase() ? q.name : null, KIND_LABELS[q.category]];
+  return parts.filter((s, i, all): s is string => !!s && all.indexOf(s) === i).join(" · ");
+}
+
+/** A stock page's line under its ticker: the name and the issuer. */
+export function stockSubtitle(q: Pick<QuoteRef, "name" | "issuer">) {
+  return [q.name, q.issuer ? ISSUER_LABELS[q.issuer] : null].filter(Boolean).join(" · ");
+}
+
 /**
  * The assets in their groups, in the spec's order of kinds, and the stocks split by issuer in production's order (a stock
  * whose issuer isn't known last); a group with nothing in it is left out.

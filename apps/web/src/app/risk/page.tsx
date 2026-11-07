@@ -3,8 +3,9 @@ import Link from "next/link";
 import { LegalPage } from "@/components/LegalPage";
 import { EXCLUDED_REGIONS, RISK_SENTENCE } from "@/lib/legal";
 import { SITE_LINKS } from "@/lib/site";
+import { pageMeta } from "@/lib/meta";
 
-export const metadata: Metadata = { title: "Risk disclosure", description: "What can go wrong with a coin launched on Stoker, in plain words." };
+export const metadata: Metadata = pageMeta({ path: "/risk", title: "Risk disclosure", description: "What can go wrong with a coin launched on Stoker, in plain words." });
 
 /**
  * The risk disclosure the footer's one bold sentence leads to, in production's wording (imDev2023/Stoker-Markets#131;

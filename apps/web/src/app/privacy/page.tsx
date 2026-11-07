@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { SITE_LINKS } from "@/lib/site";
+import { pageMeta } from "@/lib/meta";
 
-export const metadata: Metadata = { title: "Privacy", description: "What the Stoker site and API keep about you, and what the chain keeps for everyone." };
+export const metadata: Metadata = pageMeta({ path: "/privacy", title: "Privacy", description: "What the Stoker site and API keep about you, and what the chain keeps for everyone." });
 
 /**
  * The privacy notice the footer links to, in production's wording (imDev2023/Stoker-Markets#131). DRAFT: written from
