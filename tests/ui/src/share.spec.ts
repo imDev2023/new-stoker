@@ -221,11 +221,14 @@ test("a Reward Round names itself with the site's card, and the Creator's and th
     await expect(meta(page, "robots"), own).toHaveAttribute("content", "noindex, nofollow");
   }
 
-  // A round that doesn't exist is a 404 nobody indexes.
+  // A round that doesn't exist is a 404 nobody indexes: Next adds a `noindex` of its own to a `notFound()` answer,
+  // beside the page's, so every robots tag there is read.
   const missing = "/rewards/rounds/00000000-0000-4000-8000-000000000000";
   expect((await page.goto(missing))?.status()).toBe(404);
   await expect(page).toHaveTitle("Round not found · Stoker");
-  await expect(meta(page, "robots")).toHaveAttribute("content", "noindex, nofollow");
+  const robots = await meta(page, "robots").evaluateAll((tags) => tags.map((t) => t.getAttribute("content")));
+  expect(robots).toContain("noindex, nofollow");
+  for (const content of robots) expect(content).toMatch(/^noindex/);
 });
 
 test("the sitemap lists every page, coin, asset and stock, the robots file names it, and the icons answer", async ({ page, stack }) => {
