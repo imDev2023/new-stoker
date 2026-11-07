@@ -35,7 +35,7 @@ export function CoinTable({ launches, label, compact = false, candles, now = 0 }
   // On the board's phone layout the change moves under the price; Home keeps it a column of its own.
   const changeColumn = board ? `r ${styles.wide}` : "r";
   return (
-    <table className={`table ${styles.table}`} aria-label={label}>
+    <table className="table" aria-label={label}>
       <thead>
         <tr>
           {board && <th scope="col" className={styles.starCell}><span className="visually-hidden">Watch</span></th>}

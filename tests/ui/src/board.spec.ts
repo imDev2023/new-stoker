@@ -113,8 +113,10 @@ test("a trader finds a coin by name, ticker or address, and the address keeps th
 test("'/' and ⌘K reach the board's search, from the board itself and from any other page", async ({ page }) => {
   await page.goto("/terms");
   await page.waitForLoadState("networkidle");
+  // Pressed again until the board answers, but only while the page is still elsewhere: a board that compiles slowly
+  // would otherwise take the next press as a slash typed into its search.
   await expect(async () => {
-    await page.keyboard.press("/");
+    if (!new URL(page.url()).pathname.startsWith("/coins")) await page.keyboard.press("/");
     await expect(page).toHaveURL(/\/coins$/, { timeout: 1_000 });
   }).toPass({ timeout: 30_000 });
   // The board answers the hash by focusing the field, then drops it.

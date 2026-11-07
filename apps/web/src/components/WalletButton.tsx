@@ -41,7 +41,7 @@ export function WalletButton({ block = false }: {
   const installed = wallets.filter((w) => w.readyState === WalletReadyState.Installed || w.readyState === WalletReadyState.Loadable);
 
   // The earnings page is a Creator's own (owner, 2026-10-08): the menu offers it only to a wallet that has launched a
-  // coin here, which is asked once per connected wallet.
+  // coin here.
   const address = publicKey?.toBase58() ?? null;
   const [launched, setLaunched] = useState<{ address: string; yes: boolean } | null>(null);
   // Asked again each time the menu opens until the answer is yes, so a wallet's first launch shows the entry at once.
@@ -94,7 +94,7 @@ export function WalletButton({ block = false }: {
       <div className={styles.wrap} ref={menu}>
         <button type="button" className={`button button-ghost ${styles.connected}`} onClick={() => setOpen((o) => !o)} aria-expanded={open} title={name}>
           <Avatar address={publicKey.toBase58()} />
-          <span className={`mono ${styles.address}`} data-address>{shortAddress(publicKey.toBase58())}</span>
+          <span className={`mono ${styles.address}`}>{shortAddress(publicKey.toBase58())}</span>
         </button>
         {open && (
           <div className={styles.menu} role="menu" aria-label={name}>

@@ -1,7 +1,8 @@
 // The shell and the static pages before anything has launched, at desktop and phone width, light and dark: every control
 // is there, and the pulse strip waits for a real figure.
 import { BurnsPage, FeeAnnouncementList, QuoteAssetList, Revenue } from "@launchpad/contract";
-import { expect, platformInfo, stackEnv, test } from "./fixtures";
+import type { Page } from "@playwright/test";
+import { expect, platformInfo, QUOTES, stackEnv, test } from "./fixtures";
 import { dynamic, snap } from "./shots";
 
 test("home", async ({ page, stack }) => {
@@ -105,6 +106,53 @@ test("an asset that isn't quoted", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "This asset isn't quoted." })).toBeVisible();
   await expect(page.getByRole("main").getByRole("link", { name: "All assets" })).toHaveAttribute("href", "/assets");
   await snap(page, "asset-404.png");
+});
+
+/** What a stock's shots vary by besides the suite's own: its trend line, drawn or not by the hour the registry recorded in. */
+const stockMask = (page: Page) => [...dynamic(page), page.locator("[data-spark]")];
+
+test("stocks before the first coin", async ({ page, stack }) => {
+  const quotes = QuoteAssetList.parse(await (await fetch(`${stack.apiUrl}/v1/quotes`)).json()).quotes;
+  const stocks = quotes.filter((q) => q.category === "tokenized_stock");
+  expect(stocks.length).toBeGreaterThan(0);
+  // A Saturday: the US market shut, Solana open. A fixed clock, so the shot holds the same line every run.
+  await page.clock.setFixedTime(new Date("2026-11-07T15:00:00Z"));
+  await page.goto("/stocks");
+  await expect(page.getByRole("heading", { level: 1, name: "Stocks" })).toBeVisible();
+  await expect(page.locator("[data-hours]")).toHaveText("US market closed · opens Mon 09:30 ETSolana open");
+  await expect(page.getByRole("searchbox", { name: "Search" })).toBeVisible();
+  await expect(page.getByRole("radiogroup", { name: "Sort" }).getByRole("radio")).toHaveCount(3);
+  await expect(page.getByRole("radiogroup", { name: "Issuer" }).getByRole("radio")).toHaveCount(2);
+  // Every stock the registry quotes is a row before any coin launches; nothing else is.
+  await expect(page.getByRole("table", { name: "Stocks" }).locator("tbody tr")).toHaveCount(stocks.length);
+  await snap(page, "stocks.png", stockMask);
+});
+
+test("a stock before the first coin", async ({ page }) => {
+  // A Monday morning in New York: the US market open.
+  await page.clock.setFixedTime(new Date("2026-11-09T15:00:00Z"));
+  await page.goto(`/stock/${QUOTES.NVDAx.toBase58()}`);
+  await expect(page.getByRole("heading", { level: 1, name: "NVDAx" })).toBeVisible();
+  await expect(page.locator("[data-hours]")).toHaveText("US market open · closes 16:00 ETSolana open");
+  await expect(page.locator("[data-stock-under]")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Risk labels" })).toBeVisible();
+  // One candle on a fresh stack: no line to draw, so the chart waits.
+  await expect(page.getByRole("region", { name: "Price" })).toHaveCount(0);
+  // Nothing is paired with it yet: the section asks for the first.
+  await expect(page.getByRole("heading", { name: "Coins paired with it" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Stoke the first" })).toHaveAttribute("href", `/launch?quote=${QUOTES.NVDAx.toBase58()}`);
+  // The suite serves Jupiter's script empty, so the trade says where the same pair is.
+  await expect(page.getByRole("status")).toHaveText("Jupiter's swap did not load here. Open jup.ag instead.");
+  await expect(page.getByRole("term")).toHaveText(["Tracks", "Issuer", "Liquidity", "In SOL", "Token program", "Mint"]);
+  await snap(page, "stock.png");
+});
+
+test("a mint that isn't a stock", async ({ page }) => {
+  const res = await page.goto(`/stock/${QUOTES.USDC.toBase58()}`);
+  expect(res?.status()).toBe(404);
+  await expect(page.getByRole("heading", { level: 1, name: "This stock isn't listed." })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("link", { name: "All stocks" })).toHaveAttribute("href", "/stocks");
+  await snap(page, "stock-404.png");
 });
 
 test("swap", async ({ page }) => {

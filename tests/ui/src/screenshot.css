@@ -38,21 +38,25 @@ table[aria-labelledby="ledger-title"] time {
   vertical-align: bottom;
 }
 
-/* A date's text changes with the day the suite runs ("6 November 2026", "7 November 2026"), and a masked time in a cell or
-   a key-value row is as wide as its text, so the mask, and the column or row around it, moved from one day to the next:
-   every coin page's shot failed on 2026-11-07, the day after #28 re-baselined them (#13). Each date format gets the box of
-   its longest text, "30 September 2026" and "Sep 30, 2026, 11:59 PM UTC". */
+/* Dates ("6 November 2026", "7 November 2026") in content-sized boxes (a key-value row, a table cell, a sentence) took
+   their text's width, so a baseline shot on one day failed on a day whose date set wider (rewards.png and every coin
+   page, 2026-11-07, met by #10 and #13 the same day): every date gets the box of its format's longest text, marked by the
+   format it is drawn with, `formatDate` ("30 September 2026") or `formatUtc` ("Sep 30, 2026, 11:59 PM UTC"). */
 time[data-date] {
-  width: 18ch;
+  width: 17ch;
+  vertical-align: bottom;
 }
 
 time[data-utc] {
   width: 27ch;
+  vertical-align: bottom;
 }
 
-/* The connected wallet's address is drawn afresh every run and masked, but a glyph's ink can reach a pixel past its box at
-   either end (a "j", a "W"), past the mask, so the header flipped by one pixel between plain runs (launch-filled.png at
-   390, #13): in a shot the address is clipped to its box. */
-[data-address] {
-  overflow: hidden;
+/* The connected wallet's address is drawn afresh every run, and a first letter whose ink starts left of its box (DM
+   Mono's "J", "j") left a pixel outside the mask now and then (menu-connected.png, 2026-11-07): the box, and so the
+   mask, reaches 2px further either side without moving anything. */
+header button .mono {
+  padding-inline: 2px;
+  margin-inline: -2px;
+}
 }

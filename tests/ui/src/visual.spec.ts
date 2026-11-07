@@ -126,6 +126,18 @@ test.describe("an asset's page", () => {
   }
 });
 
+test("a stock's page, with the coin paired with it", async ({ page }) => {
+  // A Monday morning in New York, so the hours line is the same every run.
+  await page.clock.setFixedTime(new Date("2026-11-09T15:00:00Z"));
+  await page.goto(`/stock/${QUOTES.NVDAx.toBase58()}`);
+  await expect(page.getByRole("heading", { level: 1, name: "NVDAx" })).toBeVisible();
+  const paired = page.getByRole("table", { name: "Coins paired with NVDAx" });
+  await expect(paired.locator("tbody tr")).toHaveCount(1);
+  await expect(paired.locator("tbody tr").first()).toContainText("CHPX/NVDAx");
+  await expect(page.getByRole("link", { name: "Stoke one" })).toBeVisible();
+  await snap(page, "stock-seeded.png", boardMask);
+});
+
 /** A seeded coin's address, by its ticker. */
 async function seeded(symbol: string) {
   const launch = (await listLaunches()).find((l) => l.symbol === symbol);

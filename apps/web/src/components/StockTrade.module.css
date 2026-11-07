@@ -1,0 +1,8 @@
+/* The spec's .trade and .slip: the side across the panel's width, the asset paid or received beside its label, then
+   Jupiter's swap on its dark tile and the note under it. */
+.trade { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.side { display: flex; }
+.side label { flex: 1; justify-content: center; }
+.with { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: var(--text-small); font-weight: 500; }
+.with .seg label { padding: 0 10px; height: 28px; font-size: var(--text-caption); }
+.note { font-size: var(--text-small); color: var(--ink-2); }
