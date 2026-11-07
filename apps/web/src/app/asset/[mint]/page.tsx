@@ -6,6 +6,7 @@ import type { QuoteAsset } from "@launchpad/contract";
 import { AssetTile } from "@/components/AssetTile";
 import { CoinPanel, CoinTable } from "@/components/CoinTable";
 import { MarketChart } from "@/components/MarketChart";
+import { RiskLabels } from "@/components/RiskLabels";
 import { getPlatform, getQuoteAsset, listLaunches } from "@/lib/api";
 import { formatLiquidity, formatUsd, graduationAmount, ISSUER_LABELS, KIND_LABELS, marketTitle, tokenProgramName } from "@/lib/assets";
 import { explorerUrl, formatPriceCompact, isSol, quoteTicker, shortAddress } from "@/lib/format";
@@ -91,26 +92,7 @@ export default async function AssetPage({ params }: Props) {
               <MarketChart market={quote.market} />
             </section>
           )}
-          <section className="panel pad" aria-labelledby="labels-title">
-            <div className="section-head">
-              <h2 id="labels-title">Risk labels</h2>
-            </div>
-            <ul className={styles.labels}>
-              {quote.labels === null ? (
-                <li><p>{ticker} has not been checked yet.</p></li>
-              ) : quote.labels.length === 0 ? (
-                <li><p>Nothing to flag: no issuer authority over wallets, no transfer fee, and on the verified list.</p></li>
-              ) : (
-                quote.labels.map((l) => (
-                  <li key={l.kind}>
-                    <span className={`badge ${l.severity === "caution" ? "badge-warn" : ""}`}>{l.title}</span>
-                    <p>{l.detail}</p>
-                    <p className={styles.source}>{l.source}</p>
-                  </li>
-                ))
-              )}
-            </ul>
-          </section>
+          <RiskLabels quote={quote} />
           {coins.length > 0 && (
             <section aria-labelledby="paired-title">
               <div className="section-head">

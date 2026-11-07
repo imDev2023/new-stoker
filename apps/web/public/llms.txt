@@ -7,6 +7,7 @@ Coins launched here are speculative and can lose all their value. Not offered in
 ## Pages
 - [Explore coins](https://stoker.markets/coins)
 - [Stoke a coin](https://stoker.markets/launch)
+- [Tokenized stocks, open around the clock](https://stoker.markets/stocks)
 - [Assets to pair with](https://stoker.markets/assets)
 - [Holder rewards](https://stoker.markets/rewards)
 - [Stats and the public ledger](https://stoker.markets/revenue)

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Candle } from "@launchpad/contract";
-import { getCandles } from "@/lib/api";
+import { getCandles, getQuoteCandles } from "@/lib/api";
 import styles from "./Sparkline.module.css";
 
 /** How many hourly closes make the line: the last day. */
@@ -10,13 +10,17 @@ const HOURS = 24;
 
 const lastDay = (candles: Candle[]) => candles.slice(-HOURS).map((c) => c.close);
 
-/** Each coin's series read in the browser once a visit, however often its row is drawn again. */
+/** Whose candles a line is drawn from: a coin's (a Launch's market) or a Quote Asset's (the prices the registry records). */
+export type SparkSource = "launch" | "quote";
+
+/** Each series read in the browser once a visit, however often its row is drawn again. */
 const series = new Map<string, Promise<number[]>>();
-function closesOf(mint: string) {
-  let closes = series.get(mint);
+function closesOf(mint: string, source: SparkSource) {
+  const key = `${source}:${mint}`;
+  let closes = series.get(key);
   if (!closes) {
-    closes = getCandles(mint, "1h").then((list) => lastDay(list.candles), () => []);
-    series.set(mint, closes);
+    closes = (source === "quote" ? getQuoteCandles(mint) : getCandles(mint, "1h")).then((list) => lastDay(list.candles), () => []);
+    series.set(key, closes);
   }
   return closes;
 }
@@ -29,12 +33,12 @@ function points(closes: number[]) {
 }
 
 /**
- * A coin's last day as a line, from its hourly candles (the spec's `sparklines`): up or down by where it ends against
- * where it began. The page's own candles when it read them on the server, else read here. The drawing's box is always
- * there, empty until there are two hours to draw between (never a flat placeholder), so a shot can mask it whatever
- * hour the coins traded in. Decorative: the 24h change beside it says the same in figures.
+ * A coin's or a stock's last day as a line, from its hourly candles (the spec's `sparklines`): up or down by where it
+ * ends against where it began. The page's own candles when it read them on the server, else read here. The drawing's
+ * box is always there, empty until there are two hours to draw between (never a flat placeholder), so a shot can mask
+ * it whatever hour the market moved in. Decorative: the 24h change beside it says the same in figures.
  */
-export function Sparkline({ mint, candles }: { mint: string; candles?: Candle[] }) {
+export function Sparkline({ mint, candles, source = "launch" }: { mint: string; candles?: Candle[]; source?: SparkSource }) {
   const [closes, setCloses] = useState<number[]>(() => (candles ? lastDay(candles) : []));
   useEffect(() => {
     if (candles) {
@@ -42,13 +46,13 @@ export function Sparkline({ mint, candles }: { mint: string; candles?: Candle[] 
       return;
     }
     let live = true;
-    void closesOf(mint).then((c) => {
+    void closesOf(mint, source).then((c) => {
       if (live) setCloses(c);
     });
     return () => {
       live = false;
     };
-  }, [mint, candles]);
+  }, [mint, candles, source]);
   const drawn = closes.length >= 2;
   const direction = drawn ? (closes.at(-1)! >= closes[0]! ? styles.up : styles.down) : "";
   return (

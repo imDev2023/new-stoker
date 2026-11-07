@@ -137,11 +137,11 @@ function feesOf(p: PlatformInfo | null): Fee[] {
     },
     JUPITER_REFERRAL !== "" && {
       id: "swap",
-      name: "Swapping on the Swap page",
+      name: "Swapping on the Swap and Stocks pages",
       amount: `${pct(JUPITER_REFERRAL_FEE_BPS)} of every swap`,
       text: "Jupiter's referral fee. Jupiter keeps a fifth of it; the platform receives the rest. Nothing is forwarded to a Creator: no coin is involved.",
       pays: "The swapper",
-      when: "Every swap on the Swap page",
+      when: "Every swap on the Swap and Stocks pages",
       asset: "The asset swapped",
       receives: "The platform and Jupiter",
     },

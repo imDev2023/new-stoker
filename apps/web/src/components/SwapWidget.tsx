@@ -11,8 +11,8 @@ import styles from "./SwapWidget.module.css";
  */
 const PLUGIN_SCRIPT = "https://plugin.jup.ag/plugin-v1.js";
 const TARGET_ID = "jupiter-plugin";
-const SOL = "So11111111111111111111111111111111111111112";
-const USDC = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+export const SOL_MINT = "So11111111111111111111111111111111111111112";
+export const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 /** The integrated form needs a fixed height, or its token search collapses it (the Plugin's FAQ). */
 const HEIGHT = 520;
 
@@ -72,6 +72,12 @@ function loadPlugin(): Promise<JupiterPlugin> {
 
 type State = "loading" | "ready" | "failed";
 
+/** The same pair on jup.ag, for when the Plugin can't load here: its swap page takes either side by ticker or by mint. */
+function jupiterUrl(input: string, output: string) {
+  const side = (mint: string) => (mint === SOL_MINT ? "SOL" : mint === USDC_MINT ? "USDC" : mint);
+  return `https://jup.ag/swap/${side(input)}-${side(output)}`;
+}
+
 /** Opens the site's own wallet control: the first one in view, marked `data-wallet-connect`. */
 function requestConnect() {
   for (const el of document.querySelectorAll<HTMLElement>("[data-wallet-connect]")) {
@@ -87,8 +93,9 @@ function requestConnect() {
  * the wallet passed through from our adapter so one connect serves the whole site, and the colours from our dark tokens
  * on a dark tile in both schemes. The widget swaps on Solana mainnet from the browser whatever cluster the API is on;
  * everything else on the site stays a client of our API. A referral fee applies once `NEXT_PUBLIC_JUPITER_REFERRAL` is set.
+ * A stock's page (#10) opens it on its own pair, `fixed` locking the stock's side, and opens it again when the pair changes.
  */
-export function SwapWidget() {
+export function SwapWidget({ input = SOL_MINT, output = USDC_MINT, fixed }: { input?: string; output?: string; fixed?: string } = {}) {
   const wallet = useWallet();
   const [state, setState] = useState<State>("loading");
   const latest = useRef(wallet);
@@ -112,8 +119,9 @@ export function SwapWidget() {
           // Our own connect: the Plugin asks, and the site's wallet control opens.
           onRequestConnectWallet: () => requestConnect(),
           formProps: {
-            initialInputMint: SOL,
-            initialOutputMint: USDC,
+            initialInputMint: input,
+            initialOutputMint: output,
+            ...(fixed ? { fixedMint: fixed } : {}),
             ...(JUPITER_REFERRAL ? { referralAccount: JUPITER_REFERRAL, referralFee: JUPITER_REFERRAL_FEE_BPS } : {}),
           },
           containerStyles: { height: `${HEIGHT}px` },
@@ -129,7 +137,7 @@ export function SwapWidget() {
       gone = true;
       window.Jupiter?.close?.();
     };
-  }, []);
+  }, [input, output, fixed]);
 
   // The connected wallet reaches the Plugin as it changes: one connect for the site.
   useEffect(() => {
@@ -146,7 +154,7 @@ export function SwapWidget() {
               "Loading Jupiter's swap"
             ) : (
               <>
-                Jupiter&apos;s swap did not load here. <a href="https://jup.ag/swap/SOL-USDC" target="_blank" rel="noreferrer">Open jup.ag</a> instead.
+                Jupiter&apos;s swap did not load here. <a href={jupiterUrl(input, output)} target="_blank" rel="noreferrer">Open jup.ag</a> instead.
               </>
             )}
           </span>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import {
-  LINK_KINDS, type Candle, type CandleInterval, type CandleList, type HolderList, type LaunchSummary, type LaunchTrust, type LinkKind,
+  LINK_KINDS, type CandleInterval, type CandleList, type HolderList, type LaunchSummary, type LaunchTrust, type LinkKind,
   type PlatformInfo, type QuoteAsset, type Trade,
 } from "@launchpad/contract";
 import { getCandles, getHolders, getLaunch, getTrust, listTrades } from "@/lib/api";
@@ -11,6 +11,7 @@ import {
   COIN_DECIMALS, explorerUrl, formatChange, formatDate, formatFigure, formatPriceCompact, quoteTicker, shortAddress, timeAgo, units,
 } from "@/lib/format";
 import { CoinTile, PairName, PairTile } from "./Pair";
+import { LineChart } from "./LineChart";
 import { TradePanel } from "./TradePanel";
 import styles from "./CoinMarket.module.css";
 
@@ -205,38 +206,6 @@ function beforeYouBuy(holders: HolderList | null, trust: LaunchTrust | null): [T
   return marks;
 }
 
-/**
- * The price as a line with a soft fill under it, from the interval's closes (the spec's lineChart). A single candle is
- * drawn from its open to its close, so a coin whose trades all fell in one interval still has its line; with none, the
- * drawing stays empty.
- */
-function LineChart({ candles }: { candles: Candle[] }) {
-  const closes = candles.length === 1 ? [candles[0]!.open, candles[0]!.close] : candles.map((c) => c.close);
-  let body = null;
-  if (closes.length >= 2) {
-    const lo = Math.min(...closes);
-    const span = Math.max(...closes) - lo || 1;
-    const points = closes.map((v, i) => `${(i / (closes.length - 1)) * 100},${92 - ((v - lo) / span) * 84}`).join(" ");
-    body = (
-      <>
-        <defs>
-          <linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="currentColor" stopOpacity=".12" />
-            <stop offset="1" stopColor="currentColor" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <polygon className={styles.fill} points={`0,100 ${points} 100,100`} />
-        <polyline className={styles.line} points={points} />
-      </>
-    );
-  }
-  return (
-    <svg className={styles.chart} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" data-chart>
-      {body}
-    </svg>
-  );
-}
-
 /** The curve's progress toward its Graduation Target, or the pool it trades in since. */
 function Graduation({ launch }: { launch: LaunchSummary }) {
   const q = quoteTicker(launch.quote);
@@ -339,7 +308,7 @@ function QuoteCard({ asset }: { asset: QuoteAsset }) {
     ["Graduates at", asset.graduationTarget ? `${formatFigure(units(asset.graduationTarget.raw, asset.decimals))} ${symbol}` : null],
   ].filter((f): f is [string, string] => f[1] !== null);
   return (
-    <Link className={`panel pad ${styles.quoteCard}`} href={`/assets/${asset.mint}`}>
+    <Link className={`panel pad ${styles.quoteCard}`} href={`/asset/${asset.mint}`}>
       <div className={styles.cardHead}>
         {asset.logo ? <img className={`tile ${styles.assetTile}`} src={asset.logo} alt="" loading="lazy" /> : <CoinTile image={null} symbol={symbol} />}
         <span className={styles.cardName}>
