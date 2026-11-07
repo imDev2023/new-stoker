@@ -94,7 +94,7 @@ export function WalletButton({ block = false }: {
       <div className={styles.wrap} ref={menu}>
         <button type="button" className={`button button-ghost ${styles.connected}`} onClick={() => setOpen((o) => !o)} aria-expanded={open} title={name}>
           <Avatar address={publicKey.toBase58()} />
-          <span className={`mono ${styles.address}`}>{shortAddress(publicKey.toBase58())}</span>
+          <span className={`mono ${styles.address}`} data-address>{shortAddress(publicKey.toBase58())}</span>
         </button>
         {open && (
           <div className={styles.menu} role="menu" aria-label={name}>

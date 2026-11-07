@@ -49,3 +49,10 @@ time[data-date] {
 time[data-utc] {
   width: 27ch;
 }
+
+/* The connected wallet's address is drawn afresh every run and masked, but a glyph's ink can reach a pixel past its box at
+   either end (a "j", a "W"), past the mask, so the header flipped by one pixel between plain runs (launch-filled.png at
+   390, #13): in a shot the address is clipped to its box. */
+[data-address] {
+  overflow: hidden;
+}
