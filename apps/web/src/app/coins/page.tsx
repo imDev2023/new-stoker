@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { Board } from "@/components/Board";
 import { listLaunches } from "@/lib/api";
 import { boardQueryFrom } from "@/lib/board";
+import { pageMeta } from "@/lib/meta";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/coins",
   title: "Explore",
   description: "Every coin launched on Stoker, by market cap, newest, 24h volume or nearest graduation.",
-};
+});
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 

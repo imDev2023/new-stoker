@@ -4,18 +4,23 @@ import { notFound } from "next/navigation";
 import type { PlatformInfo, RewardPayout, RewardRoundDetail } from "@launchpad/contract";
 import { getLaunch, getPlatform, getRewardRound } from "@/lib/api";
 import { COIN_DECIMALS, explorerUrl, formatDate, formatEntryAmount, formatUnits, shortAddress } from "@/lib/format";
+import { pageMeta } from "@/lib/meta";
 import styles from "./page.module.css";
 
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const round = await getRewardRound((await params).id).catch(() => null);
-  if (!round) return { title: "Round not found", robots: { index: false } };
+  const { id } = await params;
+  const path = `/rewards/rounds/${id}`;
+  const round = await getRewardRound(id).catch(() => null);
+  if (!round) return pageMeta({ path, title: "Round not found", index: false });
   const launch = await getLaunch(round.mint).catch(() => null);
-  return {
-    title: `${launch?.symbol ?? shortAddress(round.mint)} round of ${formatDate(round.startedAt)}`,
-    description: "One Reward Round: the Reward Launch it paid, its snapshot of holders, the pot and every payout.",
-  };
+  const symbol = launch?.symbol ?? shortAddress(round.mint);
+  return pageMeta({
+    path,
+    title: `${symbol} round of ${formatDate(round.startedAt)}`,
+    description: `One Reward Round of ${symbol}, a Reward Launch on Stoker: its snapshot of holders, the pot and every payout, each linked to its transaction.`,
+  });
 }
 
 const coins = (raw: string) => formatUnits(raw, COIN_DECIMALS, 0);

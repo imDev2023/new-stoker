@@ -7,12 +7,14 @@ import { LedgerTable } from "@/components/LedgerTable";
 import { getBurns, getPlatform, getRevenue, listLedger, listQuotes } from "@/lib/api";
 import { pct } from "@/lib/fees";
 import { explorerUrl, formatEntryAmount, formatFigure, isSol, quoteTicker, shortAddress, SOL_DECIMALS, units } from "@/lib/format";
+import { pageMeta } from "@/lib/meta";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/revenue",
   title: "Stats",
   description: "The platform's revenue, the Creators' half, and every buy and burn, each a sum of the public ledger.",
-};
+});
 
 /** How many days the daily bars span at least, so a young platform's few days read as recent days, not as wide blocks. */
 const MIN_DAYS = 30;

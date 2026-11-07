@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { StockDirectory } from "@/components/StockDirectory";
 import { listQuotes } from "@/lib/api";
 import { isStock, stockRow, stocksQueryFrom } from "@/lib/stocks";
+import { pageMeta } from "@/lib/meta";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/stocks",
   title: "Stocks",
   description: "Tokenized stocks on Solana, open around the clock: each one's price, its gap to the stock it tracks, its liquidity and issuer.",
-};
+});
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 

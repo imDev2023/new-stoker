@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SwapWidget } from "@/components/SwapWidget";
 import { JUPITER_REFERRAL } from "@/lib/jupiterReferral";
+import { pageMeta } from "@/lib/meta";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/swap",
   title: "Swap",
   description: "Any Solana token for any other, through Jupiter.",
-};
+});
 
 /**
  * Swap (#9, the spec's swap page; owner 2026-10-30, a section of its own): Jupiter's swap under the page's one title,

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CoinMarket } from "@/components/CoinMarket";
+import { JsonLd } from "@/components/JsonLd";
 import { getCandles, getHolders, getLaunch, getPlatform, getQuoteAsset, getTrust, listTrades } from "@/lib/api";
 import { quoteTicker } from "@/lib/format";
+import { breadcrumbList, clip, pageMeta } from "@/lib/meta";
+import { siteOrigin } from "@/lib/origin";
 
 type Props = { params: Promise<{ mint: string }> };
 
@@ -12,13 +15,13 @@ const FIRST_INTERVAL = "15m";
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { mint } = await params;
   const launch = await getLaunch(mint).catch(() => null);
-  if (!launch) return { title: "Coin not found", robots: { index: false } };
+  if (!launch) return pageMeta({ path: `/coin/${mint}`, title: "Coin not found", index: false });
   const quote = quoteTicker(launch.quote);
   // Its own description when the Creator wrote one; otherwise its pair and what its Creator earns, in words (production's).
   const description =
     launch.description?.trim() ||
     `${launch.name} (${launch.symbol}) trades on Stoker paired with ${quote}; its creator earns half of what the platform collects on its trades, every payment on the public ledger.`;
-  return { title: `${launch.symbol} / ${quote}`, description: description.slice(0, 300) };
+  return pageMeta({ path: `/coin/${launch.mint}`, title: `${launch.symbol} / ${quote}`, description: clip(description), card: "own" });
 }
 
 /**
@@ -33,24 +36,29 @@ export default async function CoinPage({ params }: Props) {
   // Any mint the API doesn't know answers 404, which is the not-found page; an API that can't answer is an error.
   const launch = await getLaunch(mint);
   if (!launch) notFound();
-  const [platform, trades, candles, holders, trust, quoteAsset] = await Promise.all([
+  const [platform, trades, candles, holders, trust, quoteAsset, origin] = await Promise.all([
     getPlatform(),
     listTrades(mint).catch(() => null),
     getCandles(mint, FIRST_INTERVAL).catch(() => null),
     getHolders(mint).catch(() => null),
     getTrust(mint).catch(() => null),
     getQuoteAsset(launch.quote.mint).catch(() => null),
+    siteOrigin(),
   ]);
+  const pair = `${launch.symbol} / ${quoteTicker(launch.quote)}`;
   return (
-    <CoinMarket
-      initial={launch}
-      platform={platform}
-      quoteAsset={quoteAsset}
-      initialTrades={trades?.trades ?? []}
-      initialCandles={candles ?? { interval: FIRST_INTERVAL, candles: [] }}
-      initialHolders={holders}
-      initialTrust={trust}
-      renderedAt={Date.now()}
-    />
+    <>
+      <JsonLd data={breadcrumbList(origin, [["Home", "/"], ["Explore", "/coins"], [pair, `/coin/${launch.mint}`]])} />
+      <CoinMarket
+        initial={launch}
+        platform={platform}
+        quoteAsset={quoteAsset}
+        initialTrades={trades?.trades ?? []}
+        initialCandles={candles ?? { interval: FIRST_INTERVAL, candles: [] }}
+        initialHolders={holders}
+        initialTrust={trust}
+        renderedAt={Date.now()}
+      />
+    </>
   );
 }

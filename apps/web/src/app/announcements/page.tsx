@@ -3,12 +3,14 @@ import Link from "next/link";
 import { getPlatform, listAnnouncements } from "@/lib/api";
 import { pct } from "@/lib/fees";
 import { explorerUrl, formatDate } from "@/lib/format";
+import { pageMeta } from "@/lib/meta";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/announcements",
   title: "Fee changes",
   description: "Every change to the Platform Fee and Creator Fee, announced at least a day ahead, with its transaction once applied.",
-};
+});
 
 /**
  * Fee changes (#11, the spec's `announcements.html`): every change to the Platform Fee and the Creator Fee ever
