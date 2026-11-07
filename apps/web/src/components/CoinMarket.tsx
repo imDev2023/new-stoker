@@ -131,7 +131,7 @@ export function CoinMarket({
 
       <div className={styles.grid}>
         <div className={styles.main}>
-          <section className={`panel pad ${styles.chartPanel}`} aria-label="Price">
+          <section className="panel pad" aria-label="Price">
             <div className="section-head">
               <dl className={styles.stats}>
                 {cap ? <div><dt>Market cap</dt><dd>{formatFigure(cap)} {q}</dd></div> : null}
@@ -308,7 +308,7 @@ function QuoteCard({ asset }: { asset: QuoteAsset }) {
     ["Graduates at", asset.graduationTarget ? `${formatFigure(units(asset.graduationTarget.raw, asset.decimals))} ${symbol}` : null],
   ].filter((f): f is [string, string] => f[1] !== null);
   return (
-    <Link className={`panel pad ${styles.quoteCard}`} href={`/asset/${asset.mint}`}>
+    <Link className="panel pad" href={`/asset/${asset.mint}`}>
       <div className={styles.cardHead}>
         {asset.logo ? <img className={`tile ${styles.assetTile}`} src={asset.logo} alt="" loading="lazy" /> : <CoinTile image={null} symbol={symbol} />}
         <span className={styles.cardName}>

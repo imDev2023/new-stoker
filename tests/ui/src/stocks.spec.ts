@@ -5,7 +5,7 @@
 // its two choices name.
 import type { Page } from "@playwright/test";
 import { QuoteAsset } from "@launchpad/contract";
-import { expect, QUOTES, stackEnv, test } from "./fixtures";
+import { expect, expectHydrated, QUOTES, stackEnv, test } from "./fixtures";
 
 const NVDAX = QUOTES.NVDAx.toBase58();
 const USDC = QUOTES.USDC.toBase58();
@@ -102,9 +102,13 @@ test("a visitor sorts, filters and searches the stocks, and the address keeps th
 
 test('"/" focuses the page\'s own search', async ({ page }) => {
   await page.goto("/stocks");
+  await expectHydrated(page);
   await search(page).blur();
-  await page.keyboard.press("/");
-  await expect(search(page)).toBeFocused();
+  // The layout's shortcut listens once it has hydrated, which on a cold page can come after the field's: press until it answers.
+  await expect(async () => {
+    await page.keyboard.press("/");
+    await expect(search(page)).toBeFocused({ timeout: 1_000 });
+  }).toPass({ timeout: 30_000 });
   await expect(page).toHaveURL(/\/stocks$/);
 });
 
