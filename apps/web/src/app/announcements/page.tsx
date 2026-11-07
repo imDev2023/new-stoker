@@ -30,7 +30,7 @@ export default async function AnnouncementsPage() {
             {list.announcements.map((a) => (
               <li key={a.id} className="panel pad" data-announcement={a.id}>
                 <p className="muted">
-                  <time dateTime={a.effectiveAt}>{formatDate(a.effectiveAt)}</time>
+                  <time dateTime={a.effectiveAt} data-date>{formatDate(a.effectiveAt)}</time>
                 </p>
                 <h2>
                   Platform Fee {pct(a.platformFeeBps)}, Creator Fee {pct(a.creatorFeeBps)}

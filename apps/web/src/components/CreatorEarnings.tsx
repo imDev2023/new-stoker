@@ -230,7 +230,7 @@ function Earnings({ loaded: { earnings, forwards, airdrops }, platform }: { load
                       </a>
                     </td>
                     <td className="r muted">
-                      {f.status === "sending" ? <span className="badge">On its way</span> : <time dateTime={f.time}>{formatDate(f.time)}</time>}
+                      {f.status === "sending" ? <span className="badge">On its way</span> : <time dateTime={f.time} data-date>{formatDate(f.time)}</time>}
                     </td>
                   </tr>
                 ))}

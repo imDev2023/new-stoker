@@ -78,14 +78,14 @@ export default async function BurnsPage() {
                     <td>
                       {e.kind === "burn" ? "The Burn" : "The Flywheel"} · {quoteTicker(e.coin)}
                       <a className={`link ${styles.narrow}`} href={explorerUrl("tx", e.signature, platform)} target="_blank" rel="noreferrer">
-                        <time dateTime={e.time}>{formatDate(e.time)}</time>
+                        <time dateTime={e.time} data-date>{formatDate(e.time)}</time>
                       </a>
                     </td>
                     <td className="r num">{formatEntryAmount(e.amount, e.coin.decimals)}</td>
                     <td className="r num">{formatEntryAmount(e.lamports, SOL_DECIMALS)}</td>
                     <td className={`r ${styles.wide}`}>
                       <a className="link" href={explorerUrl("tx", e.signature, platform)} target="_blank" rel="noreferrer">
-                        <time dateTime={e.time}>{formatDate(e.time)}</time>
+                        <time dateTime={e.time} data-date>{formatDate(e.time)}</time>
                       </a>
                     </td>
                   </tr>

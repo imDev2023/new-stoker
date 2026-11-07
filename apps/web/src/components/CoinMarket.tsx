@@ -369,7 +369,7 @@ function About({ launch, platform }: { launch: LaunchSummary; platform: Platform
   const address = (value: string) => (
     <a className="link mono" href={explorerUrl("address", value, platform)} target="_blank" rel="noreferrer">{shortAddress(value)}</a>
   );
-  const date = (iso: string) => <time dateTime={iso}>{formatDate(iso)}</time>;
+  const date = (iso: string) => <time dateTime={iso} data-date>{formatDate(iso)}</time>;
   const links = LINK_KINDS.map((k) => [k, launch.links[k]] as const).filter((l): l is readonly [LinkKind, string] => Boolean(l[1]));
   const facts: [string, ReactNode][] = [
     ["Launch type", launch.rewardTax ? `Reward Launch, ${launch.rewardTax.bps / 100}%` : "Standard"],

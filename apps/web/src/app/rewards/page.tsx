@@ -104,7 +104,7 @@ function WalletRewardsTable({ rewards, platform }: { rewards: WalletRewards; pla
                 </td>
                 <td className="muted">
                   <Link className="link" href={`/rewards/rounds/${r.round}`}>
-                    <time dateTime={r.roundStartedAt}>{formatDate(r.roundStartedAt)}</time>
+                    <time dateTime={r.roundStartedAt} data-date>{formatDate(r.roundStartedAt)}</time>
                   </Link>
                 </td>
                 <td className="r">
@@ -160,7 +160,7 @@ function RulesInForce({ rules }: { rules: RewardRuleVersion }) {
         <div>
           <dt>In force since</dt>
           <dd>
-            <time dateTime={rules.effectiveAt}>{formatDate(rules.effectiveAt)}</time>
+            <time dateTime={rules.effectiveAt} data-date>{formatDate(rules.effectiveAt)}</time>
           </dd>
         </div>
       </dl>
@@ -179,7 +179,7 @@ function AnnouncedRules({ upcoming }: { upcoming: RewardRuleVersion[] }) {
         {upcoming.map((r) => (
           <div key={r.version} data-version={r.version}>
             <dt>
-              Version {r.version} from <time dateTime={r.effectiveAt}>{formatDate(r.effectiveAt)}</time>
+              Version {r.version} from <time dateTime={r.effectiveAt} data-date>{formatDate(r.effectiveAt)}</time>
             </dt>
             <dd>
               {coins(r.minHolding)} to be paid, a round from {coins(r.roundThreshold)}

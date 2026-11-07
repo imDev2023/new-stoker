@@ -129,14 +129,14 @@ function RoundFacts({ round, symbol }: { round: RewardRoundDetail; symbol: strin
       <div>
         <dt>Started</dt>
         <dd>
-          <time dateTime={round.startedAt}>{formatDate(round.startedAt)}</time>
+          <time dateTime={round.startedAt} data-date>{formatDate(round.startedAt)}</time>
         </dd>
       </div>
       {round.finishedAt && (
         <div>
           <dt>Finished</dt>
           <dd>
-            <time dateTime={round.finishedAt}>{formatDate(round.finishedAt)}</time>
+            <time dateTime={round.finishedAt} data-date>{formatDate(round.finishedAt)}</time>
           </dd>
         </div>
       )}

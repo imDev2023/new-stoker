@@ -38,7 +38,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 }
 
 /** A time in the console: UTC to the minute, inside a `<time>` so the suite's masks cover it. */
-const When = ({ iso }: { iso: string }) => <time dateTime={iso}>{formatUtc(iso)}</time>;
+const When = ({ iso }: { iso: string }) => <time dateTime={iso} data-utc>{formatUtc(iso)}</time>;
 
 /**
  * The operator console (`/operator`, #13; production's operator view, `12dbc10:apps/web/src/components/OperatorView.tsx`,

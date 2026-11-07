@@ -37,3 +37,15 @@ table[aria-labelledby="ledger-title"] time {
   width: 6ch;
   vertical-align: bottom;
 }
+
+/* A date's text changes with the day the suite runs ("6 November 2026", "7 November 2026"), and a masked time in a cell or
+   a key-value row is as wide as its text, so the mask, and the column or row around it, moved from one day to the next:
+   every coin page's shot failed on 2026-11-07, the day after #28 re-baselined them (#13). Each date format gets the box of
+   its longest text, "30 September 2026" and "Sep 30, 2026, 11:59 PM UTC". */
+time[data-date] {
+  width: 18ch;
+}
+
+time[data-utc] {
+  width: 27ch;
+}
