@@ -91,6 +91,8 @@ export type LaunchFields = {
   /** A Reward Launch: its Reward Tax in basis points, and its Payout Asset ("coin" unless set). */
   rewardTax?: string;
   rewardPayout?: string;
+  /** The coin's picture, when a test wants one other than its ticker's mosaic (a WebP, which Copy Protection never compares). */
+  image?: { bytes: Buffer; type: string; filename: string };
 };
 
 /** What a wallet does with a transaction the API prepared: sign, send, wait for confirmation, then report it for indexing. */
@@ -120,7 +122,7 @@ export async function allowAirdrops(wallet: PublicKey) {
 }
 
 /** Launches a coin the way any API client would: prepare, sign, send, report. */
-export async function launchViaApi(creator: Keypair, { quote = "SOL", airdrop, ...fields }: LaunchFields) {
+export async function launchViaApi(creator: Keypair, { quote = "SOL", airdrop, image, ...fields }: LaunchFields) {
   const form = new FormData();
   form.set("creator", creator.publicKey.toBase58());
   form.set("quoteMint", QUOTES[quote].toBase58());
@@ -130,7 +132,8 @@ export async function launchViaApi(creator: Keypair, { quote = "SOL", airdrop, .
     form.set("airdrop", JSON.stringify(airdrop));
   }
   // A picture of its own per ticker: Copy Protection would refuse a second coin with the same one.
-  form.set("image", new Blob([new Uint8Array(coinImage(fields.symbol))], { type: "image/png" }), "coin.png");
+  if (image) form.set("image", new Blob([new Uint8Array(image.bytes)], { type: image.type }), image.filename);
+  else form.set("image", new Blob([new Uint8Array(coinImage(fields.symbol))], { type: "image/png" }), "coin.png");
   const res = await fetch(`${stackEnv().apiUrl}/v1/launches/prepare`, { method: "POST", body: form });
   if (!res.ok) throw new Error(`prepare failed: ${res.status} ${await res.text()}`);
   const prepared = PreparedLaunch.parse(await res.json());
