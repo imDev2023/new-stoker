@@ -1,5 +1,6 @@
 // How every visual spec takes a shot: the page settled, checked for overflow and cut text, then captured whole with what
 // changes from run to run masked.
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { Page } from "@playwright/test";
 import { expect, expectHydrated, expectNoHorizontalOverflow, expectNoTruncatedText } from "./fixtures";
@@ -11,8 +12,24 @@ import { expect, expectHydrated, expectNoHorizontalOverflow, expectNoTruncatedTe
  */
 export const dynamic = (page: Page) => ["time", ".mono:not(input)", "canvas", "[data-avatar]"].map((s) => page.locator(s).filter({ visible: true }));
 
+/**
+ * Playwright joins a shot's stylesheets into one, so a file whose braces don't balance swallows the rule after it, and
+ * nothing says so: a stray `}` ending screenshot.css dropped dialog.css's `body > *` and every dialog shot showed the page
+ * under its edge, which failed only once a dark button sat under a corner (#13, 2026-11-07). Each file is checked here.
+ */
+function balanced(path: string) {
+  const css = readFileSync(path, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  let depth = 0;
+  for (const c of css) {
+    depth += c === "{" ? 1 : c === "}" ? -1 : 0;
+    if (depth < 0) break;
+  }
+  if (depth !== 0) throw new Error(`${path}: its braces don't balance, so the rule after it would be lost`);
+  return path;
+}
+
 /** The suite's screenshot styles plus the dialog's own; a call's `stylePath` replaces the config's, so both are named. */
-export const DIALOG_STYLES = ["screenshot.css", "dialog.css"].map((name) => fileURLToPath(new URL(`./${name}`, import.meta.url)));
+export const DIALOG_STYLES = ["screenshot.css", "dialog.css"].map((name) => balanced(fileURLToPath(new URL(`./${name}`, import.meta.url))));
 
 /** A full-page shot of the settled page. */
 export async function snap(page: Page, name: string, mask = dynamic) {
