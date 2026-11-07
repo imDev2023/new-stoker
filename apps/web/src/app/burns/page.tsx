@@ -3,12 +3,14 @@ import Link from "next/link";
 import { Figures, type Figure } from "@/components/Figures";
 import { getBurns, getPlatform } from "@/lib/api";
 import { explorerUrl, formatDate, formatEntryAmount, formatFigure, quoteTicker, SOL_DECIMALS, units } from "@/lib/format";
+import { pageMeta } from "@/lib/meta";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/burns",
   title: "Burn and Flywheel",
   description: "How the platform's revenue buys and burns STOKER and the most traded graduated coins, every run on-chain.",
-};
+});
 
 /**
  * Burn and Flywheel (#11, the spec's `burns.html`): what the Burn and the Flywheel have spent and burned, each figure

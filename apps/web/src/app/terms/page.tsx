@@ -3,8 +3,9 @@ import Link from "next/link";
 import { LegalPage } from "@/components/LegalPage";
 import { EXCLUDED_REGIONS } from "@/lib/legal";
 import { SITE_LINKS } from "@/lib/site";
+import { pageMeta } from "@/lib/meta";
 
-export const metadata: Metadata = { title: "Terms of use", description: "The terms on which the Stoker site and API are offered." };
+export const metadata: Metadata = pageMeta({ path: "/terms", title: "Terms of use", description: "The terms on which the Stoker site and API are offered." });
 
 /**
  * The terms the footer links to, in production's wording (imDev2023/Stoker-Markets#131). DRAFT: written from the

@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Steps } from "@/components/Steps";
+import { pageMeta } from "@/lib/meta";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/curated",
   title: "Curated",
   description: "Coins the platform has approved and works on with their teams, bought by the people who stake STOKER.",
-};
+});
 
 /** The spec's three steps (`curated.html`), in production's words (owner, 2026-10-25, Stoker-Markets#118). */
 const STEPS = [

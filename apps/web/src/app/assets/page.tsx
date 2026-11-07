@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { AssetDirectory } from "@/components/AssetDirectory";
 import { listQuotes } from "@/lib/api";
 import { assetRow, assetsQueryFrom } from "@/lib/assets";
+import { pageMeta } from "@/lib/meta";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
+  path: "/assets",
   title: "Assets",
   description: "Every asset a coin can be priced in, as Raydium quotes it, read from the chain every five minutes.",
-};
+});
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 

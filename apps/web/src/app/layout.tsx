@@ -13,7 +13,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Welcome } from "@/components/Welcome";
 import { getPlatform, getStats } from "@/lib/api";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE } from "@/lib/meta";
+import { SHARED_OPEN_GRAPH, SITE_CARD, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, TWITTER_CARD } from "@/lib/meta";
 import { siteOrigin } from "@/lib/origin";
 import { CHROME, isScheme, SCHEME_COOKIE } from "@/lib/scheme";
 
@@ -102,6 +102,9 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { default: SITE_TITLE, template: `%s · ${SITE_NAME}` },
     description: SITE_DESCRIPTION,
     applicationName: SITE_NAME,
+    // What a page that names no card of its own (a 404) shares; every page sets its own through `pageMeta`.
+    openGraph: { ...SHARED_OPEN_GRAPH, title: SITE_TITLE, description: SITE_DESCRIPTION, images: [SITE_CARD] },
+    twitter: { ...TWITTER_CARD, images: [SITE_CARD] },
     icons: {
       // `/icon.png` is the file the PlatformConfig's `img` names on-chain, so it stays at this address.
       icon: [
