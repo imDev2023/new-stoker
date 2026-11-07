@@ -51,6 +51,9 @@ const TRADES = [
 ] as const;
 
 setup("seed the board", async () => {
+  // Some forty transactions, each confirmed in turn: about 40 s alone, but past the suite's 90 s per test on a Mac busy
+  // with other stacks (a load average of 129 timed it out on 2026-11-07, #13), and every project after it waits on it.
+  setup.setTimeout(300_000);
   // Two coins launched with a First Buy and an Airdrop, one still to send and one paid, by a Creator of their own so the
   // seed Creator's page stays as it is. They go first, so the rest of the board and its latest coin are unchanged.
   await fund(AIRDROP_CREATOR.publicKey, 20);
