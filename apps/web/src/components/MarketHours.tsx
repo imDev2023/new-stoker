@@ -28,7 +28,7 @@ export function MarketHours({ row = false }: { row?: boolean }) {
   const us = useUsMarket();
   if (!us) return null;
   return (
-    <p className={`${styles.hours}${row ? ` ${styles.row}` : ""}`} data-hours>
+    <div className={`${styles.hours}${row ? ` ${styles.row}` : ""}`} data-hours>
       <span>
         <span className={`${styles.dot} ${us.open ? styles.open : ""}`} aria-hidden="true" />
         <span>
@@ -42,6 +42,6 @@ export function MarketHours({ row = false }: { row?: boolean }) {
           Solana <b>open</b>
         </span>
       </span>
-    </p>
+    </div>
   );
 }

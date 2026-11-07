@@ -119,7 +119,7 @@ export function StockDirectory({ stocks, initialQuery }: { stocks: StockRow[]; i
                       <td className="r">{s.usd ? formatUsd(s.usd) : ""}</td>
                       <td className={`r ${day.direction ?? ""}`}>{day.text}</td>
                       <td className={styles.wide}>{i < TRENDS && <Sparkline mint={s.mint} source="quote" />}</td>
-                      <td className={`r ${styles.wide} ${s.gap?.wide ? styles.gapWide : "muted"}`}>{s.gap?.text ?? ""}</td>
+                      <td className={`r ${styles.wide} ${s.gap?.wide ? styles.gapWide : "muted"}`} data-wide={s.gap?.wide || undefined}>{s.gap?.text ?? ""}</td>
                       <td className={`r ${styles.wide}`}>{s.liquidityUsd ? formatLiquidity(s.liquidityUsd) : ""}</td>
                       <td className={styles.wide}>{s.issuer && <span className="badge">{ISSUER_LABELS[s.issuer]}</span>}</td>
                     </tr>

@@ -13,7 +13,7 @@ export function StockUnder({ ticker, last, gap }: { ticker: string; last: number
   const us = useUsMarket();
   if (!us) return null;
   return (
-    <span className={`${styles.under}${gap.wide ? ` ${styles.wide}` : ""}`} data-stock-under>
+    <span className={`${styles.under}${gap.wide ? ` ${styles.wide}` : ""}`} data-stock-under data-wide={gap.wide || undefined}>
       {ticker} {us.open ? "" : "closed at "}{formatUsd(last)} · {gap.text} vs stock
     </span>
   );
