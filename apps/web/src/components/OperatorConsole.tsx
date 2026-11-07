@@ -128,7 +128,7 @@ export function OperatorConsole({ platform }: { platform: PlatformInfo }) {
         <div className="shell page-head">
           <h1>Operator</h1>
         </div>
-        <section className="shell section" aria-label="Operator token">
+        <section className="shell section">
           <form className={`panel pad ${styles.signIn}`} onSubmit={signIn} aria-label="Open the console">
             <label className="field">
               <span>Operator token</span>
@@ -168,7 +168,7 @@ export function OperatorConsole({ platform }: { platform: PlatformInfo }) {
 
       {o && (
         <Section id="glance" title="At a glance">
-          <dl className={`panel pad kv ${styles.kv}`}>
+          <dl className={`panel pad kv ${styles.kv}`} data-varies>
             <div>
               <dt>Launches</dt>
               <dd>
@@ -210,7 +210,7 @@ export function OperatorConsole({ platform }: { platform: PlatformInfo }) {
           {open.length === 0 ? (
             <p className="muted">Nothing needs attention.</p>
           ) : (
-            <div className="panel table-wrap">
+            <div className="panel table-wrap" data-varies>
               <table className={`table ${styles.wrap}`} aria-label="Open alerts">
                 <tbody>
                   {open.map((a) => (
@@ -234,7 +234,7 @@ export function OperatorConsole({ platform }: { platform: PlatformInfo }) {
       {o && (
         <Section id="jobs" title="Jobs">
           {o.jobs.length > 0 && (
-            <div className="panel table-wrap">
+            <div className="panel table-wrap" data-varies>
               <table className={`table ${styles.wrap}`} aria-label="Latest runs">
                 <thead>
                   <tr>
@@ -245,7 +245,7 @@ export function OperatorConsole({ platform }: { platform: PlatformInfo }) {
                 </thead>
                 <tbody>
                   {o.jobs.map((j) => (
-                    <tr key={j.id} data-job={j.job} data-live>
+                    <tr key={j.id} data-job={j.job}>
                       <td>
                         <b>{j.job}</b>
                       </td>
@@ -444,11 +444,11 @@ function AirdropCreators({ token, wallets, busy, act }: { token: string; wallets
       </form>
       {wallets.length > 0 && (
         <div className="panel table-wrap">
-          <table className="table" aria-label="Allowed Creators">
+          <table className={`table ${styles.wrap}`} aria-label="Allowed Creators">
             <tbody>
               {wallets.map((w) => (
                 <tr key={w} data-wallet={w}>
-                  <td className="mono">{shortAddress(w)}</td>
+                  <td><span className="mono">{shortAddress(w)}</span></td>
                   <td className="r">
                     <button type="button" className="button button-ghost" disabled={busy !== null} onClick={() => void act(`remove:${w}`, async () => void (await disallowAirdropCreator(token, w)))}>
                       {busy === `remove:${w}` ? "Removing…" : "Remove"}
@@ -510,7 +510,7 @@ function ApiKeys({ token, keys, busy, act }: { token: string; keys: ApiKeyInfo[]
       )}
       {keys.length > 0 && (
         <div className="panel table-wrap">
-          <table className="table" aria-label="Issued keys">
+          <table className={`table ${styles.wrap}`} aria-label="Issued keys">
             <tbody>
               {keys.map((k) => (
                 <tr key={k.id} data-key={k.id}>
@@ -625,7 +625,7 @@ function RegionGatesEditor({ token }: { token: string }) {
         <div key={i} className={styles.gate} data-gate={i}>
           <label className="field">
             <span>Feature</span>
-            <input value={r.feature} onChange={(e) => update(i, { feature: e.target.value })} pattern="[a-z][a-z0-9-]{0,39}" required />
+            <input value={r.feature} onChange={(e) => update(i, { feature: e.target.value })} pattern="[a-z][a-z0-9\-]{0,39}" required />
           </label>
           <label className="field">
             <span>Withheld in</span>

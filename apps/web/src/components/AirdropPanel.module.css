@@ -5,4 +5,8 @@
 .count { color: var(--ink-2); font-size: var(--text-small); white-space: nowrap; }
 .progress { grid-column: 1 / -1; }
 .send { grid-column: 1 / -1; justify-self: start; }
+/* Every airdrop's table has its columns in the same place, whatever its statuses say. */
+.airdrop table { table-layout: fixed; }
+.airdrop th:nth-child(2), .airdrop td:nth-child(2) { width: 34%; }
+.airdrop th:nth-child(3), .airdrop td:nth-child(3) { width: 26%; }
 .error { grid-column: 1 / -1; color: var(--down); font-size: var(--text-small); }

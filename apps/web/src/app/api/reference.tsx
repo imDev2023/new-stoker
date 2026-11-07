@@ -119,7 +119,7 @@ export const READING: Section = {
       endpoints: ["GET /creators/:address/earnings", "GET /creators/:address/forwards"],
       text: (
         <>
-          Creator Earnings: per Quote Asset what the Creator&apos;s Launches earned (half of what the platform collected on their trades), what Graduation Fees kept of it (<code>withheld</code>), what was forwarded to their wallet and what is still pending; per Launch what its curve and pool earned and its <code>graduationFee</code> once it has graduated (the fee in lamports, what has been withheld toward it in the Quote Asset and its worth, and when it was settled); and every forward with its transaction. Nothing to claim.
+          Creator Earnings: per Quote Asset what the Creator&apos;s Launches earned (half of what the platform collected on their trades), what Graduation Fees kept of it (<code>withheld</code>), what was forwarded to their wallet and what is still pending; per Launch what its curve and pool earned and its <code>graduationFee</code> once it has graduated (the fee in lamports, what has been withheld toward it in the Quote Asset and its worth, and when it was settled) and whether it launched with an <code>airdrop</code>; and every forward with its transaction. Nothing to claim.
         </>
       ),
     },

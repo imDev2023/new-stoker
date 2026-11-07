@@ -34,7 +34,7 @@ export default async function RewardRoundPage({ params }: Props) {
   const figures = [
     round.pot !== "0" && { key: "pot", term: "Pot", value: paid(round.pot), unit: round.payout.symbol },
     round.eligibleHolders > 0 && { key: "holders", term: round.eligibleHolders === 1 ? "Eligible holder" : "Eligible holders", value: round.eligibleHolders.toLocaleString("en-US") },
-    round.paid !== "0" && { key: "paid", term: "Paid so far", value: paid(round.paid), unit: round.payout.symbol },
+    round.status === "paying" && round.paid !== "0" && { key: "paid", term: "Paid so far", value: paid(round.paid), unit: round.payout.symbol },
   ].filter((f): f is { key: string; term: string; value: string; unit?: string } => Boolean(f));
 
   return (

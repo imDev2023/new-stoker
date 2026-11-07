@@ -38,8 +38,9 @@ export function CreatorEarningsView({ platform }: { platform: PlatformInfo }) {
       try {
         const [earnings, { forwards }] = await Promise.all([getCreatorEarnings(creator), listCreatorForwards(creator)]);
         if (!earnings) return;
-        // A coin launched without an airdrop answers 404, read as none.
-        const airdrops = (await Promise.all(earnings.launches.map((l) => getAirdrop(l.mint).catch(() => null)))).filter((a): a is AirdropStatus => a !== null);
+        // Only the coins launched with an airdrop have one to read.
+        const withAirdrop = earnings.launches.filter((l) => l.airdrop);
+        const airdrops = (await Promise.all(withAirdrop.map((l) => getAirdrop(l.mint).catch(() => null)))).filter((a): a is AirdropStatus => a !== null);
         if (!gone) setLoaded({ creator, earnings, forwards, airdrops });
       } catch {
         // The last good read stays; the next tick tries again.
@@ -125,7 +126,7 @@ function Earnings({ loaded: { earnings, forwards, airdrops }, platform }: { load
                   ["Earned", a.earned],
                   ["Sent to you", a.forwarded],
                   ["To come", a.pending],
-                  ["Kept as Graduation Fees", a.withheld],
+                  ["Graduation Fees", a.withheld],
                 ] as [string, string][]
               ).filter(([, raw]) => raw !== "0");
               return (
@@ -158,13 +159,19 @@ function Earnings({ loaded: { earnings, forwards, airdrops }, platform }: { load
             <thead>
               <tr>
                 <th scope="col">Coin</th>
-                <th scope="col">Trades on</th>
+                <th scope="col" className={styles.wide}>Trades on</th>
                 <th scope="col" className="r">Earned</th>
               </tr>
             </thead>
             <tbody>
               {earnings.launches.map((l) => {
                 const earned = (BigInt(l.curve) + BigInt(l.pool)).toString();
+                const badges = (
+                  <span className={styles.badges}>
+                    <span className="badge">{VENUE[l.status]}</span>
+                    {l.graduationFee && <span className="badge">{l.graduationFee.settledAt ? "Graduation Fee paid" : "Graduation Fee due"}</span>}
+                  </span>
+                );
                 return (
                   <tr key={l.mint} data-mint={l.mint}>
                     <td>
@@ -175,15 +182,12 @@ function Earnings({ loaded: { earnings, forwards, airdrops }, platform }: { load
                             <PairName symbol={l.symbol} quote={l.quote} />
                           </b>
                           <span className="muted">{l.name}</span>
+                          {/* On a phone the venue goes under the name: three columns run past 390px. */}
+                          <span className={styles.narrow}>{badges}</span>
                         </span>
                       </Link>
                     </td>
-                    <td>
-                      <span className={styles.badges}>
-                        <span className="badge">{VENUE[l.status]}</span>
-                        {l.graduationFee && <span className="badge">{l.graduationFee.settledAt ? "Graduation Fee paid" : "Graduation Fee due"}</span>}
-                      </span>
-                    </td>
+                    <td className={styles.wide}>{badges}</td>
                     <td className="r num">{earned === "0" ? "" : `${formatEntryAmount(earned, l.quote.decimals)} ${quoteTicker(l.quote)}`}</td>
                   </tr>
                 );

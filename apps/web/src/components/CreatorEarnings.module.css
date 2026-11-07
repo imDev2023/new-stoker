@@ -7,8 +7,16 @@
 .coin { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .names { display: grid; min-width: 0; }
 .names b { font-weight: 600; }
-.names .muted { font-size: var(--text-caption); overflow-wrap: anywhere; }
+.names :global(.muted) { font-size: var(--text-caption); overflow-wrap: anywhere; }
 .badges { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.narrow { display: none; margin-top: 6px; }
+@media (max-width: 640px) {
+  .wide { display: none; }
+  .narrow { display: block; }
+}
+/* An asset card's amount keeps its width; its term wraps instead. */
+.cards dd { flex: none; }
 .airdrops { display: grid; gap: 16px; }
 /* A rule's value is a sentence: it wraps rather than being cut. */
 .rules dd { white-space: normal; text-overflow: clip; }
+.rules dt { white-space: nowrap; }

@@ -102,7 +102,7 @@ describe("the creator page", () => {
       [second, shares[1]!.toString(), "0", "live"],
       [first, (shares[0]! + shares[2]!).toString(), "0", "live"],
     ]);
-    expect(e.launches[0]).toMatchObject({ name: expect.stringMatching(/^Tracer /), symbol: expect.stringMatching(/^T[A-Z0-9]{6}$/), quote: SOL_QUOTE, image: expect.stringContaining(second) });
+    expect(e.launches[0]).toMatchObject({ name: expect.stringMatching(/^Tracer /), symbol: expect.stringMatching(/^T[A-Z0-9]{6}$/), quote: SOL_QUOTE, image: expect.stringContaining(second), airdrop: false });
     // There is nothing on-chain for the Creator to claim: their LaunchLab vault was never paid into.
     expect(await creatorVault(creator.publicKey)).toBe(0n);
   });

@@ -8,8 +8,8 @@
 
 /* A form's fields side by side, wrapping on a narrow window, its button at the end of the row. */
 .form, .inline { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; }
-.form .field { flex: 1 1 180px; }
-.inline .field { flex: 1 1 260px; }
+.form :global(.field) { flex: 1 1 180px; }
+.inline :global(.field) { flex: 1 1 260px; }
 .form .wide { flex-basis: 100%; }
 
 /* A long value (a message, a fact) wraps rather than being cut or widening the page. */
@@ -22,4 +22,16 @@
 
 .gates { display: grid; gap: 16px; }
 .gate { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; }
-.gate .field { flex: 1 1 200px; }
+.gate :global(.field) { flex: 1 1 200px; }
+
+/* A row's button wraps its words on a phone rather than pushing the row past the window. */
+.wrap :global(.button) { height: auto; min-height: 38px; padding-block: 8px; white-space: normal; text-align: center; }
+
+/* On a phone a row of a console table stacks its cells: a message, a time and an action never fit 390px side by side. */
+@media (max-width: 640px) {
+  .wrap thead { display: none; }
+  .wrap tr { display: grid; padding-block: 8px; border-top: 1px solid var(--line); }
+  .wrap tbody tr:first-child { border-top: 0; }
+  .wrap td { border-top: 0; padding-block: 4px; }
+  .wrap td:global(.r) { text-align: left; }
+}
