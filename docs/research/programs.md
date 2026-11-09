@@ -2,7 +2,7 @@
 
 Ticket #4, written 2026-11-04 by an unattended relay session for the owner's review.
 ADR 0018 allows programs of our own; this note says which ones, why, how each works on Solana, and in what order, and [ADR 0019](../adr/0019-programs-and-their-order.md) proposes the decision.
-Nothing here is decided until the owner accepts that ADR.
+The owner accepted that ADR on 2026-11-09 (section 11 has the answers), and its tickets are #40 to #45.
 
 ## Summary
 
@@ -278,37 +278,41 @@ It stays a separate product (its ADR 0001), and nothing below is copied in witho
   No quote was requested (relay sessions make no paid calls).
   The scope would be the earnings program (small, no funds at rest) and, before each reaches mainnet, Fair Open's vault and the rewards vault.
 
-## 10. The proposed order and the build tickets
+## 10. The order and the build tickets
 
-Each ticket is drafted for the map; none is filed until the owner accepts ADR 0019.
-Lane `programs` runs them in order; each depends on the one before.
+Filed on 2026-11-09, when the owner accepted ADR 0019, as #40 to #45, sub-issues of the map.
+Lane `programs` runs them in order, each blocked by the one before, except that Rewards (#44) is blocked by #42 rather than by Fair Open (#43): it depends on the launch program, not on Fair Open, so it goes first while Fair Open waits on the owner.
 
-1. **Programs workspace and the LaunchLab spike.**
+1. **Programs workspace and the LaunchLab spike** (#40).
    The workspace, the build script, the LiteSVM harness on Raydium's committed binaries, the CI job, and an empty program deployed on the local chain through `tools/localnet`.
    The spike proves, with tests: `initialize_v2` through CPI from our program; a PDA as `creator` and its own Creator Fee vault, claimed through `invoke_signed`; a PDA as `base_mint` (and whether a pre-funded mint address breaks it); `platform_cp_creator` as a PDA and `collect_creator_fee` signed by it after a migration; `AllInfo` moving `creator_fee_rate` on our PlatformConfig; LaunchLab's maths at a 1e18 supply; the launch transaction's size and compute through the program; the vanity seed grind's rate on this Mac.
    Its outcome decides whether ticket 2 is built as written.
-2. **The earnings program and the launch through it.**
+2. **The earnings program and the launch through it** (#41).
    `stoker_earnings` (coin records, `claim_curve`, `collect_pool`, the split, the wallet destination, the Graduation Fee priced at launch, events) and the first `stoker_launch` (creation through CPI with the earnings PDA as creator, registration, the First Buy), the API's launch and the Indexer moved to them, the backend suite proving a Creator paid on the curve and after Graduation with no forward job, and its own ADR amending ADR 0009 and ADR 0015.
+   The Creator's share is a setting of each coin's record, 50% at launch, never a constant (owner, 2026-11-09), so imDev2023/Stoker-Markets#188's Creator ladder can come later without a new program.
    The Creator Forward keeps running for coins launched before, and the fee change on mainnet's PlatformConfig waits for the audit and the owner.
-3. **PDA mints, vanity seeds and supply locks.**
+3. **PDA mints, vanity seeds and supply locks** (#42).
    The launch program derives mints from seeds, the API drops `MINT_KEY_SECRET` for new coins, a seed grinder and its table (vanity prefixes after go-live, by the owner's decision on imDev2023/Stoker-Markets#73), and LaunchLab vesting allowed by the curve rules with the form's lock option (imDev2023/Stoker-Markets#141).
-4. **Fair Open.**
+4. **Fair Open** (#43).
    A launch mode with a deposit window, one-price opening buy, pro-rata settlement and the failure path, after the owner decides on the overlap with Top-pad.
-5. **Rewards.**
+5. **Rewards** (#44).
    The Reward Tax authority on a PDA, `lock_tax` and `harvest`, Merkle rounds with a challenge period and permissionless payment, the Holders and Burn destinations of imDev2023/Stoker-Markets#113, and the retirement of the `reward-tax-lock` job and the operations wallet's custody of the tax.
-6. **Staking and Curated.**
+6. **Staking and Curated** (#45).
    After go-live and the owner's answers on imDev2023/Stoker-Markets#118.
 
 Not proposed: a curve or migration of our own, a move to Meteora DBC, a vesting program, a transfer-hook coin.
 
-## 11. Questions for the owner
+## 11. The owner's answers (2026-11-09)
 
-1. Accept ADR 0019's two first programs and the order above, or reorder?
-2. The audit: is the earnings program (no funds at rest, but deciding where Creators' money goes) under ADR 0018's audit rule, and who audits?
-3. The curve split on-chain (0.50% Platform Fee, 0.50% Creator Fee) through an announced fee change on mainnet's PlatformConfig, once ticket 2 is proven?
-4. The Graduation Fee priced at launch from the Graduation Target, rather than at Graduation?
-5. Fair Open in Stoker, given it is Heat's core product (Top-pad's ADR 0001, option C)?
-6. Holder rewards by Merkle root with a challenge period, or by staking?
+The owner accepted ADR 0019 as proposed on 2026-11-09; each question below keeps its proposed answer.
+
+1. The two first programs and the order above: accepted.
+2. The audit: the earnings program decides where Creators' money goes, so it is audited before mainnet under ADR 0018's rule; the auditor and the budget are still the owner's to choose.
+3. The curve split on-chain (0.50% Platform Fee, 0.50% Creator Fee): yes, through an announced fee change on mainnet's PlatformConfig once ticket 2 is proven and audited, applied by the cold admin key on the owner's go.
+   The owner added that the Creator's share is a per-coin setting, never a constant, so the Creator ladder the original proposed the same day (imDev2023/Stoker-Markets#188: 50% on the curve, 60% after Graduation, 70% for coins that last) can come later without a new program.
+4. The Graduation Fee is priced at launch from the Graduation Target.
+5. Fair Open given Heat (Top-pad's ADR 0001, option C): still open; #43 waits for it and the relay skips that ticket meanwhile.
+6. Holder rewards by Merkle root with a challenge period.
 
 ## Sources
 
