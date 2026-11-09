@@ -1,0 +1,3 @@
+/* A figure that is a link reads as the figure; the hairline under it shows on hover, as the spec's .link does. */
+.value { text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 1px; text-underline-offset: 6px; transition: text-decoration-color var(--dur) var(--ease); }
+.value:hover, .value:focus-visible { text-decoration-color: var(--line-strong); }

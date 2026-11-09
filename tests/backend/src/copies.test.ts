@@ -73,13 +73,13 @@ describe("Copy Protection", () => {
     // The ticker ends in a letter that makes no claim affix with the "2" the check below appends: a tag ending in V made
     // "...V2", which the core key strips as a version word, and the copy read as near instead of taken (1 run in 32).
     const ticker = `EMB${tag.slice(0, 3)}X`;
-    const launched = await launch(original, { name: `Ember Fox ${tag}`, symbol: ticker, image: image(picture), exact: true });
+    const launched = await launch(original, { name: `Hearth Fox ${tag}`, symbol: ticker, image: image(picture), exact: true });
     await deliverWebhook([launched.signature]);
     const coin = await summary(launched.prepared.mint);
     expect(new Date(coin.protection.until).getTime() - new Date(coin.createdAt).getTime()).toBe(WINDOW_SECONDS * 1000);
     expect(coin.copyOf).toBeNull();
 
-    const protectedCoin = expect.objectContaining({ mint: coin.mint, symbol: ticker, name: `Ember Fox ${tag}`, protectedUntil: coin.protection.until });
+    const protectedCoin = expect.objectContaining({ mint: coin.mint, symbol: ticker, name: `Hearth Fox ${tag}`, protectedUntil: coin.protection.until });
     // The check endpoint, as the launch form asks: the same ticker in lower case, with a $ and with leetspeak are all taken.
     for (const copy of [ticker.toLowerCase(), `$${ticker}`, ticker.replace("E", "3").replace("B", "8")]) {
       const v = await check({ creator: copier.publicKey.toBase58(), symbol: copy });
@@ -89,7 +89,7 @@ describe("Copy Protection", () => {
     expect(symbolOf(await check({ symbol: `${ticker}2` })).kind).toBe("ticker");
     expect(symbolOf(await check({ symbol: `${ticker.slice(0, -1)}Q` })).kind).toBe("near");
     // The name, with a claim word added, and the picture resized and recoloured.
-    const name = await check({ name: `Official Ember Fox ${tag}` });
+    const name = await check({ name: `Official Hearth Fox ${tag}` });
     expect(name.name).toMatchObject({ status: "taken", kind: "name", of: protectedCoin });
     // The same picture twice the size, recoloured but with the same stripe brighter.
     const resized = await check({ image: png([250, 100, 40], [10, 30, 180], 64) });
@@ -100,10 +100,10 @@ describe("Copy Protection", () => {
     expect((await check({ image: png([1, 2, 3], [4, 5, 6], 8) })).image).toMatchObject({ status: "unchecked" });
     expect((await check({ image: png([90, 90, 90], [90, 90, 90], 32, "flat") })).image).toMatchObject({ status: "unchecked" });
     // The Creator may reuse their own.
-    expect((await check({ creator: original.publicKey.toBase58(), symbol: ticker, name: `Ember Fox ${tag}`, image: picture })).symbol).toMatchObject({ status: "free" });
+    expect((await check({ creator: original.publicKey.toBase58(), symbol: ticker, name: `Hearth Fox ${tag}`, image: picture })).symbol).toMatchObject({ status: "free" });
 
     // Prepare refuses with the same verdict, the ticker first.
-    const refused = await prepare({ creator: copier.publicKey.toBase58(), name: `Ember Fox ${tag}`, symbol: ticker, image: image(picture), exact: true });
+    const refused = await prepare({ creator: copier.publicKey.toBase58(), name: `Hearth Fox ${tag}`, symbol: ticker, image: image(picture), exact: true });
     expect(refused.status).toBe(409);
     const body = (await refused.json()) as { error: string; copy: { kind: string; of: { mint: string } } };
     expect(body.copy).toMatchObject({ kind: "ticker", of: { mint: coin.mint } });
@@ -112,13 +112,13 @@ describe("Copy Protection", () => {
     expect(byImage.status).toBe(409);
     expect(((await byImage.json()) as { copy: { kind: string } }).copy.kind).toBe("image");
     // The original Creator relaunches their own ticker freely.
-    const again = await prepare({ creator: original.publicKey.toBase58(), name: `Ember Fox ${tag}`, symbol: ticker, image: image(picture), exact: true });
+    const again = await prepare({ creator: original.publicKey.toBase58(), name: `Hearth Fox ${tag}`, symbol: ticker, image: image(picture), exact: true });
     expect(again.status).toBe(200);
 
     // After the window the copy launches, and carries a label naming the original.
     await sleep(Math.max(0, new Date(coin.protection.until).getTime() - Date.now() + 500));
     expect((await check({ symbol: ticker })).symbol).toMatchObject({ status: "free" });
-    const late = await launch(copier, { name: `Ember Fox ${tag}`, symbol: ticker, image: image(picture), exact: true });
+    const late = await launch(copier, { name: `Hearth Fox ${tag}`, symbol: ticker, image: image(picture), exact: true });
     await deliverWebhook([late.signature]);
     const copy = await summary(late.prepared.mint);
     expect(copy.copyOf).toMatchObject({ kind: "ticker", mint: coin.mint, symbol: ticker, protectedUntil: coin.protection.until });

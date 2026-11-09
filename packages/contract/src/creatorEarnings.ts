@@ -43,6 +43,8 @@ export const CreatorLaunchEarnings = z.object({
   pool: raw,
   /** Its Graduation Fee (ADR 0015), once it has graduated with one: null before Graduation, and for a coin graduated before the fee existed. */
   graduationFee: GraduationFee.nullable(),
+  /** Whether it launched with an Airdrop (`GET /launches/:mint/airdrop` answers its recipients), which its Creator sends. */
+  airdrop: z.boolean(),
 });
 export type CreatorLaunchEarnings = z.infer<typeof CreatorLaunchEarnings>;
 

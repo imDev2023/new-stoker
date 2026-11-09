@@ -1,8 +1,12 @@
 // What the seeded stack shows in the shell, at desktop and phone width, light and dark: the pulse strip with the seed's
-// real figures, the welcome on a first visit and the account menu, against committed baselines.
-import { expect, test } from "./fixtures";
+// real figures, the welcome on a first visit and the account menu, Explore's board seeded, filtered by an asset,
+// searched and watchlisted, and a coin's page in each of its states, against committed baselines.
+import type { Page } from "@playwright/test";
+import { coinImage, expect, listLaunches, QUOTES, SEED_CREATOR, stackEnv, test } from "./fixtures";
 import { DIALOG_STYLES, dynamic, snap } from "./shots";
-import { connectTestWallet, TEST_WALLET_NAME } from "./wallet";
+import { connectTestWallet, installTestWallet, TEST_WALLET_NAME } from "./wallet";
+import { AIRDROP_CREATOR, REWARD_HOLDER } from "./seedData";
+import { WalletRewards } from "@launchpad/contract";
 
 test("pulse", async ({ page }) => {
   await page.goto("/privacy");
@@ -52,8 +56,227 @@ test("account menu", async ({ page, wallet }) => {
   await expect(page).toHaveScreenshot("menu-connected.png", { mask: dynamic(page) });
 });
 
+test("home", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("region", { name: "Figures" }).getByRole("term")).toHaveText(["Assets", "Coins", "Graduated", "24h volume"]);
+  await expect(page.getByRole("table", { name: "Trending" }).getByRole("row")).toHaveCount(6);
+  // A coin's line is drawn from hourly candles, so where an hour fell during the seed moves it: masked, like a time.
+  await snap(page, "home-seeded.png", (p) => [...dynamic(p), p.locator("[data-spark]").filter({ visible: true })]);
+});
+
 test("not found with the pulse", async ({ page }) => {
   await page.goto("/nothing-here");
   await expect(page.locator("[data-pulse]")).toBeVisible();
   await snap(page, "404-seeded.png");
+});
+
+/** The board's trend lines are drawn from hourly candles, so whether a seeded coin has one depends on the hour the seed ran. */
+const boardMask = (page: Page) => [...dynamic(page), page.locator("[data-spark]")];
+const paired = (page: Page) => page.getByRole("radiogroup", { name: "Paired with" });
+const coinRows = (page: Page) => page.getByRole("table", { name: "Coins" }).locator("tbody tr");
+
+test.describe("the board", () => {
+  test("seeded", async ({ page }) => {
+    await page.goto("/coins");
+    await expect(coinRows(page).first()).toBeVisible();
+    await snap(page, "coins-seeded.png", boardMask);
+  });
+
+  test("filtered by an asset", async ({ page }) => {
+    await page.goto("/coins");
+    await paired(page).locator("label").filter({ hasText: /^Currencies$/ }).click();
+    await expect(page).toHaveURL(/category=stablecoin/);
+    await expect(coinRows(page)).toHaveCount(1);
+    await expect(coinRows(page).first()).toContainText("USDP/USDC");
+    await snap(page, "coins-currencies.png", boardMask);
+  });
+
+  test("searched", async ({ page }) => {
+    await page.goto("/coins");
+    await page.getByRole("searchbox", { name: "Search" }).fill("harbor");
+    await expect(page).toHaveURL(/q=harbor/);
+    await expect(coinRows(page)).toHaveCount(1);
+    await page.getByRole("searchbox", { name: "Search" }).blur();
+    await snap(page, "coins-searched.png", boardMask);
+  });
+
+  test("watchlisted", async ({ page }) => {
+    await page.goto("/coins");
+    for (const symbol of ["HRBR", "GOWN"]) {
+      const star = page.getByRole("button", { name: `Watch ${symbol}`, exact: true });
+      await star.click();
+      await expect(star).toHaveAttribute("aria-pressed", "true");
+    }
+    await page.getByRole("checkbox", { name: "Watchlist" }).check({ force: true });
+    await expect(coinRows(page)).toHaveCount(2);
+    await snap(page, "coins-watchlist.png", boardMask);
+  });
+});
+
+test.describe("an asset's page", () => {
+  for (const [name, quote, coin] of [["asset-stock.png", "NVDAx", "CHPX/NVDAx"], ["asset-usdc.png", "USDC", "USDP/USDC"]] as const) {
+    test(`${quote}, with the coin paired with it`, async ({ page }) => {
+      await page.goto(`/asset/${QUOTES[quote].toBase58()}`);
+      await expect(page.getByRole("heading", { level: 1, name: quote })).toBeVisible();
+      const paired = page.getByRole("table", { name: `Coins paired with ${quote}` });
+      await expect(paired.locator("tbody tr")).toHaveCount(1);
+      await expect(paired.locator("tbody tr").first()).toContainText(coin);
+      await snap(page, name, boardMask);
+    });
+  }
+});
+
+test("a stock's page, with the coin paired with it", async ({ page }) => {
+  // A Monday morning in New York, so the hours line is the same every run.
+  await page.clock.setFixedTime(new Date("2026-11-09T15:00:00Z"));
+  await page.goto(`/stock/${QUOTES.NVDAx.toBase58()}`);
+  await expect(page.getByRole("heading", { level: 1, name: "NVDAx" })).toBeVisible();
+  const paired = page.getByRole("table", { name: "Coins paired with NVDAx" });
+  await expect(paired.locator("tbody tr")).toHaveCount(1);
+  await expect(paired.locator("tbody tr").first()).toContainText("CHPX/NVDAx");
+  await expect(page.getByRole("link", { name: "Stoke one" })).toBeVisible();
+  await snap(page, "stock-seeded.png", boardMask);
+});
+
+/** A seeded coin's address, by its ticker. */
+async function seeded(symbol: string) {
+  const launch = (await listLaunches()).find((l) => l.symbol === symbol);
+  if (!launch) throw new Error(`the seed has no ${symbol}`);
+  return launch.mint;
+}
+
+/** What varies on a coin page besides the suite's own: the chart, whose candles fall either side of an interval by the seed's timing. */
+const coinMask = (page: Page) => [...dynamic(page), page.locator("[data-chart]")];
+
+// A coin's page in each state the seed leaves one in: fresh off the form, traded, paired with USDC (with Pay with),
+// sold out and graduating, graduated into its pool, and the longest name and ticker.
+for (const [name, symbol] of [
+  ["coin-fresh", "FRST"], ["coin-traded", "HRBR"], ["coin-usdc", "USDP"], ["coin-graduating", "$FIRE"], ["coin-graduated", "GOWN"],
+  ["coin-longest", "WWWWWWWWWW"],
+] as const) {
+  test(name, async ({ page }) => {
+    await page.goto(`/coin/${await seeded(symbol)}`);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(symbol);
+    // The marks read the chain's holders and the trust figures: wait for the Creator's and the snipers'.
+    await expect(page.getByRole("list", { name: "Before you buy" }).getByRole("listitem")).not.toHaveCount(0);
+    await snap(page, `${name}.png`, coinMask);
+  });
+}
+
+test("coin not found", async ({ page }) => {
+  // A valid address no coin has.
+  await page.goto("/coin/11111111111111111111111111111112");
+  await expect(page.getByRole("heading", { name: "This coin isn't here." })).toBeVisible();
+  await snap(page, "coin-not-found.png");
+});
+
+// The records on the seeded stack (#11): the seed's Fee Collector run is on the Ledger, the Flywheel has a graduated coin
+// to pick, and the fee changes are in each of their states. The Burn itself runs in the flows, so no coin's page moves here.
+test.describe("the records", () => {
+  /** The daily bars split at UTC midnight, and a sweep's amount wavers by a few lamports between runs (CLAUDE.md, Traps). */
+  const recordsMask = (page: Page) => [...dynamic(page), page.locator("[data-bars]"), page.locator("[data-wavers]").filter({ visible: true })];
+
+  test("stats", async ({ page }) => {
+    await page.goto("/revenue");
+    await expect(page.getByRole("region", { name: "Figures" }).getByRole("term")).toHaveText(["Revenue, all time", "Sent to Creators", "Of revenue to the Burn"]);
+    await expect(page.getByRole("heading", { name: "Daily revenue" })).toBeVisible();
+    const ledger = page.getByRole("table", { name: "Ledger" });
+    await expect(ledger.locator("tbody tr").first()).toBeVisible();
+    await expect(ledger.locator('tbody tr[data-kind="sweep"]').first()).toBeVisible();
+    await snap(page, "revenue-seeded.png", recordsMask);
+  });
+
+  test("burns", async ({ page }) => {
+    await page.goto("/burns");
+    await expect(page.getByRole("region", { name: "Figures" }).getByRole("term")).toHaveText(["Revenue so far"]);
+    await expect(page.getByRole("region", { name: "The Flywheel's next picks" }).getByRole("link")).toHaveText(["GOWN"]);
+    await snap(page, "burns-seeded.png");
+  });
+
+  test("fee changes", async ({ page }) => {
+    await page.goto("/announcements");
+    const changes = page.getByRole("list", { name: "Fee changes" }).getByRole("listitem");
+    await expect(changes).toHaveCount(3);
+    // Newest effective date first: announced a month ahead, due and waiting for the admin, applied.
+    await expect(changes.nth(0)).toContainText("Announced");
+    await expect(changes.nth(1)).toContainText("Due");
+    await expect(changes.nth(2).getByRole("link", { name: "Applied" })).toBeVisible();
+    await snap(page, "announcements-seeded.png");
+  });
+});
+
+// Holder rewards looked up for the seeded Reward Launch's one holder (#12): the round the seed's Reward Engine run paid,
+// in SOL, linked to its transaction.
+test("rewards of a wallet", async ({ page }) => {
+  const holder = REWARD_HOLDER.publicKey.toBase58();
+  await page.goto(`/rewards?wallet=${holder}`);
+  await expect(page.getByRole("textbox", { name: "Wallet address" })).toHaveValue(holder);
+  const rows = page.getByRole("table", { name: "Rewards" }).getByRole("row");
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText("YLD");
+  await expect(rows.first().getByRole("link", { name: /SOL$/ })).toHaveAttribute("href", /\/tx\//);
+  await page.getByRole("textbox", { name: "Wallet address" }).blur();
+  await snap(page, "rewards-wallet.png");
+});
+
+// The launch form filled in by a connected Creator: the picture, the name and ticker with Copy Protection's verdicts, a
+// Reward Launch, a link and a First Buy, with the summary following every field.
+test("launch filled", async ({ page, wallet }) => {
+  await page.goto("/launch");
+  const summary = page.getByRole("complementary", { name: "Launch summary" });
+  await connectTestWallet(page, summary.getByRole("button", { name: "Connect wallet" }));
+  const form = page.getByRole("form", { name: "Stoke a coin" });
+  await form.getByLabel("Add image").setInputFiles({ name: "TRCR.png", mimeType: "image/png", buffer: coinImage("TRCR") });
+  await form.getByRole("textbox", { name: "Name" }).fill("Tracer Bullet");
+  await form.getByRole("textbox", { name: "Ticker" }).fill("TRCR");
+  await form.getByRole("textbox", { name: "Description" }).fill("A coin for the first shot that shows where the rest will land.");
+  await form.getByRole("radiogroup", { name: "Launch type" }).locator("label").filter({ hasText: "paid in the coin" }).click();
+  await form.getByRole("textbox", { name: "Telegram" }).fill("https://t.me/tracerbullet");
+  await form.getByLabel("First buy").fill("0.25");
+  // The copy check's verdicts and the First Buy's quote arrive from the API: wait for every one before the shot.
+  for (const field of ["name", "symbol", "image"]) await expect(page.locator(`[data-copy="${field}"]`)).toBeVisible();
+  await expect(summary.getByText(/^[\d,]+ TRCR \([\d.]+%\)$/)).toBeVisible();
+  await expect(summary.getByRole("button", { name: "Stoke TRCR" })).toBeEnabled();
+  await form.getByLabel("First buy").blur();
+  expect(wallet.requests).toHaveLength(0);
+  await snap(page, "launch-filled.png");
+});
+
+// The connected wallet's pages and the operator console on the seeded stack (#13).
+test.describe("the connected wallet's pages", () => {
+  /** A coin's trend line and a chart are not on these pages; the pictures and amounts are fixed by the seed. */
+  for (const [name, who, symbols] of [
+    ["creator-seeded.png", SEED_CREATOR, ["Earned in SOL", "Earned in USDC"]],
+    ["creator-airdrops.png", AIRDROP_CREATOR, ["Earned in SOL"]],
+  ] as const) {
+    test(name, async ({ page }) => {
+      await installTestWallet(page, who);
+      await page.goto("/creator");
+      await connectTestWallet(page, page.getByRole("main").getByRole("button", { name: "Connect wallet" }));
+      await expect(page.getByRole("region", { name: "Earned" }).getByRole("term")).toHaveText([...symbols]);
+      await expect(page.getByRole("table", { name: "Payments" })).toBeVisible();
+      await snap(page, name);
+    });
+  }
+
+  test("reward-round.png", async ({ page }) => {
+    const holder = REWARD_HOLDER.publicKey.toBase58();
+    const { rewards } = WalletRewards.parse(await (await fetch(`${stackEnv().apiUrl}/v1/wallets/${holder}/rewards`)).json());
+    await page.goto(`/rewards/rounds/${rewards[0]!.round}`);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("YLD round");
+    await expect(page.getByRole("table", { name: "Payouts" }).locator("tbody tr")).not.toHaveCount(0);
+    await snap(page, "reward-round.png");
+  });
+
+  test("operator-console.png", async ({ page }) => {
+    await page.goto("/operator");
+    const signIn = page.getByRole("form", { name: "Open the console" });
+    await signIn.getByLabel("Operator token").fill(stackEnv().operatorToken);
+    await signIn.getByRole("button", { name: "Open" }).click();
+    await expect(page.getByRole("heading", { name: "At a glance" })).toBeVisible();
+    await expect(page.getByRole("table", { name: "Announced fee changes" }).locator("tbody tr")).toHaveCount(3);
+    await expect(page.getByRole("table", { name: "Allowed Creators" }).locator("tbody tr")).toHaveCount(1);
+    // What the jobs did and the alerts they raised follow their timing, and the uploads land when Turbo answers: masked.
+    await snap(page, "operator-console.png", (p) => [...dynamic(p), p.locator("[data-varies]")]);
+  });
 });

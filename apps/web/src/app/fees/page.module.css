@@ -1,0 +1,14 @@
+/* Fees (the spec's .fee-list): one entry per fee, its name and figure on one line, then what it is and the four facts. */
+.list > li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 32px; padding: 24px 0; border-top: 1px solid var(--line); }
+.list > li:first-child { border-top: 0; padding-top: 0; }
+.list h3 { font: var(--font-subheading); }
+.amount { font: var(--font-subheading); text-align: right; }
+.list p { grid-column: 1 / -1; color: var(--ink-2); font-size: var(--text-ui); line-height: 1.6; }
+.list dl { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px 24px; margin-top: 4px; font-size: var(--text-small); }
+.list dt { color: var(--ink-3); }
+.share { padding-block: clamp(28px, 4vw, 44px) 0; }
+@media (max-width: 640px) {
+  /* A long name and its figure don't share a phone's line: the figure goes under the name. */
+  .list > li { grid-template-columns: minmax(0, 1fr); }
+  .amount { text-align: left; }
+}

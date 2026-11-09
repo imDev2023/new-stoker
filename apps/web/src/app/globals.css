@@ -6,52 +6,97 @@
    ========================================================================== */
 
 /* Tokens ------------------------------------------------------------------ */
+/* E Furnace, the owner's pick on #26 (2026-11-06): a sage page in near-black ink, and the band, the dark of the mark's
+   tile, under the header, the pulse strip, the home page's hero and figures, the invitation, the footer and the phone
+   bar, where the ring glows. The heat ramp is the ring's alone (components/Ring.tsx, --ring); everything else the heat
+   painted ("You do.", the Creator's half, a curve's progress, a coin's letter tile) takes a ramp of the gold. Every text
+   role passes AA and APCA on every ground it sits on, the band's included (scripts/contrast.mjs; the lifts from the
+   Playground's palette are listed in docs/design/principles.md). */
 :root {
   color-scheme: light dark;
-  --paper: #f6f4ef;
-  --surface: #fdfcf9;
-  --sunken: #efece5;
-  --line: rgb(20 18 14 / 14%);
-  --line-strong: rgb(20 18 14 / 22%);
-  --ink: #14130f;
-  /* The spec's #5f5b52, #8a857a and #9a6a24, darkened in the same hue, and its 11% hairline, raised, to pass AA and
-     APCA (scripts/contrast.mjs; docs/design/principles.md lists each lift). */
-  --ink-2: #58544b;
-  --ink-3: #746f65;
-  --gold: #8f6017;
-  --button: #14130f;
-  --on-button: #f6f4ef;
-  --up: #2c7a52;
-  --down: #b0412f;
-  --heat-from: #ff5a1f;
-  --heat-to: #ffb020;
+  --paper: #eef1ea;
+  --surface: #fafbf8;
+  --sunken: #e3e7dd;
+  --line: rgb(17 20 15 / 15%);
+  --line-strong: rgb(17 20 15 / 23%);
+  --ink: #11140f;
+  --ink-2: #464c41;
+  --ink-3: #5c6357;
+  --gold: #825810;
+  --button: #11140f;
+  --on-button: #eef1ea;
+  --up: #1d7346;
+  --down: #ac3a2a;
+  --heat-from: #7a500d;
+  --heat-to: #a8771f;
   --heat: linear-gradient(60deg, var(--heat-from), var(--heat-to));
-  --on-heat: #241005;
-  --scrim: rgb(20 18 14 / 40%);
-  --shadow: 0 1px 0 rgb(20 18 14 / 4%), 0 12px 32px -18px rgb(20 18 14 / 22%);
+  --on-heat: #fffaf0;
+  --scrim: rgb(17 20 15 / 40%);
+  /* The band: dark in both schemes. A piece drawn on it (.on-band) re-sets the page's tokens to these, so every
+     primitive inside works unchanged. */
+  --band: #0f130e;
+  --band-raised: #1a1f18;
+  --on-band: #eef1ea;
+  --on-band-2: #b3bcac;
+  --band-line: rgb(238 241 234 / 13%);
+  --band-line-strong: rgb(238 241 234 / 24%);
+  --band-gold-from: #c9973f;
+  --band-gold-to: #e9c47c;
+  --band-button: #eef1ea;
+  --on-band-button: #0f130e;
+  /* The mark's own heat, on the ring and nowhere else but its echoes (the trust list's rings, the glow behind it). */
+  --ring-from: #ff5a1f;
+  --ring-to: #ffb020;
+  --ring: linear-gradient(60deg, var(--ring-from), var(--ring-to));
+  --glow: radial-gradient(closest-side, rgb(255 110 40 / 17%), transparent);
+  --glow-mark: drop-shadow(0 0 26px rgb(255 120 40 / 42%));
+  --glow-mark-sm: drop-shadow(0 0 22px rgb(255 120 40 / 40%));
+  /* A dark tile in both schemes, for what draws its own light text whatever the page's scheme (Jupiter's swap): the dark
+     scheme's surface, ink, third ink and hairline, never redefined under dark. */
+  --tile: #141712;
+  --on-tile: #eef1ea;
+  --on-tile-2: #b2b9aa;
+  --tile-line: rgb(236 241 232 / 12%);
+  --shadow: 0 1px 0 rgb(17 20 15 / 4%), 0 12px 32px -18px rgb(17 20 15 / 22%);
   --shadow-control: 0 1px 2px rgb(0 0 0 / 8%);
-  --shadow-overlay: 0 1px 0 rgb(20 18 14 / 4%), 0 24px 64px -24px rgb(20 18 14 / 40%);
+  --shadow-overlay: 0 1px 0 rgb(17 20 15 / 4%), 0 24px 64px -24px rgb(17 20 15 / 40%);
 
-  /* Families: a serif for statements, a sans for anything read or acted on, and a mono for code and addresses. */
-  --serif: var(--font-instrument-serif), "Iowan Old Style", Georgia, serif;
-  --sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
-  --mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  /* Families: a wide grotesk for headlines and figures, a sans for anything read or acted on, and a mono for code and
+     addresses (layout.tsx loads them; each family lists its latin-ext file first, fetched only when a page needs it). */
+  --display: var(--font-archivo-ext), var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --sans: var(--font-albert-ext), var(--font-albert), ui-sans-serif, system-ui, sans-serif;
+  --mono: var(--font-dm-mono-ext), var(--font-dm-mono), ui-monospace, monospace;
 
-  /* Type roles. A module sets `font` from a --font-* role or `font-size` from a --text-* step, never a literal. */
-  --font-display: 400 clamp(52px, 9.5vw, 120px) / .95 var(--serif);
-  --font-h1: 400 clamp(40px, 6vw, 68px) / 1 var(--serif);
-  --font-title: 400 clamp(32px, 4.4vw, 52px) / 1.02 var(--serif);
-  --font-statement: 400 clamp(34px, 5vw, 60px) / 1.08 var(--serif);
-  --font-figure: 400 clamp(36px, 4.4vw, 52px) / 1 var(--serif);
-  --font-lead: 400 clamp(22px, 2.6vw, 28px) / 1.35 var(--serif);
-  --font-doc-heading: 400 30px / 1.15 var(--serif);
-  --font-section: 400 28px / 1.1 var(--serif);
-  --font-heading: 400 26px / 1.15 var(--serif);
-  --font-subheading: 400 24px / 1.2 var(--serif);
-  --font-brand: 400 25px / 1 var(--serif);
+  /* Type roles. A module sets `font` from a --font-* role or `font-size` from a --text-* step, never a literal. Archivo
+     is drawn heavy and semi-expanded (the brand expanded), sized for its width: it runs half again as wide as the
+     condensed serif it replaced at one size. */
+  --font-display: 820 semi-expanded clamp(40px, 6.4vw, 82px) / 1 var(--display);
+  --font-h1: 780 semi-expanded clamp(32px, 4.1vw, 48px) / 1.04 var(--display);
+  --font-title: 780 semi-expanded clamp(26px, 3vw, 36px) / 1.08 var(--display);
+  --font-statement: 740 semi-expanded clamp(26px, 3.3vw, 40px) / 1.12 var(--display);
+  --font-figure: 780 semi-expanded clamp(28px, 3.1vw, 38px) / 1 var(--display);
+  --font-lead: 400 clamp(19px, 2vw, 22px) / 1.45 var(--sans);
+  --font-doc-heading: 740 semi-expanded 23px / 1.2 var(--display);
+  --font-section: 740 semi-expanded 20px / 1.15 var(--display);
+  --font-heading: 700 19px / 1.2 var(--display);
+  --font-subheading: 700 18px / 1.25 var(--display);
+  --font-brand: 860 expanded 17px / 1 var(--display);
   --font-label: 600 15px / 1.3 var(--sans);
+  /* A coin's page: its pair as the title, and its price beside it (the spec's .coin-head h1 and .coin-price b). */
+  --font-coin: 820 semi-expanded clamp(28px, 3.7vw, 42px) / 1 var(--display);
+  --font-price: 780 semi-expanded clamp(24px, 3vw, 32px) / 1 var(--display);
+  /* A figure in a row of small ones, such as a chart's market cap and volume (the spec's .inline-stats dd). */
+  --font-stat: 500 17px / 1.3 var(--sans);
+  /* The home page's pair, the coin and the asset it is priced in, in a pill under the headline. */
+  --font-pair: 500 clamp(17px, 2vw, 20px) / 1 var(--sans);
   --font-control: 500 14px / 1 var(--sans);
   --font-code: 400 13.5px / 1.6 var(--mono);
+  /* A group's heading inside a table (the assets directory's kinds, the spec's tr.group). */
+  --font-group: 740 semi-expanded 17px / 1 var(--display);
+  /* An asset's letter on the asset page's 88px tile, where it has no logo (the spec's .tile-xl). */
+  --font-tile-xl: 780 38px / 1 var(--display);
+  /* A monogram on a 16px badge: an asset's first letter where it has no logo. */
+  --text-tiny: 10px;
   --text-micro: 12px;
   --text-caption: 13px;
   --text-small: 14px;
@@ -59,6 +104,8 @@
   --text-body: 16px;
   --text-prose: 17px;
   --text-lede: 18px;
+  /* The letter on a 64px tile. */
+  --text-tile-lg: 34px;
 
   /* Shape and motion. */
   --shell: 1120px;
@@ -76,29 +123,40 @@
   --dur-fast: .15s;
   --dur: .2s;
   --dur-slow: .3s;
+  /* One full turn of a cycling piece (the home page's pair roll), held still under reduced motion. */
+  --dur-cycle: 12s;
   --rule: linear-gradient(var(--line), var(--line)) top center / calc(100% - 2 * var(--gutter)) 1px no-repeat;
 }
 
 /* Dark follows the system unless the visitor chose (the account menu's toggle sets data-theme); an explicit choice
    wins either way, so the dark block is written twice and scripts/contrast.mjs fails the lint if the copies differ.
-   The spec's dark inks (#a8a399, #78746b, #d6a95c, #5cc28b, #e2725f) are lifted in the same hue to pass APCA. */
+   The band only lifts a little in dark, enough to stand off the darker page. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --paper: #0c0c0d;
-    --surface: #141415;
-    --sunken: #09090a;
-    --line: rgb(242 239 232 / 9%);
-    --line-strong: rgb(242 239 232 / 18%);
-    --ink: #f2efe8;
-    --ink-2: #d1ccc2;
-    --ink-3: #b7b2a9;
+    --paper: #0b0d0a;
+    --surface: #141712;
+    --sunken: #080a07;
+    --line: rgb(236 241 232 / 9%);
+    --line-strong: rgb(236 241 232 / 18%);
+    --ink: #eef1ea;
+    --ink-2: #ced4c7;
+    --ink-3: #b2b9aa;
     --gold: #deb164;
-    --button: #f2efe8;
-    --on-button: #0c0c0d;
+    --button: #eef1ea;
+    --on-button: #0b0d0a;
     --up: #60c68f;
     --down: #ff9d88;
+    --heat-from: #c9973f;
+    --heat-to: #e9c47c;
+    --on-heat: #1a1206;
     --scrim: rgb(0 0 0 / 60%);
+    --band: #171e15;
+    --band-raised: #1f271c;
+    --on-band: #eef1ea;
+    --on-band-2: #b8c1b0;
+    --band-line: rgb(238 241 234 / 12%);
+    --band-line-strong: rgb(238 241 234 / 22%);
     --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
     --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
     --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
@@ -106,20 +164,29 @@
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #0c0c0d;
-  --surface: #141415;
-  --sunken: #09090a;
-  --line: rgb(242 239 232 / 9%);
-  --line-strong: rgb(242 239 232 / 18%);
-  --ink: #f2efe8;
-  --ink-2: #d1ccc2;
-  --ink-3: #b7b2a9;
+  --paper: #0b0d0a;
+  --surface: #141712;
+  --sunken: #080a07;
+  --line: rgb(236 241 232 / 9%);
+  --line-strong: rgb(236 241 232 / 18%);
+  --ink: #eef1ea;
+  --ink-2: #ced4c7;
+  --ink-3: #b2b9aa;
   --gold: #deb164;
-  --button: #f2efe8;
-  --on-button: #0c0c0d;
+  --button: #eef1ea;
+  --on-button: #0b0d0a;
   --up: #60c68f;
   --down: #ff9d88;
+  --heat-from: #c9973f;
+  --heat-to: #e9c47c;
+  --on-heat: #1a1206;
   --scrim: rgb(0 0 0 / 60%);
+  --band: #171e15;
+  --band-raised: #1f271c;
+  --on-band: #eef1ea;
+  --on-band-2: #b8c1b0;
+  --band-line: rgb(238 241 234 / 12%);
+  --band-line-strong: rgb(238 241 234 / 22%);
   --shadow: 0 1px 0 rgb(255 255 255 / 3%) inset, 0 16px 40px -20px rgb(0 0 0 / 70%);
   --shadow-control: 0 1px 2px rgb(0 0 0 / 40%);
   --shadow-overlay: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 24px 64px -24px rgb(0 0 0 / 80%);
@@ -127,6 +194,33 @@
 :root[data-theme="light"] {
   color-scheme: light;
 }
+
+/* The band: a stretch of the page drawn on the mark's dark tile. The page's tokens are re-set inside it, so every
+   primitive keeps its role; a token computed from others (--heat, --rule) is computed where it is declared, so it is
+   declared again here, or it would keep the page's colours. .bleed carries a band in the shell's column out to the
+   window's edges: the shadow paints the sides, and the clip keeps it off the bands above and below, a pixel over so
+   two bands that meet at a fractional height show no seam. */
+.on-band {
+  --paper: var(--band);
+  --surface: var(--band-raised);
+  --sunken: var(--band-raised);
+  --ink: var(--on-band);
+  --ink-2: var(--on-band-2);
+  --ink-3: var(--on-band-2);
+  --line: var(--band-line);
+  --line-strong: var(--band-line-strong);
+  --button: var(--band-button);
+  --on-button: var(--on-band-button);
+  --gold: var(--band-gold-to);
+  --heat-from: var(--band-gold-from);
+  --heat-to: var(--band-gold-to);
+  --heat: linear-gradient(60deg, var(--heat-from), var(--heat-to));
+  --on-heat: var(--on-band-button);
+  --rule: linear-gradient(var(--line), var(--line)) top center / calc(100% - 2 * var(--gutter)) 1px no-repeat;
+  background-color: var(--band);
+  color: var(--ink);
+}
+.bleed { box-shadow: 0 0 0 100vmax var(--band); clip-path: inset(-1px -100vmax); }
 
 /* Base -------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
@@ -156,13 +250,15 @@ code, pre { font: var(--font-code); }
 .shell { width: 100%; max-width: calc(var(--shell) + 2 * var(--gutter)); margin-inline: auto; padding-inline: var(--gutter); }
 .heat { background: var(--heat); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .06em; }
 
-/* Type. A serif for statements, the sans for everything you read or act on. */
-.display, h1, h2.title { font-family: var(--serif); font-weight: 400; letter-spacing: -.02em; text-wrap: balance; }
+/* Type. The wide grotesk for statements and figures, the sans for everything you read or act on. */
+.display, h1, h2.title { font-family: var(--display); letter-spacing: -.02em; text-wrap: balance; }
 .display { font: var(--font-display); letter-spacing: -.03em; }
 h1 { font: var(--font-h1); letter-spacing: -.02em; }
 h2.title { font: var(--font-title); letter-spacing: -.02em; }
 h3 { font: var(--font-label); }
 em { font-style: italic; }
+/* A headline's emphasis is its colour ("You do."), never a slant: the display face has no italic. */
+:is(.display, h1, h2.title) em { font-style: normal; }
 .muted { color: var(--ink-2); }
 .num { font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
 .mono { font-family: var(--mono); }
@@ -172,7 +268,7 @@ em { font-style: italic; }
 /* Primitives -------------------------------------------------------------- */
 .button {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  height: 38px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-sm);
+  height: 38px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-pill);
   background: var(--button); color: var(--on-button);
   font: var(--font-control); white-space: nowrap; cursor: pointer;
   transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease), background var(--dur) var(--ease);
@@ -205,8 +301,8 @@ a.chip:hover { border-color: var(--line-strong); }
 .badge-gold { color: var(--gold); background: color-mix(in srgb, var(--gold) 12%, transparent); }
 .badge-warn { color: var(--down); background: color-mix(in srgb, var(--down) 10%, transparent); }
 
-.tile { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--heat); color: var(--on-heat); font: 400 20px / 1 var(--serif); object-fit: cover; }
-.tile-lg { width: 64px; height: 64px; border-radius: var(--radius-lg); font-size: 34px; }
+.tile { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: var(--radius-md); background: var(--heat); color: var(--on-heat); font: 760 20px / 1 var(--display); object-fit: cover; }
+.tile-lg { width: 64px; height: 64px; border-radius: var(--radius-lg); font-size: var(--text-tile-lg); }
 
 .progress { height: 6px; border-radius: var(--radius-pill); background: var(--sunken); overflow: hidden; }
 .progress > span { display: block; height: 100%; width: var(--value, 0%); border-radius: inherit; background: var(--heat); }
@@ -228,7 +324,7 @@ a.chip:hover { border-color: var(--line-strong); }
 .field textarea { height: auto; min-height: 96px; padding: 12px 14px; line-height: 1.5; resize: vertical; }
 .input:focus, .field :is(input, select, textarea):focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 10%, transparent); }
 .amount { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); }
-.amount input { flex: 1; width: 0; min-width: 0; border: 0; background: none; color: var(--ink); font: 400 32px / 1 var(--serif); outline: none; }
+.amount input { flex: 1; width: 0; min-width: 0; border: 0; background: none; color: var(--ink); font: 400 32px / 1 var(--display); outline: none; }
 .amount:focus-within { border-color: var(--ink); }
 .search { position: relative; flex: 1; max-width: 360px; }
 .search input { padding-left: 40px; height: 42px; }
@@ -256,17 +352,16 @@ a.chip:hover { border-color: var(--line-strong); }
 .kv dt { color: var(--ink-2); }
 .kv dd { text-align: right; font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
 
-/* Figures: a row of large numbers with hairlines between. */
-.figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); border-block: 1px solid var(--line); }
-.figures > div { padding: 28px 0 28px 28px; border-left: 1px solid var(--line); }
-.figures > div:first-child { border-left: 0; padding-left: 0; }
+/* Figures: a row of large numbers, each over its name, with room between and no rules (the markup keeps the name first).
+   Equal columns that wrap, two to a row on a phone, and a row that is not full is centred: a page with one figure shows
+   it in the middle, never in the left half of a grid. */
+.figures { display: flex; flex-wrap: wrap; justify-content: center; gap: 28px; text-align: center; }
+.figures > div { display: flex; flex: 1 1 160px; flex-direction: column-reverse; justify-content: flex-end; gap: 10px; }
 .figures dt { font-size: var(--text-small); color: var(--ink-2); }
-.figures dd { margin-top: 8px; font: var(--font-figure); letter-spacing: -.02em; }
+.figures dd { font: var(--font-figure); letter-spacing: -.02em; }
 .figures dd small { margin-left: .25em; font: 500 var(--text-small) / 1 var(--sans); color: var(--ink-3); letter-spacing: 0; }
 @media (max-width: 760px) {
-  .figures { grid-template-columns: 1fr 1fr; }
-  .figures > div, .figures > div:first-child { padding: 22px 0; border-left: 0; }
-  .figures > div:nth-child(n + 3) { border-top: 1px solid var(--line); }
+  .figures > div { flex-basis: calc(50% - 14px); }
 }
 
 /* Every inner page opens the same way: its one title, then the thing itself. */

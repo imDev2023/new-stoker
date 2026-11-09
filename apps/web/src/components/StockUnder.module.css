@@ -1,0 +1,3 @@
+/* The spec's .coin-price .under: a line under the price, in the gold when the token is wide of its stock (from 1%). */
+.under { display: block; margin-top: 6px; font-size: var(--text-caption); color: var(--ink-2); }
+.under.wide { color: var(--gold); }

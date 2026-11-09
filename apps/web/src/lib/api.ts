@@ -1,5 +1,5 @@
 import {
-  API_KEY_HEADER, AirdropStatus, ApiError, ApiKeyList, BurnsPage, CandleList, CoinRewards, CopyCheck, CreatorEarnings, CreatorForwardList, FeeAnnouncement, FeeAnnouncementList, FirstBuyQuote, LaunchPermissions,
+  API_KEY_HEADER, AirdropCreators, AirdropStatus, ApiError, ApiKeyList, BurnsPage, CandleList, CoinRewards, CopyCheck, CreatorEarnings, CreatorForwardList, FeeAnnouncement, FeeAnnouncementList, FirstBuyQuote, LaunchPermissions,
   HolderList, LaunchTrust, IssuedApiKey, LaunchList, LaunchQuoteList, LaunchSummary, LedgerPage, OperatorAlertList, OperatorOverview, PlatformInfo, PlatformStats, PreparedAirdrop,
   PreparedFeeChange, PreparedLaunch, PreparedTrade, QuoteAsset, QuoteAssetList, Revenue, RewardRoundDetail, RewardRulesPage, TradeList,
   Region, RegionGatesView, TradeQuote, WalletRewards,
@@ -155,6 +155,11 @@ export async function getCandles(mint: string, interval: CandleInterval) {
   return read(await apiFetch(`${API_URL}/v1/launches/${encodeURIComponent(mint)}/candles?interval=${interval}`, { cache: "no-store" }), CandleList);
 }
 
+/** A Quote Asset's USD price in hourly candles, from the prices the Quote Registry records (#3): the Stocks pages' lines. */
+export async function getQuoteCandles(mint: string) {
+  return read(await apiFetch(`${API_URL}/v1/quotes/${encodeURIComponent(mint)}/candles?interval=1h`, { cache: "no-store" }), CandleList);
+}
+
 /** A Creator's earnings per Quote Asset and per Launch (ADR 0009); null if the address isn't a valid wallet address. */
 export async function getCreatorEarnings(creator: string): Promise<CreatorEarnings | null> {
   const res = await apiFetch(`${API_URL}/v1/creators/${encodeURIComponent(creator)}/earnings`, { cache: "no-store" });
@@ -172,9 +177,12 @@ export async function getRevenue() {
   return read(await apiFetch(`${API_URL}/v1/revenue`, { cache: "no-store" }), Revenue);
 }
 
+/** How many Ledger entries a page shows at a time (the spec's 20). */
+export const LEDGER_PAGE = 20;
+
 /** A page of the Ledger, newest first; pass the previous page's `next` to go further back. */
 export async function listLedger(before?: string | null) {
-  const query = new URLSearchParams({ limit: "25", ...(before ? { before } : {}) });
+  const query = new URLSearchParams({ limit: String(LEDGER_PAGE), ...(before ? { before } : {}) });
   return read(await apiFetch(`${API_URL}/v1/ledger?${query}`, { cache: "no-store" }), LedgerPage);
 }
 
@@ -269,7 +277,24 @@ export async function revokeApiKey(token: string, id: string) {
   if (!res.ok) throw new ApiRequestError(res.status === 401 ? "unauthorized" : `revoking the key failed (${res.status})`, res.status);
 }
 
-export async function runOperatorJob(token: string, job: "quote-registry" | "fee-collector" | "reward-rounds" | "burn" | "metadata-upload") {
+/** The Creator wallets the operator allows an airdrop at launch; nobody until the operator names one. */
+export async function listAirdropCreators(token: string) {
+  return read(await apiFetch(`${API_URL}/v1/operator/airdrop-creators`, operator(token)), AirdropCreators);
+}
+
+export async function allowAirdropCreator(token: string, wallet: string) {
+  return read(await apiFetch(`${API_URL}/v1/operator/airdrop-creators`, operator(token, { wallet })), AirdropCreators);
+}
+
+export async function disallowAirdropCreator(token: string, wallet: string) {
+  return read(await apiFetch(`${API_URL}/v1/operator/airdrop-creators/${encodeURIComponent(wallet)}`, operator(token, undefined, "DELETE")), AirdropCreators);
+}
+
+/** The jobs the operator can run by hand, as their Cron Triggers would (the graduation watch and the tax lock run on their own). */
+export const MANUAL_JOBS = ["quote-registry", "fee-collector", "creator-forward", "reward-rounds", "burn", "metadata-upload"] as const;
+export type ManualJob = (typeof MANUAL_JOBS)[number];
+
+export async function runOperatorJob(token: string, job: ManualJob) {
   const res = await apiFetch(`${API_URL}/v1/operator/jobs/${job}`, operator(token, {}));
   const body: unknown = await res.json().catch(() => null);
   if (!res.ok && res.status === 401) throw new ApiRequestError("unauthorized", 401);

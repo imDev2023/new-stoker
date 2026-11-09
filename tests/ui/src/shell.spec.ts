@@ -1,5 +1,5 @@
 // The shell's behaviour on the seeded stack: the header and its sections, the phone bar, the footer, the light-or-dark
-// toggle, the wallet, the welcome, the search shortcut, the pulse strip, the legal pages, and the rule that no program
+// toggle, the wallet, the welcome, the pulse strip, the legal pages, and the rule that no program
 // code ever reaches the browser (ADR 0003).
 import { PlatformStats } from "@launchpad/contract";
 import { expect, expectNoHorizontalOverflow, test } from "./fixtures";
@@ -26,16 +26,25 @@ test("the header names the eight sections and marks the one a page belongs to", 
 
 test("just above the phone bar the header keeps to the window, the last two sections waiting for the room", async ({ page }) => {
   const sections = page.getByRole("banner").getByRole("navigation", { name: "Sections" }).getByRole("link");
-  for (const width of [901, 960, 1040]) {
+  // The row can run into the shell's gutter without widening the page, so the actions' edge is held to the shell's column.
+  const insideColumn = () =>
+    page.evaluate(() => {
+      const row = document.querySelector("header .shell")!;
+      const edge = row.getBoundingClientRect().right - parseFloat(getComputedStyle(row).paddingRight);
+      return row.lastElementChild!.getBoundingClientRect().right <= edge + 0.5;
+    });
+  for (const width of [901, 960, 1080]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto("/terms");
     await expect(sections, `${width}px`).toHaveText(SECTIONS.slice(0, 6));
     await expectNoHorizontalOverflow(page);
+    expect(await insideColumn(), `${width}px`).toBe(true);
   }
-  await page.setViewportSize({ width: 1041, height: 800 });
+  await page.setViewportSize({ width: 1081, height: 800 });
   await page.goto("/terms");
   await expect(sections).toHaveText(SECTIONS);
   await expectNoHorizontalOverflow(page);
+  expect(await insideColumn(), "1081px").toBe(true);
 });
 
 test.describe("on a phone", () => {
@@ -81,7 +90,7 @@ test("light or dark: the account menu's toggle holds across a reload", async ({ 
   }).toPass({ timeout: 30_000 });
   await toggle.click();
   await expect(html).toHaveAttribute("data-theme", "dark");
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(12, 12, 13)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(11, 13, 10)");
   expect((await context.cookies()).find((c) => c.name === "scheme")?.value).toBe("dark");
 
   // The server writes the choice, so the page never paints the other scheme first.
@@ -92,7 +101,7 @@ test("light or dark: the account menu's toggle holds across a reload", async ({ 
   await menu.click();
   await page.getByRole("menuitem", { name: "Light mode" }).click();
   await expect(html).toHaveAttribute("data-theme", "light");
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(246, 244, 239)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(238, 241, 234)");
 });
 
 test("the wallet connects from the header and disconnects from its menu", async ({ page, wallet }) => {
@@ -140,25 +149,6 @@ test.describe("a first visit", () => {
     await page.waitForLoadState("networkidle");
     await expect(page.getByRole("button", { name: "Connect wallet" })).toBeEnabled();
     await expect(page.getByRole("dialog")).toHaveCount(0);
-  });
-});
-
-test.describe("the search shortcut", () => {
-  // The board is #6: until it lands, /coins is the 404 page, whose load the browser reports.
-  test.use({ expectedHttpErrors: [/\/coins/] });
-
-  test("'/' and ⌘K open the board's search from any page", async ({ page }) => {
-    await page.goto("/terms");
-    await expect(page.getByRole("heading", { level: 1, name: "Terms of use" })).toBeVisible();
-    await page.waitForLoadState("networkidle");
-    await expect(async () => {
-      await page.keyboard.press("/");
-      await expect(page).toHaveURL(/\/coins#search$/, { timeout: 1_000 });
-    }).toPass({ timeout: 30_000 });
-    await page.goto("/risk");
-    await page.waitForLoadState("networkidle");
-    await page.keyboard.press("ControlOrMeta+k");
-    await expect(page).toHaveURL(/\/coins#search$/);
   });
 });
 

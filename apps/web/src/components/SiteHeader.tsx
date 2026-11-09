@@ -5,10 +5,10 @@ import { NavLinks } from "./NavLinks";
 import { WalletButton } from "./WalletButton";
 import styles from "./SiteHeader.module.css";
 
-/** The header of every page (docs/design/playground/src/layout.html). */
+/** The header of every page (docs/design/playground/src/layout.html), on the band. */
 export function SiteHeader() {
   return (
-    <header className={styles.bar}>
+    <header className={`on-band ${styles.bar}`}>
       <div className={`shell ${styles.row}`}>
         <Brand />
         <nav className={styles.nav} aria-label="Sections">

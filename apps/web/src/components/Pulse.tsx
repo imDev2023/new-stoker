@@ -19,7 +19,7 @@ export function Pulse({ stats }: { stats: PlatformStats | null }) {
   ].filter((item): item is [string, string] => item[1] !== null);
   if (home || items.length === 0) return null;
   return (
-    <div className={styles.pulse} data-pulse>
+    <div className={`on-band ${styles.pulse}`} data-pulse>
       <dl className={`shell ${styles.row}`} aria-label="Platform now" data-scrolls>
         {items.map(([term, value]) => (
           <div key={term}>

@@ -9,6 +9,7 @@ import { divide, formatDecimal, graduationTargetRaw, type Decimal, type QuoteMar
 import { quoteCategory, quoteIssuer } from "./categories";
 import { listLabels, mintLabels, sortLabels, tickerOf } from "./labels";
 import { bandOf, ruleUpdate } from "./rules";
+import { recordQuotePrices } from "./history";
 import { refreshPlatformFees } from "../routes/operator";
 
 export type RefreshDeps = { db: Db; cfg: Config; market: QuoteMarket; operations: Keypair };
@@ -29,16 +30,16 @@ export async function refreshQuoteRegistry({ db, cfg, market, operations }: Refr
     return mint ? [{ config, mint, isSol: config.quoteMint.equals(WSOL_MINT) }] : [];
   });
 
-  const usd = await market.usdPrices(quotes.map((q) => q.mint.mint.toBase58()));
-  const solUsd = usd.get(WSOL_MINT.toBase58()) ?? null;
+  const prices = await market.prices(quotes.map((q) => q.mint.mint.toBase58()));
+  const solUsd = prices.get(WSOL_MINT.toBase58())?.usd ?? null;
   const lamports = BigInt(cfg.graduationTargetLamports.toString());
   const pricedAt = new Date();
   const priced = quotes.map((q) => {
-    const quoteUsd = q.isSol ? solUsd : usd.get(q.mint.mint.toBase58()) ?? null;
+    const quoteUsd = q.isSol ? solUsd : prices.get(q.mint.mint.toBase58())?.usd ?? null;
     // SOL is worth exactly one SOL whatever the market says; everything else is priced through USD.
     const priceSol: Decimal | null = q.isSol ? { digits: 1n, scale: 0 } : quoteUsd && solUsd ? divide(quoteUsd, solUsd) : null;
     const target = q.isSol ? lamports : quoteUsd && solUsd ? graduationTargetRaw(lamports, q.mint.decimals, quoteUsd, solUsd) : null;
-    return { ...q, quoteUsd, priceSol, target };
+    return { ...q, quoteUsd, priceSol, target, stock: prices.get(q.mint.mint.toBase58())?.stock ?? null };
   });
 
   const globalConfigs = priced.map((q) => q.config.address);
@@ -97,6 +98,8 @@ export async function refreshQuoteRegistry({ db, cfg, market, operations }: Refr
       labels: sortLabels([...mintLabels(q.mint, ticker), ...listLabels(listings.get(mint), ticker, market.listName)]),
       labelsSlot: mintsSlot,
       labelsCheckedAt: pricedAt,
+      stockPriceUsd: q.stock ? formatDecimal(q.stock.usd) : null,
+      stockPriceAt: q.stock?.at ?? null,
       refreshedAt: pricedAt,
     };
   });
@@ -115,12 +118,16 @@ export async function refreshQuoteRegistry({ db, cfg, market, operations }: Refr
       },
     });
   }
+  // The day's change and the candles on each Quote Asset are measured from these records (#3).
+  await recordQuotePrices(db, pricedAt, rows.flatMap((r) => (r.priceUsd ? [{ mint: r.mint, usd: r.priceUsd }] : [])));
   // The quote mints are not added to the Helius webhook: watching a mint delivers every transaction that names it,
   // which for SOL or USDC is much of the chain. This refresh re-reads every mint's labels instead (runbook, section 7).
   // What landed and what didn't, so the summary says what the chain now has rather than what the run meant to write.
   return {
     quoteAssets: rows.length,
     priced: rows.filter((r) => r.priceSol).length,
+    // Tokenized stocks the price source gave the tracked stock's price for.
+    stockPrices: rows.filter((r) => r.stockPriceUsd).length,
     // GlobalConfigs that had no rule account when the run began (unrestricted until this run's write landed).
     rulesMissing: writes.filter((w) => w.missing).length,
     ruleWrites: sent.landed,

@@ -1,0 +1,45 @@
+/* The pair, everywhere a coin appears: its picture with the asset's badge, and the asset in the accent. */
+.tile {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.badge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: flex;
+  padding: 2px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.asset {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font: 400 var(--text-tiny) / 1 var(--display);
+  object-fit: cover;
+}
+
+.quote {
+  color: var(--gold);
+  font-weight: inherit;
+}
+
+/* On a coin's own page the tile is 64px and its badge grows with it (the spec's .tile-lg + .pair-badge). */
+.large .badge {
+  right: -6px;
+  bottom: -6px;
+}
+
+.large .asset {
+  width: 26px;
+  height: 26px;
+  font: 400 var(--text-ui) / 1 var(--display);
+}

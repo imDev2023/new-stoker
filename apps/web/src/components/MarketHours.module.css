@@ -1,0 +1,7 @@
+/* The spec's .hours, .hours-row and .dot: the US market's state beside Solana's, a dot for each. */
+.hours { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; font-size: var(--text-small); }
+.hours > span { display: inline-flex; align-items: center; gap: 8px; }
+.hours b { font-weight: 600; }
+.row { margin: -12px 0 28px; }
+.dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+.open { background: var(--up); box-shadow: 0 0 0 3px color-mix(in srgb, var(--up) 18%, transparent); }

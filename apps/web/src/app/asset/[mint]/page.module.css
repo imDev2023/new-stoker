@@ -1,0 +1,21 @@
+/* One asset's page: the spec's .coin-head, .coin-grid and .asset-actions. */
+.head { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding-block: clamp(36px, 6vw, 64px) 28px; }
+.ticker { font: var(--font-title); letter-spacing: -.02em; overflow-wrap: anywhere; }
+.head > div { min-width: 0; overflow-wrap: anywhere; }
+.actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px 24px; flex-wrap: wrap; margin-left: auto; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; padding-bottom: 64px; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.aside { position: sticky; top: 88px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+
+/* Under 960px one column: the head, the chart, the facts, then the rest (the spec's phone order). */
+@media (max-width: 960px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .main, .aside { display: contents; }
+  .main > :first-child { order: -2; }
+  .aside > :first-child { order: -1; }
+}
+
+@media (max-width: 640px) {
+  .actions { justify-content: flex-start; margin-left: 0; width: 100%; }
+}

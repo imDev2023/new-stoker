@@ -85,11 +85,31 @@ const PAIRS = [
   ["on-button", ["button"], 4.5, 60],
   // A coin's monogram on the heat tile is a glyph on a fill, which production's guard held to 3:1 and Lc 45.
   ["on-heat", ["heat-from", "heat-to"], 3, 45],
+  // An asset's monogram on its badge, the paper on an ink disc, is a glyph on a fill too.
+  ["paper", ["ink"], 3, 45],
+  // The dark tile is the same in both schemes (Jupiter's swap sits on it).
+  ["on-tile", ["tile"], 4.5, 75],
+  ["on-tile-2", ["tile"], 4.5, 60],
+];
+/**
+ * The band's own roles (globals.css, `.on-band`), the same floors as the page's: inside a band the page's tokens are
+ * re-set to these, so the header, the pulse strip, the home page's hero, figures and invitation, the footer and the phone
+ * bar are held to them. "You do." in the band's gold at a headline's size takes the large-text floor; a monogram on the
+ * gold ramp is a glyph on a fill.
+ */
+const BAND_PAIRS = [
+  ["on-band", ["band", "band-raised"], 4.5, 75],
+  ["on-band-2", ["band", "band-raised"], 4.5, 60],
+  ["band-gold-from", ["band"], 3, 45],
+  ["band-gold-to", ["band", "band-raised"], 4.5, 60],
+  ["on-band-button", ["band-button"], 4.5, 60],
+  ["on-band-button", ["band-gold-from", "band-gold-to"], 3, 45],
 ];
 /** Hairlines want Lc 15 against the light grounds they sit on (production's floor; dark hairlines are not held to it). */
 const LINES = [["line", ["paper", "surface", "sunken"], 15]];
 
-for (const [mode, vars] of [["light", { ...light }], ["dark", { ...light, ...darkMedia }]]) {
+/** Every text role and hairline of one palette, as the page would draw it, against the floors. */
+function check(mode, vars, hairlines, pairs = PAIRS) {
   const colour = (name) => {
     const mix = name.match(/^mix:([\w-]+):(\d+)$/);
     if (mix) {
@@ -101,7 +121,7 @@ for (const [mode, vars] of [["light", { ...light }], ["dark", { ...light, ...dar
     return c ? over(c, rgba(vars.paper)) : null;
   };
   const rows = [];
-  for (const [fg, grounds, aa, lc] of PAIRS) {
+  for (const [fg, grounds, aa, lc] of pairs) {
     for (const ground of grounds) {
       const t = colour(fg);
       const b = colour(ground);
@@ -116,7 +136,7 @@ for (const [mode, vars] of [["light", { ...light }], ["dark", { ...light, ...dar
       rows.push(`${fg} on ${ground} ${r.toFixed(2)}:1 Lc ${l.toFixed(0)}`);
     }
   }
-  if (mode === "light") {
+  if (hairlines) {
     for (const [line, grounds, lc] of LINES) {
       for (const ground of grounds) {
         const b = colour(ground);
@@ -128,6 +148,11 @@ for (const [mode, vars] of [["light", { ...light }], ["dark", { ...light, ...dar
   }
   console.log(`${mode}: ${rows.join(", ")}`);
 }
+
+check("light", { ...light }, true);
+check("dark", { ...light, ...darkMedia }, false);
+check("band light", { ...light }, false, BAND_PAIRS);
+check("band dark", { ...light, ...darkMedia }, false, BAND_PAIRS);
 
 console.log(failed ? `\n${failed} pair(s) under the floors` : "\nevery text role passes AA and APCA on every ground it sits on, in light and dark");
 process.exit(failed ? 1 : 0);

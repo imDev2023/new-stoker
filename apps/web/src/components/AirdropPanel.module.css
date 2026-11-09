@@ -1,0 +1,12 @@
+/* One coin's airdrop: its pair and count over the progress, the Send button, then the wallets. */
+.airdrop { overflow: hidden; }
+.head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px 16px; }
+.head h3 { font: var(--font-heading); letter-spacing: -.01em; overflow-wrap: anywhere; }
+.count { color: var(--ink-2); font-size: var(--text-small); white-space: nowrap; }
+.progress { grid-column: 1 / -1; }
+.send { grid-column: 1 / -1; justify-self: start; }
+/* Every airdrop's table has its columns in the same place, whatever its statuses say. */
+.airdrop table { table-layout: fixed; }
+.airdrop th:nth-child(2), .airdrop td:nth-child(2) { width: 34%; }
+.airdrop th:nth-child(3), .airdrop td:nth-child(3) { width: 26%; }
+.error { grid-column: 1 / -1; color: var(--down); font-size: var(--text-small); }

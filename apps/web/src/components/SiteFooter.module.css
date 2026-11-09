@@ -1,8 +1,7 @@
+/* The footer of every page, on the band (`.on-band` paints it). */
 .foot {
   margin-top: auto;
   padding-block: 56px 40px;
-  border-top: 1px solid var(--line);
-  background: var(--sunken);
   font-size: var(--text-small);
 }
 

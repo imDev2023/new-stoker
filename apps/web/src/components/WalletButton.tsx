@@ -30,7 +30,10 @@ export function Avatar({ address, size = 22 }: { address: string; size?: number 
  * short address once connected, each opening a menu that also holds the light-or-dark toggle (production's place for
  * it since imDev2023/Stoker-Markets#131). Wallets are found through the Wallet Standard, so none is bundled.
  */
-export function WalletButton() {
+export function WalletButton({ block = false }: {
+  /** The trade panel's own "Connect wallet": the panel's width and height, its menu opening under it, with no scheme toggle. */
+  block?: boolean;
+} = {}) {
   const { wallets, wallet, publicKey, connecting, select, connect, disconnect } = useWallet();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
@@ -38,11 +41,13 @@ export function WalletButton() {
   const installed = wallets.filter((w) => w.readyState === WalletReadyState.Installed || w.readyState === WalletReadyState.Loadable);
 
   // The earnings page is a Creator's own (owner, 2026-10-08): the menu offers it only to a wallet that has launched a
-  // coin here, which is asked once per connected wallet.
+  // coin here.
   const address = publicKey?.toBase58() ?? null;
   const [launched, setLaunched] = useState<{ address: string; yes: boolean } | null>(null);
+  // Asked again each time the menu opens until the answer is yes, so a wallet's first launch shows the entry at once.
+  const knownYes = launched?.address === address && launched.yes;
   useEffect(() => {
-    if (!address) return;
+    if (!address || knownYes) return;
     let gone = false;
     listLaunches({ creator: address, limit: 1 })
       .then((list) => {
@@ -52,8 +57,8 @@ export function WalletButton() {
     return () => {
       gone = true;
     };
-  }, [address]);
-  const hasLaunched = launched?.address === address && launched.yes;
+  }, [address, open, knownYes]);
+  const hasLaunched = knownYes;
 
   useEffect(() => {
     if (!open) return;
@@ -82,6 +87,7 @@ export function WalletButton() {
     </div>
   );
 
+  if (publicKey && block) return null;
   if (publicKey) {
     const name = wallet ? `Connected with ${wallet.adapter.name}` : "Wallet";
     return (
@@ -108,8 +114,8 @@ export function WalletButton() {
   }
 
   return (
-    <div className={styles.wrap} ref={menu}>
-      <button type="button" className="button button-ghost" onClick={() => setOpen((o) => !o)} aria-expanded={open} disabled={connecting}>
+    <div className={block ? `${styles.wrap} ${styles.block}` : styles.wrap} ref={menu}>
+      <button type="button" className={block ? "button button-lg button-block" : "button button-ghost"} onClick={() => setOpen((o) => !o)} aria-expanded={open} disabled={connecting}>
         {connecting ? "Connecting…" : "Connect wallet"}
       </button>
       {open && (
@@ -134,7 +140,7 @@ export function WalletButton() {
               </button>
             ))
           )}
-          {toggle}
+          {!block && toggle}
         </div>
       )}
     </div>

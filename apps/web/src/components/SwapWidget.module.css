@@ -1,0 +1,8 @@
+/* Jupiter's swap on the dark tile in both schemes (its own text is white in places), the Plugin's own width. */
+.frame { position: relative; width: 100%; overflow: hidden; border: 1px solid var(--tile-line); border-radius: var(--radius); background: var(--tile); color: var(--on-tile); box-shadow: var(--shadow); }
+.target { width: 100%; }
+
+/* The one line while the Plugin loads, or when it can't, centred in the frame. */
+.status { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; font-size: var(--text-small); color: var(--on-tile-2); }
+.status span { max-width: 44ch; }
+.status a { color: var(--on-tile); text-decoration: underline; text-underline-offset: 3px; }

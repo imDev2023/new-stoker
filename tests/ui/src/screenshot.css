@@ -25,3 +25,37 @@ body {
 [data-tab-bar] {
   position: absolute !important;
 }
+
+/* The Ledger's times ("9m ago", "10m ago") set the width of its last column and so moved every column between runs: in a
+   table cell a time of 100% contributes its text's width to the column, so the Ledger's are given one (#28). */
+table[aria-labelledby="ledger-title"] time {
+  width: 8ch;
+}
+
+/* The launch form's Copy Protection verdicts end on the day a window closes ("Nov 5", "Nov 12"). */
+[data-copy] time {
+  width: 6ch;
+  vertical-align: bottom;
+}
+
+/* Dates ("6 November 2026", "7 November 2026") in content-sized boxes (a key-value row, a table cell, a sentence) took
+   their text's width, so a baseline shot on one day failed on a day whose date set wider (rewards.png and every coin
+   page, 2026-11-07, met by #10 and #13 the same day): every date gets the box of its format's longest text, marked by the
+   format it is drawn with, `formatDate` ("30 September 2026") or `formatUtc` ("Sep 30, 2026, 11:59 PM UTC"). */
+time[data-date] {
+  width: 17ch;
+  vertical-align: bottom;
+}
+
+time[data-utc] {
+  width: 27ch;
+  vertical-align: bottom;
+}
+
+/* The connected wallet's address is drawn afresh every run, and a first letter whose ink starts left of its box (DM
+   Mono's "J", "j") left a pixel outside the mask now and then (menu-connected.png, 2026-11-07): the box, and so the
+   mask, reaches 2px further either side without moving anything. */
+header button .mono {
+  padding-inline: 2px;
+  margin-inline: -2px;
+}

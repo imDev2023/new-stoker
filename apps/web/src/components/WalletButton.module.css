@@ -7,8 +7,11 @@
   padding-left: 8px;
 }
 
+/* A flex item takes the button's line height of 1 as its box, and DM Mono's descenders hang below a box that short:
+   the address keeps a line box of its own, so its glyphs stay inside it (and inside a screenshot's mask, #28). */
 .address {
   font-size: var(--text-caption);
+  line-height: 1.5;
 }
 
 .avatar {
@@ -88,4 +91,11 @@
   margin-top: 6px;
   padding-top: 6px;
   border-top: 1px solid var(--line);
+}
+
+/* The trade panel's button: the panel's width, and its menu as wide under it. */
+.block .menu {
+  left: 0;
+  min-width: 0;
+  max-width: none;
 }

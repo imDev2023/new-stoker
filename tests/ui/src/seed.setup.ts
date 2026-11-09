@@ -3,11 +3,11 @@
 import { test as setup } from "@playwright/test";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import {
-  coinBalance, fund, fundedKeypair, fundQuote, graduate, launchViaApi, payAirdropViaApi, runFeeCollector, runRewardRounds, SEED_CREATOR,
-  SEED_HOLDER, tradeViaApi,
+  announceFeeChange, applyFeeChange, coinBalance, fund, fundedKeypair, fundQuote, graduate, launchViaApi, payAirdropViaApi, runFeeCollector, runRewardRounds, SEED_CREATOR,
+  platformInfo, SEED_HOLDER, tradeViaApi,
   type LaunchFields,
 } from "./fixtures";
-import { AIRDROP_CREATOR, AIRDROP_PAID, AIRDROP_SENDING, REWARD_CREATOR, REWARD_QUOTE } from "./seedData";
+import { AIRDROP_CREATOR, AIRDROP_PAID, AIRDROP_SENDING, REWARD_CREATOR, REWARD_HOLDER, REWARD_QUOTE } from "./seedData";
 
 export const SEEDED: LaunchFields[] = [
   // The traded coin carries a website and both socials, so the coin page's shots show where a coin's links go.
@@ -51,6 +51,9 @@ const TRADES = [
 ] as const;
 
 setup("seed the board", async () => {
+  // Some forty transactions, each confirmed in turn: about 40 s alone, but past the suite's 90 s per test on a Mac busy
+  // with other stacks (a load average of 129 timed it out on 2026-11-07, #13), and every project after it waits on it.
+  setup.setTimeout(300_000);
   // Two coins launched with a First Buy and an Airdrop, one still to send and one paid, by a Creator of their own so the
   // seed Creator's page stays as it is. They go first, so the rest of the board and its latest coin are unchanged.
   await fund(AIRDROP_CREATOR.publicKey, 20);
@@ -59,7 +62,7 @@ setup("seed the board", async () => {
   // A Reward Launch paid in SOL (#43): one holder buys, the Reward Engine sells a slice of the tax and pays the round.
   await fund(REWARD_CREATOR.publicKey, 5);
   const rewardCoin = await launchViaApi(REWARD_CREATOR, REWARD_QUOTE);
-  await tradeViaApi(await fundedKeypair(5), rewardCoin, "buy", BigInt(0.3 * LAMPORTS_PER_SOL));
+  await tradeViaApi(await fundedKeypair(5, REWARD_HOLDER), rewardCoin, "buy", BigInt(0.3 * LAMPORTS_PER_SOL));
   await runRewardRounds();
 
   // One fixed Creator, so the visual tests can open the creator earnings page as that Creator.
@@ -87,4 +90,14 @@ setup("seed the board", async () => {
   // Gown's pool fee and Fee Key LP fees, so the revenue page shows every stream. The Creator Forward then sends each
   // Creator their share, so the Creator Fee page has payments from the platform in SOL and USDC.
   await runFeeCollector();
+
+  // Fee changes in each of their states (#11): one applied (at the rates the chain already has, so nothing any other
+  // page shows moves), one due and waiting for the admin, and one announced for a month ahead. Dates are masked.
+  const { platformFeeBps, creatorFeeBps } = await platformInfo();
+  const lead = 5;
+  const applied = await announceFeeChange(Math.round(platformFeeBps), Math.round(creatorFeeBps), lead);
+  await announceFeeChange(80, 20, lead + 1);
+  await announceFeeChange(90, 10, 30 * 86_400, "Announced a month ahead, so every Creator and every trader sees it coming.");
+  await new Promise((r) => setTimeout(r, (lead + 2) * 1000));
+  await applyFeeChange(applied.id);
 });

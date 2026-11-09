@@ -209,6 +209,9 @@ describe("an airdrop", () => {
     expect(prepared.airdrop).toMatchObject({ recipients: 25, amount: total.toString() });
     expect(prepared.airdrop!.transactions).toBeGreaterThan(1);
     await deliverWebhook([signature]);
+    // The Creator's earnings say which of their coins has an airdrop to send.
+    const earnings = CreatorEarnings.parse(await (await api(`/v1/creators/${creator.publicKey.toBase58()}/earnings`)).json());
+    expect(earnings.launches.find((l) => l.mint === prepared.mint)?.airdrop).toBe(true);
     expect((await airdropStatus(prepared.mint)).recipients.map((r) => r.status)).toEqual(list.map(() => "unpaid"));
 
     const res = await prepareAirdrop(prepared.mint);

@@ -4,7 +4,7 @@ import { PublicKey } from "@solana/web3.js";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { WSOL_MINT } from "@launchpad/chain";
 import type { CreatorEarnings, CreatorForwardList, GraduationFee, QuoteRef } from "@launchpad/contract";
-import { creatorForwards, curves, graduations, launches, launchMetadata, quoteAssets, type Db } from "@launchpad/db";
+import { airdropRecipients, creatorForwards, curves, graduations, launches, launchMetadata, quoteAssets, type Db } from "@launchpad/db";
 import type { AppEnv } from "../env";
 import { committedForwards, creatorShares, creatorSharesByLaunch, withheldGraduationFees } from "../fees/creatorShares";
 import { toQuoteRef } from "../quotes/assets";
@@ -59,6 +59,7 @@ creatorEarningsRoutes.get("/creators/:address/earnings", async (c) => {
         status: curves.status,
         graduated: sql<boolean>`${graduations.mint} is not null`,
         graduation: graduations,
+        airdrop: sql<boolean>`exists (select 1 from ${airdropRecipients} where ${airdropRecipients.mint} = ${launches.mint})`,
       })
       .from(launches)
       .innerJoin(quoteAssets, eq(quoteAssets.mint, launches.quoteMint))
@@ -97,6 +98,7 @@ creatorEarningsRoutes.get("/creators/:address/earnings", async (c) => {
       curve: byLaunch.curve.get(l.mint) ?? "0",
       pool: byLaunch.pool.get(l.mint) ?? "0",
       graduationFee: graduationFeeOf(l.graduation),
+      airdrop: l.airdrop,
     })),
   };
   return c.json(res);

@@ -1,0 +1,61 @@
+/* Holder rewards (the spec's .lookup and .note): the wallet's address and its button on one line, its rewards under it. */
+.lookup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.search {
+  max-width: 520px;
+}
+
+.search input {
+  height: 50px;
+}
+
+.note {
+  margin-top: 10px;
+  font-size: var(--text-small);
+  color: var(--ink-2);
+}
+
+.rewards {
+  margin-top: 16px;
+}
+
+.state {
+  margin-left: 8px;
+}
+
+/* On a phone a reward's date goes under its coin, the amount beside both: three cells side by side ran past 390px once
+   the date was a long one ("30 September 2026"). */
+@media (max-width: 640px) {
+  .rewards tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    border-top: 1px solid var(--line);
+  }
+
+  .rewards tr:first-child {
+    border-top: 0;
+  }
+
+  .rewards td {
+    border-top: 0;
+  }
+
+  .rewards td:nth-child(1) {
+    padding-bottom: 2px;
+  }
+
+  .rewards td:nth-child(2) {
+    grid-row: 2;
+    padding-top: 0;
+  }
+
+  .rewards td:nth-child(3) {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    align-self: center;
+  }
+}

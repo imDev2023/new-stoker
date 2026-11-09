@@ -1,0 +1,7 @@
+/* On a phone the coin goes under the entry's name and its own column leaves (the coin page's trades do the same). */
+.narrow { display: none; }
+.more { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 16px; color: var(--ink-2); font-size: var(--text-small); }
+@media (max-width: 640px) {
+  .wide { display: none; }
+  .narrow { display: block; margin-top: 2px; color: var(--ink-3); font-size: var(--text-caption); }
+}

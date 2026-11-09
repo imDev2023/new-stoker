@@ -1,0 +1,35 @@
+/* The coins table: Home's trending five and, with more columns, Explore's board (the spec's .cell-coin, .star,
+   .progress.mini and .hide-sm). */
+
+/* A visually-hidden span inside a box that scrolls sideways is placed against the page unless the box is (CLAUDE.md). */
+.wrap { position: relative; }
+
+.coin { display: flex; align-items: center; gap: 12px; }
+.names { display: grid; }
+.names b { font-weight: 600; }
+.names > span { color: var(--ink-3); font-size: var(--text-caption); }
+
+.starCell { width: 36px; padding-right: 0 !important; }
+.star { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: var(--radius-xs); background: none; color: var(--ink-3); cursor: pointer; }
+.star::before { content: "☆"; font-size: var(--text-prose); line-height: 1; }
+.star[aria-pressed="true"] { color: var(--gold); }
+.star[aria-pressed="true"]::before { content: "★"; }
+.star:hover { background: var(--sunken); color: var(--ink); }
+
+/* The age ticks from "now" to "59m" and on: a set width, so a tick never moves every column of the table. */
+.age { width: 72px; }
+
+.curve { display: inline-block; width: 72px; height: 4px; vertical-align: middle; }
+
+.phoneChange { display: none; }
+
+/* What a phone leaves out: the line, the volume, the market cap, the asset after a price, and on the board the curve
+   and the age. */
+@media (max-width: 640px) {
+  .wide { display: none; }
+  .phoneChange { display: block; margin-top: 2px; font-size: var(--text-caption); }
+  /* The board's coin cell wraps, so the price stays on the screen beside it (the spec's phone rule meant the first
+     column; the star took that place). A ticker of ten wide letters breaks rather than pushing the price off. */
+  .coinCell { white-space: normal !important; width: 100%; }
+  .coinCell .names { min-width: 0; overflow-wrap: break-word; }
+}

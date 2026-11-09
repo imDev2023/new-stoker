@@ -1,0 +1,2 @@
+/* A payout's amount, with its state beside it while it isn't paid. */
+.paid { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; }
